@@ -7,16 +7,19 @@ The design and architecture of library's main function, `NIntegrate`, resembles 
 [Mathematica's `NIntegrate`](https://reference.wolfram.com/language/ref/NIntegrate.html),
 [WRI1, WRI2].
 
-I implemented Mathematica's "new" `NIntegrate` and extensively documented it. (I wrote [WRI2].)
+While working for 
+[Wolfram Research Inc.](https://en.wikipedia.org/wiki/Wolfram_Research),
+during the years 2003-2006 I designed and implemented Mathematica's "new" `NIntegrate` and extensively documented it. 
+(I wrote [WRI2].)
 
-The Raku language has some built-in features that give the ability to:
+The Raku programming language has some built-in features that give the ability to:
 
 - Program in an object-oriented manner
-  
-- Do symbolic computations
 
 - Do [bignum arithmetic](https://en.wikipedia.org/wiki/Arbitrary-precision_arithmetic) 
   computations
+
+- Do symbolic computations
 
 These are also programming language features on which Mathematica's `NIntegrate` is based upon.
 
@@ -24,7 +27,7 @@ Hence, it seems natural to think that an implementation of a powerful numerical 
 framework in Raku that has unique features is achievable, worthy, and rewarding.
 
 I also plan to write a book that describes in detail is the software architecture decisions
-for a numerical integration framework development that is going to use this library
+for a numerical integration framework development that is going to use this library.
 
 ------
 
