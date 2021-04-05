@@ -26,8 +26,8 @@ These are also programming language features on which Mathematica's `NIntegrate`
 Hence, it seems natural to think that an implementation of a powerful numerical integration
 framework in Raku that has unique features is achievable, worthy, and rewarding.
 
-I also plan to write a book that describes in detail is the software architecture decisions
-for a numerical integration framework development that is going to use this library.
+I plan to write a book that describes in detail software architecture designs and decisions
+for the development of numerical integration frameworks. That book is going to use this library.
 
 ------
 
@@ -57,20 +57,30 @@ Here is a description using the OOP DP language:
 > creation through
 > [Interpreter](https://en.wikipedia.org/wiki/Interpreter_pattern).
 > - The creation of the "final" integration algorithm object uses
-> [Abstract factory](https://en.wikipedia.org/wiki/Abstract_factory_pattern)
+> [Abstract factory](https://en.wikipedia.org/wiki/Abstract_factory_pattern).
 
 ------
 
 ## Usage example
 
+Basic usage examples:
+
 ```raku
 use Math::NIntegrate;
 
-say NIntegrate( -> 1/$x^2, x => (1, 2), Method => 'LocalAdaptive' );
+say NIntegrate( -> 1/sqrt($x), x => (0, 2) )
+
+say NIntegrate( -> 1/$x^2, x => (1, 2), Method => 'LocalAdaptive', WorkingPrecision => 40 );
 
 say NIntegrate( -> $x + $y^2, x => (0, 2), y => (0, 12), Method => ('GlobalAdaptive' Method => ('GaussKronrod', Points => 5) );
 
 say NIntegrate( -> $x + $y^2 + 1/$z, x => (0, 2), y => (0, 12), z => (1, 4), Method => 'AdaptiveMonteCarlo' )
+```
+
+Utilization through a DSL specification:
+
+```
+integrate 1/x^2 over the range [1,2] with a local adaptive strategy
 ```
 
 ------
