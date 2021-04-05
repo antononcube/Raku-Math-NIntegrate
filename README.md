@@ -40,21 +40,21 @@ The `NIntegrate` framework is based on Object-Oriented Programming (OOP)
 Here is a description using the OOP DP language: 
 
 > - The basic objects of `NIntegrate` are integration regions. 
-  Each region has its own integration function and integration rule.
-> Conceptually there are two main types of algorithms: integration strategies and integration rules.
+> - Each region has its own integration function and integration rule.
+> - Conceptually, there are two main types of algorithms: integration strategies and integration rules.
 > - The integration strategies use the 
 > [Template method](https://en.wikipedia.org/wiki/Template_method_pattern) 
 > for their "logic." 
 > - The integration regions use 
 > [Strategy](https://en.wikipedia.org/wiki/Strategy_pattern) 
-> for computation of integral and error estimates.
-> The integration regions can also utilize singularity handler objects. 
+> for the computation of integral and error estimates.
+> - The integration regions can utilize singularity handler objects. 
 > - Creations of integration rules generally use 
 > [Builder](https://en.wikipedia.org/wiki/Builder_pattern).
 > - Symbolic preprocessing is done through 
 > [Decorator](https://en.wikipedia.org/wiki/Decorator_pattern).
-> - The user specifications are translated into a numerical integration algorithm object 
-> creation through
+> - User specifications are translated into creations of numerical integration algorithm objects 
+> through
 > [Interpreter](https://en.wikipedia.org/wiki/Interpreter_pattern).
 > - The creation of the "final" integration algorithm object uses
 > [Abstract factory](https://en.wikipedia.org/wiki/Abstract_factory_pattern).
