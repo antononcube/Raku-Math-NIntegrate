@@ -68,13 +68,15 @@ Basic usage examples:
 ```raku
 use Math::NIntegrate;
 
-say NIntegrate( -> $x { 1/sqrt($x) }, x => (0, 2) )
+say nintegrate( -> $x { 1/sqrt($x) }, x => (0, 2) );
 
-say NIntegrate( -> $x { 1/$x^2 }, x => (1, 2), Method => 'LocalAdaptive', WorkingPrecision => 40 );
+say nintegrate( -> $x { 1 / $x ** 2 }, <x 1 2>, method => 'LocalAdaptive', working-precision => 40 );
 
-say NIntegrate( -> $x, $y { $x + $y^2 }, x => (0, 2), y => (0, 12), Method => ('GlobalAdaptive' Method => ('GaussKronrod', Points => 5) );
+say nintegrate( -> $x, $y { $x + $y² }, <x 0 2>, <y 0 12>, method => ('GlobalAdaptive', method => ('GaussKronrod', points => 5) );
 
-say NIntegrate( -> $x, $y, $z { $x + $y^2 + 1/$z }, x => (0, 2), y => (0, 12), z => (1, 4), Method => 'AdaptiveMonteCarlo' )
+say nintegrate( -> $x, $y, $z { $x + $y² + 1/$z⁻¹ }, x => (0, 2), y => (0, 12), z => (1, 4), method => 'AdaptiveMonteCarlo' );
+
+say nintegrate( -> $x, $y { 1 }, <x 0 1>, <y 0 x>, method => Whatever )
 ```
 
 Utilization through a DSL specification:
