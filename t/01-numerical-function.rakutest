@@ -1,0 +1,15 @@
+use v6.d;
+use Test;
+
+use lib <. lib>;
+use Math::NIntegrate;
+use Math::NIntegrate::NumericalFunction;
+
+# 1
+sub f($x) {$x}
+ok Math::NIntegrate::NumericalFunction.new(&f);
+
+# 2
+is Math::NIntegrate::NumericalFunction.new(&f).evaluate(4), 4;
+
+done-testing;
