@@ -23,7 +23,7 @@ class Math::NIntegrate::Rule::Trapezoidal
         self.bless(:$points, :$wprec)
     }
 
-    method make-weights(UInt:D $points, $wprec) {
+    method make-weights(UInt:D $points, $wprec = Num) {
         my $n1 = $points;
 
         my $n = 2 * $n1 - 1;
