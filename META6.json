@@ -1,0 +1,27 @@
+{
+    "name": "Math::NIntegrate",
+    "description": "Raku package for numerical integration.",
+    "version": "0.0.1",
+    "raku": "6.d",
+    "authors": [
+        "Anton Antonov"
+    ],
+    "auth": "zef:antononcube",
+    "build-depends": [],
+    "provides": {
+        "Math::NIntegrate": "lib/Math/NIntegrate.rakumod",
+        "Math::NIntegrate::Rule::General": "lib/Math/NIntegrate/Rule/General.rakumod",
+        "Math::NIntegrate::Rule::GaussKronrod": "lib/Math/NIntegrate/Rule/GaussKronrod.rakumod",
+        "Math::NIntegrate::Rule::Trapezoidal": "lib/Math/NIntegrate/Rule/Trapezoidal.rakumod",
+        "Math::NIntegrate::Utilities": "lib/Math/NIntegrate/Utilities.rakumod"
+    },
+    "license": "Artistic-2.0",
+    "tags": [
+        "math",
+        "integration",
+        "numerical integration",
+        "quadrature"
+    ],
+    "api": "0",
+    "source-url": "https://github.com/antononcube/Raku-Math-NIntegrate.git"
+}

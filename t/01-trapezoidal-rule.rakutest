@@ -1,0 +1,24 @@
+use v6.d;
+use Test;
+
+use lib <. lib>;
+use Math::NIntegrate;
+use Math::NIntegrate::Rule::Trapezoidal;
+
+# 1
+ok Math::NIntegrate::Rule::Trapezoidal.new(5);
+
+# 2
+subtest {
+    my $rule = Math::NIntegrate::Rule::Trapezoidal.new(5);
+
+    # The undefined integral of &f is x^3/3 .
+    my &f = {$_ ** 2};
+
+    # The defined integral over [0, 1] is 1/3 .
+    is abs(($rule.abscissas».&f <<*>> $rule.weights).sum - 1/3) < 0.004, True, 'integral estimate';
+
+    is ($rule.abscissas».&f <<*>> $rule.error-weights).sum.abs < 0.008, True, 'error estimate';
+}
+
+done-testing;
