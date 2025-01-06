@@ -43,7 +43,7 @@ class Math::NIntegrate::Rule::GaussKronrod
                 );
             }
             default {
-                die "Unsupported number of points: $points";
+                die "Unsupported number of points: $points.";
             }
         }
     }
