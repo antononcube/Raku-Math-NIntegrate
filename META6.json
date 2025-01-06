@@ -10,6 +10,8 @@
     "build-depends": [],
     "provides": {
         "Math::NIntegrate": "lib/Math/NIntegrate.rakumod",
+        "Math::NIntegrate::NumericalFunction": "lib/Math/NIntegrate/NumericalFunction.rakumod",
+        "Math::NIntegrate::Region": "lib/Math/NIntegrate/Region.rakumod",
         "Math::NIntegrate::Rule::General": "lib/Math/NIntegrate/Rule/General.rakumod",
         "Math::NIntegrate::Rule::GaussKronrod": "lib/Math/NIntegrate/Rule/GaussKronrod.rakumod",
         "Math::NIntegrate::Rule::Trapezoidal": "lib/Math/NIntegrate/Rule/Trapezoidal.rakumod",
@@ -17,10 +19,13 @@
     },
     "license": "Artistic-2.0",
     "tags": [
-        "math",
+        "gauss-kronrod rule",
+        "gauss-lobatto rule",
         "integration",
+        "math",
         "numerical integration",
-        "quadrature"
+        "quadrature",
+        "trapezoidal rule"
     ],
     "api": "0",
     "source-url": "https://github.com/antononcube/Raku-Math-NIntegrate.git"
