@@ -2,6 +2,10 @@ use v6.d;
 
 unit module Math::NIntegrate::Utilities;
 
+#==========================================================
+# Numerical
+#==========================================================
+
 sub numerical(Numeric:D $n, $wprec = Num, $default = Num) is export {
     return do given $wprec {
         when FatRat { $n.FatRat }
