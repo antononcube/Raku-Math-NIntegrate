@@ -92,8 +92,8 @@ multi sub rescale(@x, $domain is copy = Whatever, $codomain is copy = Whatever) 
     my ($vmin, $vmax) = |$codomain;
 
     if -Inf < $min < Inf && -Inf < $max < Inf && -Inf < $vmin < Inf && -Inf < $vmax < Inf {
-        return @x.map({ rescale-finite($_, $min, $max, $vmin, $vmax) })
+        return @x.map({ rescale-finite($_, $min, $max, $vmin, $vmax) }).List
     } else {
-        return @x.map({ rescale-inf($_, $min, $max, $vmin, $vmax) })
+        return @x.map({ rescale-inf($_, $min, $max, $vmin, $vmax) }).List
     }
 }
