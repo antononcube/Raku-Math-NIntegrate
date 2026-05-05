@@ -15,6 +15,7 @@
         "Math::NIntegrate::Rule::General": "lib/Math/NIntegrate/Rule/General.rakumod",
         "Math::NIntegrate::Rule::GaussKronrod": "lib/Math/NIntegrate/Rule/GaussKronrod.rakumod",
         "Math::NIntegrate::Rule::Trapezoidal": "lib/Math/NIntegrate/Rule/Trapezoidal.rakumod",
+        "Math::NIntegrate::Rescale": "lib/Math/NIntegrate/Rescale.rakumod",
         "Math::NIntegrate::Utilities": "lib/Math/NIntegrate/Utilities.rakumod"
     },
     "license": "Artistic-2.0",
@@ -25,6 +26,7 @@
         "math",
         "numerical integration",
         "quadrature",
+        "rescale",
         "trapezoidal rule"
     ],
     "api": "0",
