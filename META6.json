@@ -15,9 +15,12 @@
         "Math::NIntegrate": "lib/Math/NIntegrate.rakumod",
         "Math::NIntegrate::NumericalFunction": "lib/Math/NIntegrate/NumericalFunction.rakumod",
         "Math::NIntegrate::Region": "lib/Math/NIntegrate/Region.rakumod",
+        "Math::NIntegrate::Rule": "lib/Math/NIntegrate/Rule.rakumod",
         "Math::NIntegrate::Rule::General": "lib/Math/NIntegrate/Rule/General.rakumod",
         "Math::NIntegrate::Rule::GaussKronrod": "lib/Math/NIntegrate/Rule/GaussKronrod.rakumod",
         "Math::NIntegrate::Rule::Trapezoidal": "lib/Math/NIntegrate/Rule/Trapezoidal.rakumod",
+        "Math::NIntegrate::Strategy": "lib/Math/NIntegrate/Strategy.rakumod",
+        "Math::NIntegrate::VariableTransformer": "lib/Math/NIntegrate/VariableTransformer.rakumod",
         "Math::NIntegrate::Utilities": "lib/Math/NIntegrate/Utilities.rakumod"
     },
     "license": "Artistic-2.0",
