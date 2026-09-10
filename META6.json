@@ -21,6 +21,8 @@
         "Math::NIntegrate::Rule::GaussKronrod": "lib/Math/NIntegrate/Rule/GaussKronrod.rakumod",
         "Math::NIntegrate::Rule::Trapezoidal": "lib/Math/NIntegrate/Rule/Trapezoidal.rakumod",
         "Math::NIntegrate::Strategy": "lib/Math/NIntegrate/Strategy.rakumod",
+        "Math::NIntegrate::Strategy::AdaptiveMonteCarlo": "lib/Math/NIntegrate/Strategy/AdaptiveMonteCarlo.rakumod",
+        "Math::NIntegrate::Strategy::DoubleExponential": "lib/Math/NIntegrate/Strategy/DoubleExponential.rakumod",
         "Math::NIntegrate::Strategy::GlobalAdaptive": "lib/Math/NIntegrate/Strategy/GlobalAdaptive.rakumod",
         "Math::NIntegrate::Strategy::LocalAdaptive": "lib/Math/NIntegrate/Strategy/LocalAdaptive.rakumod",
         "Math::NIntegrate::Strategy::MonteCarlo": "lib/Math/NIntegrate/Strategy/MonteCarlo.rakumod",
