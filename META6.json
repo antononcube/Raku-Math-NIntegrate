@@ -8,7 +8,8 @@
     ],
     "auth": "zef:antononcube",
     "depends": [
-        "Data::Transformers"
+        "Data::Transformers",
+        "LeftistHeap"
     ],
     "build-depends": [],
     "provides": {
@@ -20,18 +21,25 @@
         "Math::NIntegrate::Rule::GaussKronrod": "lib/Math/NIntegrate/Rule/GaussKronrod.rakumod",
         "Math::NIntegrate::Rule::Trapezoidal": "lib/Math/NIntegrate/Rule/Trapezoidal.rakumod",
         "Math::NIntegrate::Strategy": "lib/Math/NIntegrate/Strategy.rakumod",
+        "Math::NIntegrate::Strategy::GlobalAdaptive": "lib/Math/NIntegrate/Strategy/GlobalAdaptive.rakumod",
+        "Math::NIntegrate::Strategy::LocalAdaptive": "lib/Math/NIntegrate/Strategy/LocalAdaptive.rakumod",
+        "Math::NIntegrate::Strategy::MonteCarlo": "lib/Math/NIntegrate/Strategy/MonteCarlo.rakumod",
+        "Math::NIntegrate::Strategy::Saturating": "lib/Math/NIntegrate/Strategy/Saturating.rakumod",
+        "Math::NIntegrate::Strategy::Trapezoidal": "lib/Math/NIntegrate/Strategy/Trapezoidal.rakumod",
         "Math::NIntegrate::VariableTransformer": "lib/Math/NIntegrate/VariableTransformer.rakumod",
         "Math::NIntegrate::Utilities": "lib/Math/NIntegrate/Utilities.rakumod"
     },
     "license": "Artistic-2.0",
     "tags": [
-        "gauss-kronrod rule",
-        "gauss-lobatto rule",
+        "gauss-kronrod-rule",
+        "gauss-lobatto-rule",
         "integration",
+        "integration-rule",
         "math",
-        "numerical integration",
+        "monte-carlo",
+        "numerical-integration",
         "quadrature",
-        "trapezoidal rule"
+        "trapezoidal"
     ],
     "api": "0",
     "source-url": "https://github.com/antononcube/Raku-Math-NIntegrate.git"
