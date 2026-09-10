@@ -1,5 +1,9 @@
 use v6.d;
 
+use Math::NIntegrate::Rule::General;
+use Math::NIntegrate::NumericalFunction;
+use Math::NIntegrate::VariableTransformer;
+
 class Math::NIntegrate::Region {
 
     #--------------------------------------
@@ -62,7 +66,7 @@ class Math::NIntegrate::Region {
     #--------------------------------------
 
     # Quadrature rule object
-    has Math::NIntegrate::Rule $.rule;
+    has Math::NIntegrate::Rule::General $.rule;
 
     # Numerical function object
     has Math::NIntegrate::NumericalFunction $.nf;
@@ -70,8 +74,9 @@ class Math::NIntegrate::Region {
     # Variable transformator, usually a Math::NIntegrate::VariableTransformer::Composite object
     has Math::NIntegrate::VariableTransformer $.var-trans;
 
-    # Reference to the "main" integration object
-    has Math::NIntegrate::Algorithm $.algorithm;
+    # Reference to the "main" integration object;
+    # it should be Math::NIntegrate::Strategy or Whatever
+    has $.strategy = Whatever;
 
     #--------------------------------------
     # Creators
