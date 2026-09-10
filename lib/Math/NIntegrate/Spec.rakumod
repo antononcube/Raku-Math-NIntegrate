@@ -126,11 +126,12 @@ class Math::NIntegrate::Spec {
 
     #| Normalize integrand and ranges
     proto method normalize(&func, $ranges, $options) {*}
+
     multi method normalize(&func, @ranges, $options) {
         self.normalize(&func, self.normalize-ranges(@ranges), $options)
     }
-    multi method normalize(&func, %ranges, $options is copy) {
 
+    multi method normalize(&func, %ranges, $options is copy) {
 
         # The arity of the function should equal %ranges.elems.
         %!ranges = self.normalize-ranges(%ranges);
