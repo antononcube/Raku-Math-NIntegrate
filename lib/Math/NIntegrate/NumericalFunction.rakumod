@@ -16,7 +16,7 @@ class Math::NIntegrate::NumericalFunction {
                     :$!monitor = Nil,
                     :$!value = Nil) {}
 
-    multi method new(:f(:&function), :wprec(:$working-precision) = Num) {
+    multi method new(:f(:func(:&function)), :wprec(:$working-precision) = Num) {
         my $signature = &function.signature;
         my $num-args = $signature.params.elems;
         my @argument-names = $signature.params.map(*.name);
