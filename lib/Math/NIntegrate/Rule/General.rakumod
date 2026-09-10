@@ -1,6 +1,9 @@
 use v6.d;
 
-class Math::NIntegrate::Rule::General {
+use Math::NIntegrate::Rule;
+
+class Math::NIntegrate::Rule::General
+        is Math::NIntegrate::Rule {
     has @.abscissas is rw;
     has @.weights is rw;
     has @.error-weights is rw;
@@ -15,7 +18,7 @@ class Math::NIntegrate::Rule::General {
         self.bless(:@!abscissas, :@!weights, :@!error-weights);
     }
 
-    method approximate-integral($simplex --> Map:D) {
+    method integrate($simplex --> Map:D) {
         return %();
     }
 }
