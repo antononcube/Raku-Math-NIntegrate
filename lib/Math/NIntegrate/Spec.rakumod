@@ -16,7 +16,8 @@ class Math::NIntegrate::Spec {
             working-precision => Num,
             precision-goal => Whatever,
             accuracy-goal => Whatever,
-            evaluation-monitor => Nil
+            evaluation-monitor => Nil,
+            singularity-depth => 4
             ;
 
 
@@ -121,6 +122,12 @@ class Math::NIntegrate::Spec {
         # Max points
         die 'The value of max-points is expected to be a positive integer or Whatever.'
         unless %options<max-points> ~~ Int:D && %options<max-points> > 0 || %options<max-points>.isa(Whatever);
+
+        ## Singularity depth
+        %options<singularity-depth> = 4 if %options<singularity-depth>.isa(Whatever);
+
+        die 'The value of singularity-depth is expected to be a non-negative integer, Inf, or Whatever.'
+        unless %options<singularity-depth> ~~ Int:D && %options<singularity-depth> ≥ 0 || %options<singularity-depth> ~~ Inf;
 
         # Assign
         %!options = %options;
