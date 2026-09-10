@@ -7,17 +7,45 @@ use Math::NIntegrate::Spec;
 plan *;
 
 ## 1
-my @ranges = ('x', 0, 1), ('y', -3, 5);
-my &integrand = -> $x, $y { $x + $y };
+subtest {
+    my @ranges = ('x', 0, 1), ('y', -3, 5);
+    my &integrand = -> $x, $y {$x + $y};
 
-ok Math::NIntegrate::Spec.new(&integrand, @ranges), 'list ranges are ok';
+    ok Math::NIntegrate::Spec.new(&integrand, @ranges), 'list ranges are ok';
+
+    @ranges = ('x', 0, 1), ('y', -3, 0, 1, 2, 5);
+    ok Math::NIntegrate::Spec.new(&integrand, @ranges), 'ranges with intervals';
+
+    my $spec = Math::NIntegrate::Spec.new(&integrand, @ranges);
+    isa-ok $spec.ranges, Map:D, 'processed ranges are Map:D';
+
+    is-deeply $spec.ranges.keys.sort, <x y>, 'expected processed ranges keys';
+
+    is-deeply $spec.ranges<y><interval-points>, (0, 1, 2), 'expected interval points';
+
+}, 'list ranges';
 
 ## 2
-my %ranges2 = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 5, :1index };
-ok Math::NIntegrate::Spec.new(&integrand, %ranges2), 'hashmap ranges are ok';
+subtest {
+    my %ranges = x => { a => 0, b => 1, :0index }, y => { a => -3, b => 5, :1index };
+    my &integrand = -> $x, $y {$x + $y};
+    ok Math::NIntegrate::Spec.new(&integrand, %ranges), 'hashmap ranges are ok';
+}, 'hashmap ranges';
 
 ## 3
-my %ranges3 = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 2 };
-dies-ok { Math::NIntegrate::Spec.new(&integrand, %ranges3) }, 'no index range fails to validate';
+subtest {
+    my %ranges = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 2 };
+    my &integrand = -> $x, $y {$x + $y};
+    dies-ok { Math::NIntegrate::Spec.new(&integrand, %ranges) }, 'no index range';
+
+    %ranges = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 2, :5index};
+    dies-ok { Math::NIntegrate::Spec.new(&integrand, %ranges) }, 'index out of range';
+
+    %ranges = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 2, :1index};
+    my %options = max-recursion => -3;
+    dies-ok { Math::NIntegrate::Spec.new(&integrand, %ranges, %options) }, 'negative max-recursion';
+
+    dies-ok { Math::NIntegrate::Spec.new(:&integrand, :%ranges, options => %(precision-goal => 'ere')) }, 'string precision goal';
+}, 'wrong specs';
 
 done-testing;
