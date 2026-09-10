@@ -1,5 +1,8 @@
 use v6.d;
 
-class Math::NIntegrate::Rule::Cartesian {
+use Math::NIntegrate::Rule::General;
+
+class Math::NIntegrate::Rule::Cartesian
+        is Math::NIntegrate::Rule::General {
 
 }
