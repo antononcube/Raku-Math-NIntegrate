@@ -5,9 +5,10 @@ use Math::NIntegrate::NumericalFunction;
 use Hash::Merge;
 
 class Math::NIntegrate::Spec {
-    has &.integrand;
+    has $.integrand;
     has %.ranges;
-    has %.options =
+    has %.options;
+    my %default-options =
             method => Whatever,
             min-recursion => 1,
             max-recursion => 12,
@@ -22,17 +23,16 @@ class Math::NIntegrate::Spec {
     #======================================================
     # Creators
     #======================================================
-    submethod BUILD(:&!integrand, :%!ranges, :%!options) {
-        self.normalize(&!integrand, %!ranges);
-        self.normalize-options(%!options)
+    submethod BUILD(:&integrand, :$ranges, :$options = Whatever) {
+        self.normalize(&integrand, $ranges, $options);
     }
 
-    multi method new(&integrand, %ranges, %options) {
-        self.bless(:&integrand, :%ranges, :%options)
+    multi method new(&integrand, $ranges, $options = Whatever) {
+        self.bless(:&integrand, :$ranges, :$options)
     }
 
-    multi method new(:&integrand, :%ranges, :%options) {
-        self.bless(:&integrand, :%ranges, :%options)
+    multi method new(:&integrand, :$ranges, :$options = Whatever) {
+        self.bless(:&integrand, :$ranges, :$options)
     }
 
     #======================================================
@@ -66,9 +66,9 @@ class Math::NIntegrate::Spec {
         %ranges .= map({ $_.key => merge-hash($_.value, %(var => $_.head) ) });
 
         # Check range indexes are integers between 0 and %ranges.elems and unique
-        my @indexes = %ranges.values.map({ $_.value<index> }).unique;
+        my @indexes = %ranges.values.map({ $_<index> }).unique;
         die 'All ranges indexes are expected to be integers.' unless @indexes.all ~~ Int:D;
-        die 'Range indexes are expected to be unique.' unless @indexes.elems < %ranges.elems;
+        die 'Range indexes are expected to be unique.' if @indexes.elems < %ranges.elems;
         die 'Range indexes are expected to be between 0 and the ranges spec length.' unless @indexes.min == 0 && @indexes.max == %ranges.elems - 1;
 
         return %ranges
@@ -77,10 +77,10 @@ class Math::NIntegrate::Spec {
     #| Verify options
     method normalize-options(%options is copy) {
 
-        %options = merge-hash(%!options, %options);
+        %options = merge-hash(%default-options, %options);
 
         # Working precision
-        %options<working-precision> = Num if %options<working-precision>.isa(Whatever);
+        %options<working-precision> = Num without %options<working-precision>;
 
         die 'The value of working precision is expected to be Num, Rat, FatRat, or Whatever.'
         unless %options<working-precision> ~~ (Num | Rat | FatRat);
@@ -125,17 +125,21 @@ class Math::NIntegrate::Spec {
     }
 
     #| Normalize integrand and ranges
-    proto method normalize(&func, $ranges) {*}
-    multi method normalize(&func, @ranges) {
-        self.normalize(&func, self.normalize-ranges(@ranges))
+    proto method normalize(&func, $ranges, $options) {*}
+    multi method normalize(&func, @ranges, $options) {
+        self.normalize(&func, self.normalize-ranges(@ranges), $options)
     }
-    multi method normalize(&func, %ranges, %options) {
+    multi method normalize(&func, %ranges, $options is copy) {
+
+
         # The arity of the function should equal %ranges.elems.
         %!ranges = self.normalize-ranges(%ranges);
 
         # Check argument names correspond to variable names in ranges
-        &!integrand = Math::NIntegrate::NumbericalFunction.new(function => &func);
+        $!integrand = Math::NIntegrate::NumericalFunction.new(function => &func);
 
-        %!options = self.normalize-options(%options);
+        $options = %default-options if $options.isa(Whatever);
+        die 'The value of options is expected to be a hashmap or Whatever.' unless $options ~~ Map:D;
+        %!options = self.normalize-options($options);
     }
 }
