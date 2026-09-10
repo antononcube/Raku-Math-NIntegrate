@@ -1,0 +1,23 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+use Math::NIntegrate::Spec;
+
+plan *;
+
+## 1
+my @ranges = ('x', 0, 1), ('y', -3, 5);
+my &integrand = -> $x, $y { $x + $y };
+
+ok Math::NIntegrate::Spec.new(&integrand, @ranges), 'list ranges are ok';
+
+## 2
+my %ranges2 = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 5, :1index };
+ok Math::NIntegrate::Spec.new(&integrand, %ranges2), 'hashmap ranges are ok';
+
+## 3
+my %ranges3 = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 2 };
+dies-ok { Math::NIntegrate::Spec.new(&integrand, %ranges3) }, 'no index range fails to validate';
+
+done-testing;
