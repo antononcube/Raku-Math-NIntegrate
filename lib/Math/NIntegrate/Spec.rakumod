@@ -86,18 +86,20 @@ class Math::NIntegrate::Spec {
         unless %options<working-precision> ~~ (Num | Rat | FatRat);
 
         # Precision goal
+        my $msg-pg = 'The value of precision-goal is expected to be a positive number or Whatever.';
         if %options<precision-goal> ~~ Numeric:D {
-            die 'The values of precision-goal is expected to be a positive number or Whatever.'
-            unless %options<precision-goal> > 0;
-        } else {
+            die $msg-pg unless %options<precision-goal> > 0;
+        } elsif %options<precision-goal>.isa(Whatever) {
             %options<precision-goal> = do given %options<working-precision> {
                 when Num { 6 }
                 when FatRat { 20 }
                 when Rat { 6 }
                 default {
-                    die 'Cannot process the value of precision-goal.'
+                    die 'Cannot deduce the value of precision-goal.'
                 }
             }
+        } else {
+            die $msg-pg
         }
 
         # Accuracy
