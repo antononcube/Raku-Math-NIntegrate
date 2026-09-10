@@ -35,7 +35,8 @@ class Math::NIntegrate::NumericalFunction {
         self.new(:&function, :$working-precision)
     }
 
-    multi method evaluate(*@args) {
+    multi method evaluate(*@args) { self.eval(@args) }
+    multi method eval(*@args) {
         $!value = &!function(|@args);
         return $!value;
     }
