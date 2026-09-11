@@ -53,7 +53,7 @@ class Math::NIntegrate::Region {
     # Accumulated number of levels of recursion for which the error
     # has failed to decrease by a factor of at least 7.
     # If this gets as high as 4 a message regarding convergence rate is issued.
-    has Int $no-error-decrease-count;
+    has Int $!no-error-decrease-count;
 
     # Region type
     has Str $.type;
@@ -82,22 +82,48 @@ class Math::NIntegrate::Region {
     # Creators
     #--------------------------------------
 
-    method new() {!!!}
+    #method new() {!!!}
+
+    method clone() {
+        Math::NIntegrate::Region.new(
+                A => @!A.clone,
+                B => @!B.clone,
+                fA => @!fA.clone,
+                fB => @!fB.clone,
+                abscissas => @!abscissas.clone,
+                values => @!values.clone,
+                integral => $!integral,
+                error => $!error,
+                levels => @!levels.clone,
+                has-no-end-point => @!has-end-point.clone,
+                no-error-decrease-count => $!no-error-decrease-count,
+                type => $!type,
+                reuse-values => @!reuse-values.clone,
+                rule => $!rule.clone,
+                nf => $!nf.clone,
+                var-trans => $!var-trans,
+                strategy => $!strategy
+                )
+    }
 
     #--------------------------------------
     # Public
     #--------------------------------------
 
     #| Get integration estimate
-    method integrate(-->Math::NIntegrate::Region) {!!!}
+    method integrate(-->Math::NIntegrate::Region) {
+        die 'Region.integrate is not implemented yet.'
+    }
 
     #--------------------------------------
     # Future private methods
     #--------------------------------------
     #| Evaluate object's integrand.
-    method eval-integrand(@args) {!!!}
+    method eval-integrand(@args) {
+        # Apply variable transformation
+        # Make sure get the
+    }
 
-    method clone(-->Math::NIntegrate::Region) {!!!}
     method split(Int:D $axis, Numeric:D $dithering = 0) {!!!}
     method partition(@nodex) {!!!}
     method duffy-transform() {!!!}
