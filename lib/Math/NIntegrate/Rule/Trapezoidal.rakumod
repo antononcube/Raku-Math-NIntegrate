@@ -6,7 +6,7 @@ use Math::NIntegrate::Rule::General;
 class Math::NIntegrate::Rule::Trapezoidal
         is Math::NIntegrate::Rule::General {
 
-    has $.points;
+    has $.points is required;
 
     submethod BUILD(UInt:D :$!points, :$wprec = Num) {
         my %res = self.make-weights($!points, $wprec);
