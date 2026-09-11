@@ -61,6 +61,15 @@ class Math::NIntegrate::VariableTransformer {
     # Template Method methods
     #======================================================
 
+    #| Get original bounds
+    method get-original-bounds(-->Map:D) {
+        return do if $!context {
+            $!context.get-original-bounds()
+        } else {
+            %(min => @!min-original-bounds, max => @!max-original-bounds)
+        }
+    }
+
     #| Get transformation bounds
     method get-transform-bounds(-->Map:D) {
         return do if $!context {
