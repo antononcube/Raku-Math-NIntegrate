@@ -34,6 +34,10 @@ class Math::NIntegrate::VariableTransformer::Composite {
         Math::NIntegrate::VariableTransformer::Composite.new(stack => @!stack>>.clone)
     }
 
+    method get-transform-bounds(-->Map:D) {
+        return @!stack.tail.get-tranform-bounds
+    }
+
     method get-scale(-->Numeric:D) {
         return reduce({$^a * $^b.scale}, self.scale, |@!stack>>.scale )
     }

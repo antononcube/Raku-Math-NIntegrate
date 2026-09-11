@@ -6,7 +6,7 @@ class Math::NIntegrate::VariableTransformer {
     #| List of variable transformations for each dimension
     has @.transforms;
 
-    #| List of jacobians for each dimension corresponding to the transformations
+    #| List of Jacobians for each dimension corresponding to the transformations
     has @.jacobians;
 
     #| Original lower boundary;
@@ -47,7 +47,11 @@ class Math::NIntegrate::VariableTransformer {
                 )
     }
 
-    method !length-calc(Numeric:D $a is copy, Numeric:D $b is copy, Bool:D $mid-point = False) {
+    method get-transform-bounds(-->Map:D) {
+        return %(min => @!min-transform-bounds, max => @!max-transform-bounds)
+    }
+
+    method !length-calc(Numeric:D $a is copy, Numeric:D $b is copy, Bool:D $mid-point = False -->Map:D) {
 
         # Numeric evaluation of $a
         $a = numerical($a, self.working-precision);
@@ -68,7 +72,7 @@ class Math::NIntegrate::VariableTransformer {
         return %(:$length, start => $a, :$middle, jacobian => $length)
     }
 
-    method !length-calc-multidimensional(@a, @b, Bool:D $mid-point = False) {
+    method !length-calc-md(@a, @b, Bool:D $mid-point = False -->Map:D) {
         die 'The sizes of the first two arguments are expected to match' unless @a.elems == @b.elems;
 
         my $jacobian = numerical(1, self.working-precision);
