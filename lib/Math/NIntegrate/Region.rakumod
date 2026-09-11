@@ -19,12 +19,12 @@ class Math::NIntegrate::Region {
     has Bool:D $.has-functional-bounds = False;
 
     # Lists of interval/simplex bounds
-    has @.A;
-    has @.B;
+    has @.min;
+    has @.max;
 
     # Lists of values at the end points
-    has @.fA;
-    has @.fB;
+    has @.fmin;
+    has @.fmax;
 
     # Last abscissas
     has @.abscissas;
@@ -86,10 +86,10 @@ class Math::NIntegrate::Region {
 
     method clone() {
         Math::NIntegrate::Region.new(
-                A => @!A.clone,
-                B => @!B.clone,
-                fA => @!fA.clone,
-                fB => @!fB.clone,
+                min => @!min.clone,
+                max => @!max.clone,
+                fmin => @!fmin.clone,
+                fmax => @!fmax.clone,
                 abscissas => @!abscissas.clone,
                 values => @!values.clone,
                 integral => $!integral,
@@ -122,6 +122,7 @@ class Math::NIntegrate::Region {
     method eval-integrand(@args) {
         # Apply variable transformation
         # Make sure get the
+        die 'Region.eval-integrand is not implemented yet.'
     }
 
     method split(Int:D $axis, Numeric:D $dithering = 0) {!!!}
