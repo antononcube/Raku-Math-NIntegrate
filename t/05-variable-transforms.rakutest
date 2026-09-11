@@ -1,0 +1,46 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+use Math::NIntegrate::VariableTransformer;
+use Math::NIntegrate::VariableTransformer::Affine;
+use Math::NIntegrate::Region;
+
+plan *;
+
+## 1
+subtest {
+    my @ranges = ('x', 0, 1), ;
+
+    ok Math::NIntegrate::Region.new(min => [0,], max => [1, ], dimension => 1);
+
+}, 'Basic 1D region';
+
+## 2
+#subtest {
+    my $region1D = Math::NIntegrate::Region.new(min => [-2,], max => [5, ], dimension => 1);
+
+    my %args =
+            region => $region1D,
+            min-orginal-bounds => 0,
+            max-orginal-bounds =>  1,
+            min-transform-bounds => $region1D.min.head,
+            max-transform-bounds => $region1D.max.head,
+            working-precision => Rat
+            ;
+
+    ok Math::NIntegrate::VariableTransformer::Affine.new(|%args), 'Affine object creation is ok';
+
+    my $vt = Math::NIntegrate::VariableTransformer::Affine.new(|%args);
+
+    isa-ok $vt.transform(points => [1/3, 2/3], jacobian => 1), Map:D, 'method .transform returns Map:D';
+    is-deeply $vt.transform(points => [1/3, 2/3], jacobian => 1).keys.sort, <jacobian points>, 'expected transform keys';
+
+    is-deeply
+            $vt.transform(points => [1/3, 2/3], jacobian => 1),
+            {points => [1/3, 8/3], jacobian => 7.0},
+            'expected transform values';
+
+#}, 'Affine';
+
+done-testing;
