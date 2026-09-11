@@ -31,9 +31,17 @@ class Math::NIntegrate::VariableTransformer {
     #| Scaling factor should be either 1 or -1
     has Numeric:D $.scale = 1;
 
+    #| Contextual variable transformer (e.g. Composite)
+    has Math::NIntegrate::VariableTransformer $.context;
+
+    #| Integration region
+    has $.region;
+
     #======================================================
-    # Methods
+    # Creators
     #======================================================
+
+    #| Clone the object
     method clone(-->Math::NIntegrate::VariableTransformer:D) {
         Math::NIntegrate::VariableTransformer.new(
                 transforms => @!transforms>>.clone.Array,
@@ -43,15 +51,34 @@ class Math::NIntegrate::VariableTransformer {
                 min-transform-bounds => @!min-transform-bounds>>.clone.Array,
                 max-transform-bounds => @!max-transform-bounds>>.clone.Array,
                 :$!working-precision
-                :$!scale
+                :$!scale,
+                :$!context,
+                :$!region
                 )
     }
 
+    #======================================================
+    # Template Method methods
+    #======================================================
+
+    #| Get transformation bounds
     method get-transform-bounds(-->Map:D) {
-        return %(min => @!min-transform-bounds, max => @!max-transform-bounds)
+        return do if $!context {
+            $!context.get-transform-bounds()
+        } else {
+            %(min => @!min-transform-bounds, max => @!max-transform-bounds)
+        }
     }
 
-    method !length-calc(Numeric:D $a is copy, Numeric:D $b is copy, Bool:D $mid-point = False -->Map:D) {
+    #| Abstract transform method
+    method transform(:@points, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {!!!}
+
+    #======================================================
+    # Jacobian
+    #======================================================
+
+    #| Calculation of the interval length with working precision
+    method length-calc(Numeric:D $a is copy, Numeric:D $b is copy, Bool:D $mid-point = False -->Map:D) {
 
         # Numeric evaluation of $a
         $a = numerical($a, self.working-precision);
@@ -69,24 +96,25 @@ class Math::NIntegrate::VariableTransformer {
             numerical( 1 / 2, self.working-precision)
         }
 
-        return %(:$length, start => $a, :$middle, jacobian => $length)
+        return %(:$length, min => $a, :$middle, jacobian => $length)
     }
 
-    method !length-calc-md(@a, @b, Bool:D $mid-point = False -->Map:D) {
+    #| Calculation of the multidimensional interval lengths with working precision
+    method length-calc-md(@a, @b, Bool:D $mid-point = False -->Map:D) {
         die 'The sizes of the first two arguments are expected to match' unless @a.elems == @b.elems;
 
         my $jacobian = numerical(1, self.working-precision);
         my @length;
         my @middle;
-        my @start;
+        my @min;
         for ^@a.elems -> $i {
-            my %res = self!length-calc(@a[$i], @b[$i], $mid-point);
+            my %res = self.length-calc(@a[$i], @b[$i], $mid-point);
             @length.push(%res<length>);
             @middle.push(%res<middle>);
-            @start.push(%res<start>);
+            @min.push(%res<start>);
             $jacobian *= %res<length>
         }
 
-        return %(:@length, :@start, :@middle, :$jacobian)
+        return %(:@length, :@min, :@middle, :$jacobian)
     }
 }
