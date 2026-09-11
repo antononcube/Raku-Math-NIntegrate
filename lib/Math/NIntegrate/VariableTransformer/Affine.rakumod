@@ -13,11 +13,11 @@ class Math::NIntegrate::VariableTransformer::Affine
         } else {
             my %res;
             my %calc;
-            if self.get-region.dimension == 1 {
-                %calc = self!length-calc(%bounds<min>, %bounds<max>);
+            if self.region.dimension == 1 {
+                %calc = self.length-calc(%bounds<min>.head, %bounds<max>.head);
                 %res<points> = %calc<min> <<+>> (@points >>*>> %calc<length>);
             } else {
-                %calc = self!length-calc-md(%bounds<min>, %bounds<max>);
+                %calc = self.length-calc-md(%bounds<min>, %bounds<max>);
                 %res<points> .= map({ %calc<min> <<+>> ($_ <<*>> %calc<length>) });
             }
             %res<jacobian> = $jacobian * %calc<jacobian>;
