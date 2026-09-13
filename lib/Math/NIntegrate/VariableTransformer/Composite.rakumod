@@ -1,16 +1,31 @@
 use v6.d;
 
 use Math::NIntegrate::VariableTransformer;
+use Math::NIntegrate::VariableTransformer::Affine;
 
 class Math::NIntegrate::VariableTransformer::Composite {
     #| Stack of Math::NIntegrate::VariableTransformer objects
     has Math::NIntegrate::VariableTransformer @.stack;
+    has Math::NIntegrate::VariableTransformer::Affine $vtAffine;
+
+    #======================================================
+    # Creators
+    #======================================================
+    submethod TWEAK (*%args) {
+        # Composite always uses the Affine variable transformer
+        # in order to put the rule abscissas within the boundaries of region.
+    }
 
     #======================================================
     # Stack management methods
     #======================================================
     #| Add a transformer
     method add(Math::NIntegrate::VariableTransformer:D $obj) {
+
+        if $obj.region.dimension != self.region.dimension {
+            fail 'DIMENSIONS_DO_NOT_MATCH: Non-equal dimension when adding a variable transformer.'
+        }
+
         @!stack.push($obj);
         return self
     }
