@@ -1,0 +1,24 @@
+use v6.d;
+
+unit module Math::NIntegrate::Codes;
+
+#| Range boundaries cases
+our enum RangeBoundsCases is export {
+VT_FIN_FIN => 1000,
+VT_FIN_INF => 1001,
+VT_INF_FIN => 1002,
+VT_INF_INF => 1003
+};
+
+#| Error codes
+enum Errors is export {
+ABSTRACT_CLASS_CALL => 2000,
+INCORRECT_ARGUMENTS => 2001,
+INCORRECT_NUMERICAL_FUNCTION => 2002,
+INVALID_USE_OF_INF_IN_RANGE => 2003,
+NON_EQUAL_DIMENSIONS => 2004,
+NOT_A_NUMERICAL_FUNCTION => 2005,
+REACHED_MAX_POINTS => 2006,
+REACHED_MAX_RECURSION => 2007,
+ZERO_INTERVAL => 2008
+};
