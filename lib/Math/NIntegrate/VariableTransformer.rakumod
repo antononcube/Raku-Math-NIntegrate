@@ -86,6 +86,9 @@ class Math::NIntegrate::VariableTransformer {
     # Jacobian
     #======================================================
 
+    # This method probably should be only called by length-calc-md --
+    # the framework should work only with points that are lists.
+    # (After initial processing.)
     #| Calculation of the interval length with working precision
     method length-calc(Numeric:D $a is copy, Numeric:D $b is copy, Bool:D $mid-point = False -->Map:D) {
 
