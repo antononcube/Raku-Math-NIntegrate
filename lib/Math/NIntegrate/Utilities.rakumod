@@ -2,6 +2,34 @@ use v6.d;
 
 unit module Math::NIntegrate::Utilities;
 
+use Math::NIntegrate::Codes;
+
+#==========================================================
+# Machine epsilon
+#==========================================================
+
+our Numeric:D $MACHINE_EPSILON is export = 2.220446049250313e-16;
+
+#| Machine epsilon computation
+our sub compute-machine-epsilon() {
+    my $eps = 1.0e0;
+    while 1.0e0 + $eps / 2.0e0 > 1.0e0 {
+        $eps /= 2.0e0;
+    }
+    $MACHINE_EPSILON = $eps;
+    return $MACHINE_EPSILON;
+}
+
+
+#==========================================================
+# Effective zero
+#==========================================================
+
+#| Effective zero check
+sub is-zero(Numeric:D $x, :tol(:$tolerance) = 2 * $MACHINE_EPSILON) is export {
+    $x.abs ≤ $tolerance;
+}
+
 #==========================================================
 # Numerical
 #==========================================================
@@ -17,13 +45,6 @@ sub numerical(Numeric:D $n, $wprec = Num, $default = Num) is export {
         }
     }
 }
-
-#==========================================================
-# Range boundaries cases
-#==========================================================
-
-#| Range boundaries cases
-our enum RangeBoundsCases is export <VT_A_B VT_A_INF VT_INF_B VT_INF_INF>;
 
 #==========================================================
 # Parse range boundaries
