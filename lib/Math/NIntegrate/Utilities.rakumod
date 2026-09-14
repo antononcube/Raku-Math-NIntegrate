@@ -67,14 +67,14 @@ sub parse-range-boundaries($orig-min,
                 $min = $orig-min;
                 $min-inf-dir = $orig-min.sign
         } else {
-                $min = numerical($orig-min);
+                $min = numerical($orig-min, $working-precision);
         }
 
         if $orig-max.isa(Inf) {
                 $max = $orig-max;
                 $max-inf-dir = $orig-max.sign
         } else {
-                $max = numerical($orig-max);
+                $max = numerical($orig-max,  $working-precision);
         }
 
         # Zero intervals should be handled. E.g. ('x', Inf, Inf)
