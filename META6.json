@@ -35,6 +35,7 @@
         "Math::NIntegrate::VariableTransformer": "lib/Math/NIntegrate/VariableTransformer.rakumod",
         "Math::NIntegrate::VariableTransformer::Affine": "lib/Math/NIntegrate/VariableTransformer/Affine.rakumod",
         "Math::NIntegrate::VariableTransformer::Composite": "lib/Math/NIntegrate/VariableTransformer/Composite.rakumod",
+        "Math::NIntegrate::VariableTransformer::Infinity": "lib/Math/NIntegrate/VariableTransformer/Infinity.rakumod",
         "Math::NIntegrate::Utilities": "lib/Math/NIntegrate/Utilities.rakumod"
     },
     "license": "Artistic-2.0",
