@@ -27,7 +27,7 @@ class Math::NIntegrate::VariableTransformer::Infinity
         for ^self.min-original-bounds.elems -> $i {
             # Parse boundaries for cases --
             # Math::NIntegrate::Codes::RangeBoundsCases
-            my %parsed = parse-range-boundaries(self.min-original-bounds[$i], self.max-original-bounds[$i]);
+            my %parsed = parse-range-boundaries(self.min-original-bounds[$i], self.max-original-bounds[$i], working-precision => self.working-precision);
 
             self.min-original-bounds[$i] = %parsed<min>;
             self.max-original-bounds[$i] = %parsed<max>;
