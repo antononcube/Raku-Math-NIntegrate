@@ -4,6 +4,7 @@ use Test;
 use Math::NIntegrate;
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::Affine;
+use Math::NIntegrate::VariableTransformer::Infinity;
 use Math::NIntegrate::Region;
 
 plan *;
@@ -22,8 +23,8 @@ subtest {
 
     my %args =
             region => $region1D,
-            min-orginal-bounds => 0,
-            max-orginal-bounds =>  1,
+            min-original-bounds => 0,
+            max-original-bounds => 1,
             min-transform-bounds => $region1D.min.head,
             max-transform-bounds => $region1D.max.head,
             working-precision => Rat
@@ -49,5 +50,41 @@ subtest {
         'expected transform values';
 
 }, 'Affine';
+
+## 3
+#subtest {
+    my $region = Math::NIntegrate::Region.new(min => [-2,Inf], max => [5,10], dimension => 2);
+
+    my @min-original-bounds = -2, 5;
+    my @max-original-bounds = Inf, 10;
+    my @min-transform-bounds = 0 xx $region.dimension;
+    my @max-transform-bounds = 1 xx $region.dimension;
+
+    my %args =
+            region => $region,
+            working-precision => Rat
+            ;
+
+    ok Math::NIntegrate::VariableTransformer::Infinity.new(
+            :@min-original-bounds,
+            :@max-original-bounds,
+            :@min-transform-bounds,
+            :@max-transform-bounds,
+            |%args), 'Infinity object creation is ok';
+
+    my $vt = Math::NIntegrate::VariableTransformer::Infinity.new(
+            :@min-original-bounds,
+            :@max-original-bounds,
+            :@min-transform-bounds,
+            :@max-transform-bounds,
+            |%args);
+
+    isa-ok $vt.transform(point => [1/3, 8], jacobian => 1), Map:D, 'method .transform returns Map:D';
+
+    is-deeply
+        $vt.transform(point => [1/3, 8], jacobian => 1),
+        {point => [0, 8], jacobian => 9.0},
+        'expected transform values';
+#}, 'Infinite';
 
 done-testing;
