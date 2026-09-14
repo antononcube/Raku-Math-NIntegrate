@@ -43,8 +43,9 @@ class Math::NIntegrate::VariableTransformer::Infinity
 
                     self.min-transform-bounds[$i] = 0;
                     self.max-transform-bounds[$i] = 1;
+                    self.max-original-bounds[$i] = %parsed<max-inf-dir>;
 
-                    self.scale[$i] = %parsed<max-inf-dir>
+                    self.scales[$i] = %parsed<max-inf-dir>
                 }
 
                 when VT_INF_FIN {
@@ -58,9 +59,9 @@ class Math::NIntegrate::VariableTransformer::Infinity
                     self.min-transform-bounds[$i] = 0;
                     self.max-transform-bounds[$i] = 1;
                     self.max-original-bounds[$i] = %parsed<min-inf-dir>;
-                    self.min-original-bounds[$i] = %parsed<min>;
+                    self.min-original-bounds[$i] = %parsed<max>;
 
-                    self.scale[$i] = -1 * %parsed<min-inf-dir>
+                    self.scales[$i] = -1 * %parsed<min-inf-dir>
                 }
 
                 when VT_INF_INF {
@@ -73,14 +74,16 @@ class Math::NIntegrate::VariableTransformer::Infinity
                     self.min-transform-bounds[$i] = 0;
                     self.max-transform-bounds[$i] = 1;
 
-                    self.scale[$i] = 1
+                    self.scales[$i] = 1
                 }
 
                 when VT_FIN_FIN {
                     self.transforms[$i] = WhateverCode;
                     self.jacobians[$i] = Whatever;
+                    self.min-transform-bounds[$i] = %parsed<min>;
+                    self.max-transform-bounds[$i] = %parsed<max>;
 
-                    self.scale[$i] = 1
+                    self.scales[$i] = 1
                 }
             }
         }
@@ -118,11 +121,13 @@ class Math::NIntegrate::VariableTransformer::Infinity
         if $functional-bounds {
             die 'Functional boundaries variable transformation is not implemented yet.'
         } else {
-            my %res = point => [], :$jacobian;
+            my %res = :@point, :$jacobian;
             for ^self.region.dimension -> $i {
-                my %h = self.transforms[$i](@point[$i], self.min-original-bounds[$i], self.max-original-bounds[$i]);
-                %res<point>.push(%h<point>);
-                %res<jacobian> = %res<jacobian> * %h<jacobian>;
+                with self.transforms[$i] {
+                    my %h = self.transforms[$i](@point[$i], self.min-original-bounds[$i], self.max-original-bounds[$i]);
+                    %res<point>[$i] = %h<point>;
+                    %res<jacobian> = %res<jacobian> * %h<jacobian>;
+                }
             }
             return %res
         }
