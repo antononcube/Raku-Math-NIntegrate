@@ -28,8 +28,8 @@ class Math::NIntegrate::VariableTransformer {
     #| Working precision
     has $.working-precision = Num;
 
-    #| Scaling factor should be either 1 or -1
-    has Numeric:D $.scale = 1;
+    #| Scaling factors for each dimension; each scale should be either 1 or -1
+    has @.scales;
 
     #| Contextual variable transformer (e.g. Composite)
     has Math::NIntegrate::VariableTransformer $.context;
@@ -41,6 +41,13 @@ class Math::NIntegrate::VariableTransformer {
     # Creators
     #======================================================
 
+    submethod BUILD() {
+
+       # At some a dedicated Exception class have to be made
+       fail 'Internal error: REGION_NOT_SET' unless self.region;
+
+       self.scale = self.region.dimension xx 1;
+    }
     #| Clone the object
     method clone(-->Math::NIntegrate::VariableTransformer:D) {
         Math::NIntegrate::VariableTransformer.new(
@@ -50,8 +57,8 @@ class Math::NIntegrate::VariableTransformer {
                 max-original-bounds => @!max-original-bounds>>.clone.Array,
                 min-transform-bounds => @!min-transform-bounds>>.clone.Array,
                 max-transform-bounds => @!max-transform-bounds>>.clone.Array,
-                :$!working-precision
-                :$!scale,
+                :$!working-precision,
+                scales => @!scales.clone,
                 :$!context,
                 :$!region
                 )
@@ -80,7 +87,7 @@ class Math::NIntegrate::VariableTransformer {
     }
 
     #| Abstract transform method
-    method transform(:@points, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {!!!}
+    method transform(:@point, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {!!!}
 
     #======================================================
     # Jacobian
