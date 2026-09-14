@@ -51,8 +51,8 @@ sub numerical(Numeric:D $n, $wprec = Num, $default = Num) is export {
 #==========================================================
 
 #| Parse range boundaries.
-sub parse-range-boundaries($orig-min is copy,
-                           $orig-max is copy,
+sub parse-range-boundaries($orig-min,
+                           $orig-max,
                            :$real-flag is copy = True,
                            :$working-precision = Num
         --> Map:D) is export {
@@ -67,16 +67,14 @@ sub parse-range-boundaries($orig-min is copy,
                 $min = $orig-min;
                 $min-inf-dir = $orig-min.sign
         } else {
-                $orig-min = numerical($orig-min);
-                $min = $orig-min
+                $min = numerical($orig-min);
         }
 
         if $orig-max.isa(Inf) {
                 $max = $orig-max;
                 $max-inf-dir = $orig-max.sign
         } else {
-                $orig-max = numerical($orig-max);
-                $max = $orig-max
+                $max = numerical($orig-max);
         }
 
         # Zero intervals should be handled. E.g. ('x', Inf, Inf)
@@ -87,10 +85,10 @@ sub parse-range-boundaries($orig-min is copy,
         }
 
         $bounds-case = do given ($orig-min.isa(Inf), $orig-max.isa(Inf)) {
-                when (True, True) { VT_INF_INF }
-                when (False, True) { VT_FIN_INF }
-                when (True, False) { VT_INF_FIN }
-                when (False, False) { VT_FIN_FIN }
+                when $_.head && $_.tail { VT_INF_INF }
+                when !$_.head && $_.tail { VT_FIN_INF }
+                when $_.head && !$_.tail { VT_INF_FIN }
+                when !$_.head && !$_.tail { VT_FIN_FIN }
         }
 
         return  %(:$min, :$max, :$min-inf-dir, :$max-inf-dir, :$real-flag, :$bounds-case)
