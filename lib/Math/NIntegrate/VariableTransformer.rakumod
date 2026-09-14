@@ -41,13 +41,14 @@ class Math::NIntegrate::VariableTransformer {
     # Creators
     #======================================================
 
-    submethod BUILD() {
+#    submethod BUILD() {
+#
+#       # At some a dedicated Exception class have to be made
+#       #fail 'REGION_NOT_SET' unless self.region;
+#
+#       #self.scale = self.region.dimension xx 1;
+#    }
 
-       # At some a dedicated Exception class have to be made
-       fail 'Internal error: REGION_NOT_SET' unless self.region;
-
-       self.scale = self.region.dimension xx 1;
-    }
     #| Clone the object
     method clone(-->Math::NIntegrate::VariableTransformer:D) {
         Math::NIntegrate::VariableTransformer.new(
@@ -130,7 +131,7 @@ class Math::NIntegrate::VariableTransformer {
             my %res = self.length-calc(@a[$i], @b[$i], $mid-point);
             @length.push(%res<length>);
             @middle.push(%res<middle>);
-            @min.push(%res<start>);
+            @min.push(%res<min>);
             $jacobian *= %res<length>
         }
 
