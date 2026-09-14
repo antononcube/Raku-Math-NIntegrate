@@ -1,5 +1,131 @@
 use v6.d;
 
-class Math::NIntegrate::VariableTransformer::Infinity {
+use Math::NIntegrate::VariableTransformer;
+use Math::NIntegrate::Utilities;
+use Math::NIntegrate::Codes;
+
+class Math::NIntegrate::VariableTransformer::Infinity
+        is Math::NIntegrate::VariableTransformer {
+
+    submethod TWEAK(*%args) {
+
+        # At some a dedicated Exception class have to be made
+        fail 'MISSING_OBJECT: region object undefined' unless self.region;
+
+        # There should be a proper check of .region attribute in the parent class.
+        my (@min, @max);
+        try {
+            @min = self.region.min;
+            @max = self.region.max;
+        }
+
+        if $! {
+            fail 'WRONG_TYPE: region boundaries cannot be retrieved'
+        }
+
+        # For each dimension
+        for ^self.min-original-bounds.elems -> $i {
+            # Parse boundaries for cases --
+            # Math::NIntegrate::Codes::RangeBoundsCases
+            my %parsed = parse-range-boundaries(self.min-original-bounds[$i], self.max-original-bounds[$i]);
+
+            self.min-original-bounds[$i] = %parsed<min>;
+            self.max-original-bounds[$i] = %parsed<max>;
+
+            given %parsed<bounds-case> {
+                when VT_FIN_INF {
+                    # min + (1 - x) / x
+                    #self.transforms[$i] = { self.min-original-bounds[$i] + (1 - $_) / $_ }
+                    self.transforms[$i] = -> $point, $min, $max { self!fin-inf-transform($point, $min, $max) };
+
+                    # 1 / x^2
+                    self.jacobians[$i] = { 1 / $_ ** 2 }
+
+                    self.min-transform-bounds[$i] = 0;
+                    self.max-transform-bounds[$i] = 1;
+
+                    self.scale[$i] = %parsed<max-inf-dir>
+                }
+
+                when VT_INF_FIN {
+                    # min - (1 - x) / x
+                    #self.transforms[$i] = { self.max-original-bounds[$i] - (1 - $_) / $_ }
+                    self.transforms[$i] = -> $point, $min, $max { self!neg-inf-fin-transform($point, $min, $max) };
+
+                    # 1 / x^2
+                    self.jacobians[$i] = { 1 / $_ ** 2 }
+
+                    self.min-transform-bounds[$i] = 0;
+                    self.max-transform-bounds[$i] = 1;
+                    self.max-original-bounds[$i] = %parsed<min-inf-dir>;
+                    self.min-original-bounds[$i] = %parsed<min>;
+
+                    self.scale[$i] = -1 * %parsed<min-inf-dir>
+                }
+
+                when VT_INF_INF {
+                    # (1 - x) / x - 1 / x
+                    #self.transforms[$i] = { self.max-original-bounds[$i] - (1 - $_) / $_ }
+                    self.transforms[$i] = -> $point, $min, $max { self!neg-inf-inf-transform($point, $min, $max) };
+
+                    # x^-2 + (1-x)^-2
+                    self.jacobians[$i] = { 1 / $_ ** 2 + 1 / (1 - $_) ** 2 }
+                    self.min-transform-bounds[$i] = 0;
+                    self.max-transform-bounds[$i] = 1;
+
+                    self.scale[$i] = 1
+                }
+
+                when VT_FIN_FIN {
+                    self.transforms[$i] = WhateverCode;
+                    self.jacobians[$i] = Whatever;
+
+                    self.scale[$i] = 1
+                }
+            }
+        }
+    }
+
+    method !fin-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
+
+        my $tPoint;
+        my $tJacobian;
+        my $pInv;
+        if is-zero($point) {
+            $tPoint = $max.sign * Inf;
+            $tJacobian = 0;
+        } else {
+            $pInv = numerical(1 / $point, self.working-precision);
+            $tPoint = $min + $max * ($pInv - 1);
+            $tJacobian = $pInv * $pInv;
+        }
+        return %(point => $tPoint, jacobian => $tJacobian)
+    }
+
+    method !neg-inf-fin-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
+        my %res = self!fin-inf-transform($point, -1 * $max, $min);
+        %res<point> = -1 * %res<point>;
+        return %res
+    }
+
+    method !neg-inf-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
+        return %(:$point, jacobian => 1)
+    }
+
+    method transform(:@point, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {
+        my %bounds = self.get-transform-bounds();
+
+        if $functional-bounds {
+            die 'Functional boundaries variable transformation is not implemented yet.'
+        } else {
+            my %res = point => [], :$jacobian;
+            for ^self.region.dimension -> $i {
+                my %h = self.transforms[$i](@point[$i], self.min-original-bounds[$i], self.max-original-bounds[$i]);
+                %res<point>.push(%h<point>);
+                %res<jacobian> = %res<jacobian> * %h<jacobian>;
+            }
+            return %res
+        }
+    }
 
 }
