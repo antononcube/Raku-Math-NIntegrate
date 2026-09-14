@@ -64,17 +64,17 @@ sub parse-range-boundaries($orig-min,
         my $bounds-case;
 
         if $orig-min.isa(Inf) {
-                $min = $orig-min;
-                $min-inf-dir = $orig-min.sign
+                $min = numerical($orig-min, $working-precision);
+                $min-inf-dir = numerical($orig-min.sign, $working-precision)
         } else {
                 $min = numerical($orig-min, $working-precision);
         }
 
         if $orig-max.isa(Inf) {
-                $max = $orig-max;
-                $max-inf-dir = $orig-max.sign
+                $max = numerical($orig-max, $working-precision);
+                $max-inf-dir = numerical($orig-max.sign, $working-precision)
         } else {
-                $max = numerical($orig-max,  $working-precision);
+                $max = numerical($orig-max, $working-precision);
         }
 
         # Zero intervals should be handled. E.g. ('x', Inf, Inf)
