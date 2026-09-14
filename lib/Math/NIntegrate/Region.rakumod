@@ -33,10 +33,10 @@ class Math::NIntegrate::Region {
     has @.values;
 
     # Last axis to split on (for dimensions greater than 1)
-    has Int $.axis;
+    has UInt $.axis;
 
     # dimension == Length(@!A) == Length(@!B)
-    has Int $.dimension;
+    has UInt $.dimension;
 
     has $.integral = Whatever;
     has $.error = Whatever;
@@ -53,7 +53,7 @@ class Math::NIntegrate::Region {
     # Accumulated number of levels of recursion for which the error
     # has failed to decrease by a factor of at least 7.
     # If this gets as high as 4 a message regarding convergence rate is issued.
-    has Int $!no-error-decrease-count;
+    has UInt $!no-error-decrease-count;
 
     # Region type
     has Str $.type;
