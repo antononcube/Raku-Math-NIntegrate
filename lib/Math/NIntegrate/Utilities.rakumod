@@ -8,7 +8,7 @@ use Math::NIntegrate::Codes;
 # Machine epsilon
 #==========================================================
 
-our Numeric:D $MACHINE_EPSILON is export = 2.220446049250313e-16;
+our $MACHINE_EPSILON is export = 2.220446049250313e-16;
 
 #| Machine epsilon computation
 our sub compute-machine-epsilon() {
