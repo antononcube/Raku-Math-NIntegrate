@@ -88,9 +88,9 @@ sub parse-range-boundaries($orig-min is copy,
 
         $bounds-case = do given ($orig-min.isa(Inf), $orig-max.isa(Inf)) {
                 when (True, True) { VT_INF_INF }
-                when (False, True) { VT_A_INF }
-                when (True, False) { VT_INF_B }
-                when (False, False) { VT_A_B }
+                when (False, True) { VT_FIN_INF }
+                when (True, False) { VT_INF_FIN }
+                when (False, False) { VT_FIN_FIN }
         }
 
         return  %(:$min, :$max, :$min-inf-dir, :$max-inf-dir, :$real-flag, :$bounds-case)
