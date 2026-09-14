@@ -6,7 +6,7 @@ use Math::NIntegrate::VariableTransformer::Affine;
 class Math::NIntegrate::VariableTransformer::Composite {
     #| Stack of Math::NIntegrate::VariableTransformer objects
     has Math::NIntegrate::VariableTransformer @.stack;
-    has Math::NIntegrate::VariableTransformer::Affine $vtAffine;
+    has Math::NIntegrate::VariableTransformer::Affine $.vtAffine;
 
     #======================================================
     # Creators
@@ -14,6 +14,18 @@ class Math::NIntegrate::VariableTransformer::Composite {
     submethod TWEAK (*%args) {
         # Composite always uses the Affine variable transformer
         # in order to put the rule abscissas within the boundaries of region.
+        $!vtAffine = Math::NIntegrate::VariableTransformer::Affine.new(context => self);
+
+        # All variable transformers in the stack have this object as context.
+        # The method get-region() is going return this object's region.
+        with @!stack {
+            for @!stack -> $vt { $vt.context = self }
+        }
+
+        # Should Composite be made to always have a region object?
+        # without self.region {
+        #     fail 'MISSING_OBJECT: composite initialized without region object'
+        # }
     }
 
     #======================================================
