@@ -87,6 +87,15 @@ class Math::NIntegrate::VariableTransformer {
         }
     }
 
+    #| Get region object
+    method get-region(-->Map:D) {
+        return do if $!context {
+            $!context.get-region()
+        } else {
+            self.region
+        }
+    }
+
     #| Abstract transform method
     method transform(:@point, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {!!!}
 
