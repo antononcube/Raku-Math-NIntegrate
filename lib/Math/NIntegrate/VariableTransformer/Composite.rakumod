@@ -61,7 +61,7 @@ class Math::NIntegrate::VariableTransformer::Composite {
         return reduce({$^a * $^b.scale}, self.scale, |@!stack>>.scale )
     }
 
-    method transform(:@points, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {
+    method transform(:@point, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {
         # Special treatment is needed for functional boundaries
         if $functional-bounds {
             die 'Functional boundaries variable transformation is not implemented yet.'
@@ -69,6 +69,6 @@ class Math::NIntegrate::VariableTransformer::Composite {
             # Affine transformation is always done with Composite
         }
 
-        return %(:@points, :$jacobian)
+        return %(:@point, :$jacobian)
     }
 }
