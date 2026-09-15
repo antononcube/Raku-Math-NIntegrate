@@ -57,8 +57,22 @@ class Math::NIntegrate::VariableTransformer::Composite {
     #======================================================
     # Composing methods
     #======================================================
+
+    #| Copy from object
+    method copy(Math::NIntegrate::VariableTransformer::Composite:D $from,  Bool:D :deep(:deep-copy(:$clone)) = False) {
+        # Delegate to parent class
+        self.Math::NIntegrate::VariableTransformer::copy($from, :$clone);
+
+        # No need to copy the Affine object
+        @!stack = $clone ?? $from.stack>>.clone !! $from.stack;
+
+        return self
+    }
+
     method clone(-->Math::NIntegrate::VariableTransformer::Composite) {
-        Math::NIntegrate::VariableTransformer::Composite.new(stack => @!stack>>.clone)
+
+        # No need to clone the Affine object
+        Math::NIntegrate::VariableTransformer::Composite.new().copy(self)
     }
 
     method get-original-bounds(-->Map:D) {
