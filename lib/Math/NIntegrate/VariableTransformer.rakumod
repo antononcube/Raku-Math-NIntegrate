@@ -49,20 +49,24 @@ class Math::NIntegrate::VariableTransformer {
 #       #self.scale = self.region.dimension xx 1;
 #    }
 
+    #| Copy attributes from an object
+    method copy(Math::NIntegrate::VariableTransformer:D $from, Bool:D :deep(:deep-copy(:$clone)) = False) {
+        # @!transforms are functions/subs, so, $from.transforms>>.clone.Array seems inappropriate.
+        @!transforms = $clone ?? $from.transforms.clone !! $from.transforms;
+        @!jacobians = $clone ?? $from.jacobians.clone !! $from.jacobians;
+        @!min-original-bounds = $clone ?? $from.min-original-bounds>>.clone.Array !! $from.min-original-bounds;
+        @!max-original-bounds = $clone ?? $from.max-original-bounds>>.clone.Array !! $from.max-original-bounds;
+        @!min-transform-bounds = $clone ?? $from.min-transform-bounds>>.clone.Array !! $from.min-transform-bounds;
+        @!max-transform-bounds = $clone ?? $from.max-transform-bounds>>.clone.Array !! $from.max-transform-bounds;
+        $!working-precision = $from.working-precision;
+        @!scales = $clone ?? $from.scales>>.clone.Array !! $from.scales;
+        $!context = $from.context;
+        $!region = $from.region
+    }
+
     #| Clone the object
     method clone(-->Math::NIntegrate::VariableTransformer:D) {
-        Math::NIntegrate::VariableTransformer.new(
-                transforms => @!transforms>>.clone.Array,
-                jacobians => @!jacobians>>.clone.Array,
-                min-original-bounds => @!min-original-bounds>>.clone.Array,
-                max-original-bounds => @!max-original-bounds>>.clone.Array,
-                min-transform-bounds => @!min-transform-bounds>>.clone.Array,
-                max-transform-bounds => @!max-transform-bounds>>.clone.Array,
-                :$!working-precision,
-                scales => @!scales.clone,
-                :$!context,
-                :$!region
-                )
+        Math::NIntegrate::VariableTransformer.new.copy(self, :clone)
     }
 
     #======================================================
