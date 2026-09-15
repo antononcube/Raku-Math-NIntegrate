@@ -3,6 +3,7 @@ use v6.d;
 use Math::NIntegrate::Rule::General;
 use Math::NIntegrate::NumericalFunction;
 use Math::NIntegrate::VariableTransformer;
+use Math::NIntegrate::Utilities;
 
 class Math::NIntegrate::Region {
 
@@ -69,10 +70,10 @@ class Math::NIntegrate::Region {
     has Math::NIntegrate::Rule::General $.rule;
 
     # Numerical function object
-    has Math::NIntegrate::NumericalFunction $.nf;
+    has Math::NIntegrate::NumericalFunction $.numerical-function;
 
     # Variable transformator, usually a Math::NIntegrate::VariableTransformer::Composite object
-    has Math::NIntegrate::VariableTransformer $.var-trans;
+    has Math::NIntegrate::VariableTransformer $.variable-transformer;
 
     # Reference to the "main" integration object;
     # it should be Math::NIntegrate::Strategy or Whatever
@@ -106,10 +107,10 @@ class Math::NIntegrate::Region {
         $!rule = $from.rule;
 
         # The numerical function is not cloned
-        $!nf = $from.nf;
+        $!numerical-function = $from.numerical-function;
 
         # Note that the variable transformation object is cloned too
-        $!var-trans = $clone ?? $from.var-trans.clone !! $from.var-trans;
+        $!variable-transformer = $clone ?? $from.variable-transformer.clone !! $from.variable-transformer;
 
         $!strategy = $from.strategy;
 
@@ -124,18 +125,66 @@ class Math::NIntegrate::Region {
     # Public
     #--------------------------------------
 
+    #| Get working precision
+    method get-working-precision() {
+        without $!numerical-function {
+            fail 'MISSING_OBJECT: no numerical function object for working precision request'
+        }
+        $!numerical-function ?? $!numerical-function.working-preicions !! Whatever
+    }
+
     #| Get integration estimate
     method integrate(-->Math::NIntegrate::Region) {
         die 'Region.integrate is not implemented yet.'
     }
 
-    method split(Int:D :$axis!, Numeric:D :$dithering = 0) {
+    #| Split region across given axis and dithering
+    multi method split(Int:D :$axis!, Numeric:D :$dithering = 0) {
+        self.split(:$axis, :$dithering)
+    }
+
+    multi method split(Int:D :$axis!, Numeric:D :$dithering = 0) {
         die "The value of \$axis is expected to be an integer between 0 and {self.dimension}."
         unless 0 ≤ $axis ≤ self.dimension;
 
+        # Make the right-side region of the split
         my $new-obj = self.clone;
 
+        # Region mid-point to split over
+        # This not an operational mid-point -- it is an "info".
+        # See the variable transformer split below.
+        my $mid = (@!min[$axis] + @!max[$axis]) / 2 + $dithering * (@!max[$axis] - @!min[$axis]);
+        # Should this precision setting be before or after the computation of the mid point?
+        $mid .= numerical($mid, self.get-working-precision);
+        self.max[$axis] = $mid;
+        $new-obj.min[$axis] = $mid;
 
+        # Change the boundaries of the transformation object.
+        # This is needed in order to map the integration rule abscissas to into the transformed half-ranges.
+        without $!variable-transformer {
+            fail 'MISSING_OBJEVT: no variable transformer in region spliting.'
+        }
+        my $min = $!variable-transformer.min-transform-bounds[$axis];
+        my $max = $!variable-transformer.max-transform-bounds[$axis];
+
+        $mid = ($min + $max) / 2 + $dithering * ($max - $min);
+
+        $mid .= numerical($mid, self.get-working-precision);
+        $!variable-transformer.max-transform-bounds[$axis] = $mid;
+        $new-obj.variable-transformer.min-transform-bounds[$axis] = $mid;
+
+        # Level of splitting
+        @!levels[$axis] += 1;
+        $new-obj.levels[$axis] += 1;
+
+        # Special treatment of reuse-values
+        # TBD...
+        # Full blown Rule class has to be implemented first.
+
+        # Which of these results is most useful?
+        # return {left => self, right => $new-obj}
+        # return (self, $new-obj)
+        return $new-obj
     }
 
     #--------------------------------------
