@@ -84,26 +84,33 @@ class Math::NIntegrate::Region {
 
     #method new() {!!!}
 
+    method copy(
+            Math::NIntegrate::Region:D $from,
+            Bool:D :deep(:deep-copy(:$clone)) = False
+                ) {
+        @!min = $clone ?? $from.min.clone !! $from.min;
+        @!max = $clone ?? $from.max.clone !! $from.max;
+        @!fmin = $clone ?? $from.fmin.clone !! $from.fmin;
+        @!fmax = $clone ?? $from.fmax.clone !! $from.fmax;
+        @!abscissas = $clone ?? $from.abscissas.clone !! $from.abscissas;
+        @!values = $clone ?? $from.values.clone !! $from.values;
+        $!integral = $from.integral;
+        $!error = $from.error;
+        @!levels = $clone ?? $from.levels.clone !! $from.levels;
+        @!has-end-point = $clone ?? $from.has-end-point.clone !! $from.has-end-point;
+        $!no-error-decrease-count = $from.no-error-decrease-count;
+        $!type = $from.type;
+        @!reuse-values = $clone ?? $from.reuse-values.clone !! $from.reuse-values;
+        $!rule = $from.rule;
+        $!nf = $from.nf;
+        $!var-trans = $clone ?? $from.var-trans.clone !! $from.var-trans;
+        $!strategy = $from.strategy;
+
+        return self
+    }
+
     method clone() {
-        Math::NIntegrate::Region.new(
-                min => @!min.clone,
-                max => @!max.clone,
-                fmin => @!fmin.clone,
-                fmax => @!fmax.clone,
-                abscissas => @!abscissas.clone,
-                values => @!values.clone,
-                integral => $!integral,
-                error => $!error,
-                levels => @!levels.clone,
-                has-no-end-point => @!has-end-point.clone,
-                no-error-decrease-count => $!no-error-decrease-count,
-                type => $!type,
-                reuse-values => @!reuse-values.clone,
-                rule => $!rule,                 # The rule is not cloned
-                nf => $!nf,                     # The numerical function is not cloned
-                var-trans => $!var-trans.clone, # Note that the variable transformation object is cloned too
-                strategy => $!strategy
-                )
+        Math::NIntegrate::Region.new.copy(self, :clone)
     }
 
     #--------------------------------------
