@@ -61,7 +61,9 @@ class Math::NIntegrate::VariableTransformer {
         $!working-precision = $from.working-precision;
         @!scales = $clone ?? $from.scales>>.clone.Array !! $from.scales;
         $!context = $from.context;
-        $!region = $from.region
+        $!region = $from.region;
+            
+        return self
     }
 
     #| Clone the object
