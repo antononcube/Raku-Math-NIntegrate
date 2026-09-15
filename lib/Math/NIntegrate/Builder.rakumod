@@ -10,19 +10,19 @@ class Math::NIntegrate::Builder {
 
     has Math::NIntegrate::Strategy $.strategy;
 
-    method make-region(Math::NIntegrate::NumericalFunction:D $nf, @min, @max, :$working-precision = Num) {
+    method make-region(Math::NIntegrate::NumericalFunction:D $numerical-function, @min, @max, :$working-precision = Num) {
 
         fail 'DIMENSIONS_DO_NOT_MATCH: region boundaries dimensions do not match.'
         if @min.elems != @max.elems;
 
         # First a region object is made
-        my $region = Math::NIntegrate::Region.new(:$nf, :@min, :@max);
+        my $region = Math::NIntegrate::Region.new(:$numerical-function, :@min, :@max);
 
         # Variable transformer (Composite) is made with $region
         my $var-trans = Math::NIntegrate::VariableTransformer::Composite.new(:$region);
 
         # Variable transformer object is set in $region
-        $region.var-trans = $var-trans;
+        $region.variable-transformer = $var-trans;
 
         return $region
     }
