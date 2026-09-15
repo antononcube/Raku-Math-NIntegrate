@@ -101,9 +101,16 @@ class Math::NIntegrate::Region {
         $!no-error-decrease-count = $from.no-error-decrease-count;
         $!type = $from.type;
         @!reuse-values = $clone ?? $from.reuse-values.clone !! $from.reuse-values;
+
+        # The rule is not cloned
         $!rule = $from.rule;
+
+        # The numerical function is not cloned
         $!nf = $from.nf;
+
+        # Note that the variable transformation object is cloned too
         $!var-trans = $clone ?? $from.var-trans.clone !! $from.var-trans;
+
         $!strategy = $from.strategy;
 
         return self
