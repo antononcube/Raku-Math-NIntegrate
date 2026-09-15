@@ -99,9 +99,9 @@ class Math::NIntegrate::Region {
                 no-error-decrease-count => $!no-error-decrease-count,
                 type => $!type,
                 reuse-values => @!reuse-values.clone,
-                rule => $!rule.clone,
-                nf => $!nf.clone,
-                var-trans => $!var-trans,
+                rule => $!rule,                 # The rule is not cloned
+                nf => $!nf,                     # The numerical function is not cloned
+                var-trans => $!var-trans.clone, # Note that the variable transformation object is cloned too
                 strategy => $!strategy
                 )
     }
@@ -115,6 +115,15 @@ class Math::NIntegrate::Region {
         die 'Region.integrate is not implemented yet.'
     }
 
+    method split(Int:D :$axis!, Numeric:D :$dithering = 0) {
+        die "The value of \$axis is expected to be an integer between 0 and {self.dimension}."
+        unless 0 ≤ $axis ≤ self.dimension;
+
+        my $new-obj = self.clone;
+
+
+    }
+
     #--------------------------------------
     # Future private methods
     #--------------------------------------
@@ -125,7 +134,6 @@ class Math::NIntegrate::Region {
         die 'Region.eval-integrand is not implemented yet.'
     }
 
-    method split(Int:D $axis, Numeric:D $dithering = 0) {!!!}
     method partition(@nodex) {!!!}
     method duffy-transform() {!!!}
     method reverse-variable(Int:D $var-index) {!!!}
