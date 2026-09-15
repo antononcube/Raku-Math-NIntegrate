@@ -187,15 +187,43 @@ class Math::NIntegrate::Region {
         return $new-obj
     }
 
+    #| Evaluate integrand over transformed arguments and multiply by the Jacobian
+    method eval-integrand(@point is copy) {
+        my $jacobian = 1;
+        my $value;
+
+        # Apply variable transformation
+        with $!variable-transformer {
+            my %res = $!variable-transformer.transform(:@point, :$jacobian);
+            @point = %res<point>;
+            $jacobian = %res<jacobian>
+        }
+
+        # If the Jacobian is near zero return zero
+        if is-zero($jacobian) {
+            return 0
+        }
+
+        # Evaluate the integrand functor over the transformed point
+        try {
+            $value = $!numerical-function.eval(@point);
+        }
+
+        if $! || $value !~~ Numeric:D {
+            fail 'NOT_A_NUMERICAL_FUNCTION: non-numerical integrand value is obtained'
+        }
+
+        return do if $!variable-transformer {
+            my $scale = [*] |$!variable-transformer.scales;
+            $value * $jacobian * $scale
+        } else {
+            $value * $jacobian
+        }
+    }
+
     #--------------------------------------
     # Future private methods
     #--------------------------------------
-    #| Evaluate object's integrand.
-    method eval-integrand(@args) {
-        # Apply variable transformation
-        # Make sure get the
-        die 'Region.eval-integrand is not implemented yet.'
-    }
 
     method partition(@nodex) {!!!}
     method duffy-transform() {!!!}
