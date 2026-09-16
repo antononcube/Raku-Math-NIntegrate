@@ -34,13 +34,14 @@ class Math::NIntegrate::Rule::General
     # Integration
     #======================================================
 
-    method integrate($region --> Map:D) {
+    method integrate($region) {
         my $integralLocal = 0;
         my $errorLocal = 0;
         my @values;
 
         for ^@!abscissas.elems -> $i {
-            my $value = $region.eval-integrand(@!abscissas[$i]);
+            my @point = @!abscissas[$i] ~~ Numeric:D ?? [@!abscissas[$i], ] !! @!abscissas[$i];
+            my $value = $region.eval-integrand(@point);
             @values.push($value);
             $integralLocal += @!weights * $value;
             $errorLocal += @!error-weights * $value;
