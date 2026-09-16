@@ -9,24 +9,11 @@ class Math::NIntegrate::VariableTransformer::Infinity
 
     submethod TWEAK(*%args) {
 
-        # At some a dedicated Exception class have to be made
-        fail 'MISSING_OBJECT: region object undefined' unless self.region;
-
-        # There should be a proper check of .region attribute in the parent class.
-        my (@min, @max);
-        try {
-            @min = self.region.min;
-            @max = self.region.max;
-        }
-
-        if $! {
-            fail 'WRONG_TYPE: region boundaries cannot be retrieved'
-        }
-
         # For each dimension
         for ^self.min-original-bounds.elems -> $i {
             # Parse boundaries for cases --
             # Math::NIntegrate::Codes::RangeBoundsCases
+
             my %parsed = parse-range-boundaries(self.min-original-bounds[$i], self.max-original-bounds[$i], working-precision => self.working-precision);
 
             self.min-original-bounds[$i] = %parsed<min>;
@@ -85,6 +72,10 @@ class Math::NIntegrate::VariableTransformer::Infinity
 
                     self.scales[$i] = 1
                 }
+
+                default {
+                    fail 'WRONG_TYPE: unknown variable transformer case'
+                }
             }
         }
     }
@@ -122,7 +113,7 @@ class Math::NIntegrate::VariableTransformer::Infinity
             die 'Functional boundaries variable transformation is not implemented yet.'
         } else {
             my %res = :@point, :$jacobian;
-            for ^self.region.dimension -> $i {
+            for ^self.min-original-bounds.elems -> $i {
                 with self.transforms[$i] {
                     my %h = self.transforms[$i](@point[$i], self.min-original-bounds[$i], self.max-original-bounds[$i]);
                     %res<point>[$i] = %h<point>;
