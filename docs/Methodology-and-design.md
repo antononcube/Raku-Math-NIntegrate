@@ -120,6 +120,24 @@ classDiagram
     Composite *-- Affine
 ```
 
+An Integration Region (IReg) object would most likely have a `Math::NItegrate::VariableTransformer::Composite` as a VT.
+Every VT Composite (VTC) has an `Math::NItegrate::VariableTransformer::Affine` VT. Also, by default, the first VT object 
+in VTC's stack is a `Math::NItegrate::VariableTransformer::Infinity` object (VTInf). The reasons for this are:
+
+- VTInf is a must when at least one of the integration ranges is infinite
+- VTInf is very fast on finite ranges
+- Hence, no performance penalty VTInf being always present in VTC (as the first VT)
+
+
+---
+
+## Builder
+
+For Builder design pattern is used for the creation of an (operational) integration strategy object.
+
+**Remark:** The Abstract Factory patterns was also considered, by since integration strategy object is derived from 
+method specs Builder was chosen since gives more control over the building steps.
+
 ---
 
 ## References
