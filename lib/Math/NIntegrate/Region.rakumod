@@ -195,7 +195,7 @@ class Math::NIntegrate::Region {
         # Apply variable transformation
         with $!variable-transformer {
             my %res = $!variable-transformer.transform(:@point, :$jacobian);
-            @point = %res<point>;
+            @point = |%res<point>;
             $jacobian = %res<jacobian>
         }
 
@@ -213,6 +213,8 @@ class Math::NIntegrate::Region {
             fail 'NOT_A_NUMERICAL_FUNCTION: non-numerical integrand value is obtained'
         }
 
+        # Should a check be made that $!variable-transformer.scales is not empty?
+        # If $!variable-transformer.scales is empty we get 1, because [*] |() == 1
         return do if $!variable-transformer {
             my $scale = [*] |$!variable-transformer.scales;
             $value * $jacobian * $scale
