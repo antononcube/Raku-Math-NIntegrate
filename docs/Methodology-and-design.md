@@ -1,9 +1,15 @@
 # Methodology and Design 
-## ***... for the Raku package "Math::NIntegrate"***
+
+<p style="font-size:24px; font-weight:700;">...for the Raku package "Math::NIntegrate"</p>
 
 ---
 
 ## Introduction
+
+The Raku numerical integration framework "Math::NIntegrate", [AAp1], is based on Object-Oriented Programming (OOP) design and implementation.
+[Design Patterns (by GoF)](https://en.wikipedia.org/wiki/Design_Patterns) are extensively used.
+
+This document outlines the OOP architecture and gives rationale for some of the less obvious design decisions.
 
 ---
 
@@ -35,13 +41,6 @@ Below is a table that shows methods that can be applied to each integration regi
 | `"OriginalBoundaries"` | Returns the original boundaries of the region (when singularity handling is applied it differs from `"Boundaries"`). |
 | `"Properties"`         | Returns all methods applicable.                                                                                      |
 | `"WorkingPrecision"`   | Returns the precision with which the function `N` is used during evaluation.                                         |
-
---- 
-
-## Object-oriented design
-
-The Raku numerical integration framework "Math::NIntegrate" is based on Object-Oriented Programming (OOP) design and implementation.
-[Design Patterns (by GoF)](https://en.wikipedia.org/wiki/Design_Patterns) are extensively used.
 
 ---
 
