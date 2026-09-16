@@ -40,6 +40,87 @@ Below is a table that shows methods that can be applied to each integration regi
 
 ## Object-oriented design
 
+The Raku numerical integration framework "Math::NIntegrate" is based on Object-Oriented Programming (OOP) design and implementation.
+[Design Patterns (by GoF)](https://en.wikipedia.org/wiki/Design_Patterns) are extensively used.
+
+---
+
+# Integration rule object
+
+The Integration Rule (IRule) object has these three lists:
+
+- Abscissas
+- Weights
+- Error weights
+
+An IRule is attached to one or more Integration Region (IReg) objects.
+
+IRule's method `integrate` uses the Integration Region (IReg) object method `eval-integrand`.
+
+---
+
+## Integration region object
+
+As mentioned in the previous section, the Integration Region (IReg) objects have a central role in the framework.
+IReg objects are instances of the class `Math::NIntegrate::Region`. Every IR has an Integration Rule (IRule) object and 
+a Variable Transformer (VT) object. 
+
+For a given IReg object, `R`:
+
+- Its IRule object `R.rule` has a reference to `R` and uses the `R` method `R.eval-integrand` to do rule computations
+- Its VT object `R.variable-transformer` has a reference to `R` and uses `R` boundaries.
+
+---
+
+## Variable transformer
+
+The Variable Transformer (VT) hierarchy of classes implements the [Composite design pattern](https://en.wikipedia.org/wiki/Composite_pattern).
+
+The fundamental classes `Math::NIntegrate::Infinity` and `Math::NIntegrate::Affine`. 
+Some singularity handlers are implemented VT classes. Some integration rules must be paired with corresponding variable transformers.
+
+```mermaid
+%%{init: {"theme": "redux-dark-color"} }%%
+classDiagram
+    direction LR
+    class Component["Math::NIntegrate::VariableTransformer"] {
+        +context
+        +region
+        +transform()
+    }
+    class Composite["Math::NIntegrate::VariableTransformer::Composite"] {
+        -stack: List~Component~
+        -vtAffine
+        +transform()
+        +add(Component)
+        +remove(Component)
+    }
+    class Affine["Math::NIntegrate::VariableTransformer::Affine"] {
+        +transform()
+    }
+    class Infinity["Math::NIntegrate::VariableTransformer::Infinity"] {
+        +transform()
+    }
+    class IMT["Math::NIntegrate::VariableTransformer::IMT"] {
+        +transform()
+    }
+    class DoubleExponential["Math::NIntegrate::VariableTransformer::DoubleExponential"] {
+        +transform()
+    }
+    class Reverse["Math::NIntegrate::VariableTransformer::Reverse"] {
+        +transform()
+    }
+
+    Component <|-- Composite
+    Component <|-- Affine
+    Component <|-- Infinity
+    Component <|-- IMT
+    Component <|-- DoubleExponential
+    Component <|-- Reverse
+    Composite "1" *-- "0..*" Component
+    Composite *-- Affine
+```
+
 ---
 
 ## References
