@@ -3,7 +3,8 @@ use v6.d;
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::Affine;
 
-class Math::NIntegrate::VariableTransformer::Composite {
+class Math::NIntegrate::VariableTransformer::Composite
+        is Math::NIntegrate::VariableTransformer {
     #| Stack of Math::NIntegrate::VariableTransformer objects
     has Math::NIntegrate::VariableTransformer @.stack;
     has Math::NIntegrate::VariableTransformer::Affine $.vtAffine;
