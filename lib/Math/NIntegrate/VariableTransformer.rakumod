@@ -32,7 +32,7 @@ class Math::NIntegrate::VariableTransformer {
     has @.scales;
 
     #| Contextual variable transformer (e.g. Composite)
-    has Math::NIntegrate::VariableTransformer $.context;
+    has Math::NIntegrate::VariableTransformer $.context is rw;
 
     #| Integration region
     has $.region;
