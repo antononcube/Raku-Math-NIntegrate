@@ -3,6 +3,7 @@ use v6.d;
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::Affine;
 use Math::NIntegrate::VariableTransformer::Infinity;
+use Math::NIntegrate::Region;
 
 class Math::NIntegrate::VariableTransformer::Composite
         is Math::NIntegrate::VariableTransformer {
@@ -13,18 +14,17 @@ class Math::NIntegrate::VariableTransformer::Composite
     #======================================================
     # Creators
     #======================================================
-    submethod TWEAK (*%args) {
+    submethod TWEAK(*%args) {
         # Composite always uses the Affine variable transformer
         # in order to put the rule abscissas within the boundaries of region.
         $!vtAffine = Math::NIntegrate::VariableTransformer::Affine.new(context => self);
 
+        # Should the stack have at least one variable transformer?
+        # The Infinity transform can be seen as finite-range proxy of the region.
+        # The Affine transform is for mapping or the finite boundaries to integration rules [0, 1] abscissas ranges.
+
         # All variable transformers in the stack have this object as context.
         # The method get-region() is going return this object's region.
-#        if @!stack.elems == 0 {
-#            my $vtInf = Math::NIntegrate::VariableTransformer::Infinity.new(context => self, region => self.region);
-#            say (:$vtInf);
-#            @!stack.push($vtInf)
-#        }
         for @!stack -> $vt { $vt.context = self }
 
         # Should Composite be made to always have a region object?
@@ -32,6 +32,15 @@ class Math::NIntegrate::VariableTransformer::Composite
         #     fail 'MISSING_OBJECT: composite initialized without region object'
         # }
     }
+
+#    method new(Math::NIntegrate::Region:D $region) {
+#
+#        #        if @!stack.elems == 0 {
+#        #            my $vtInf = Math::NIntegrate::VariableTransformer::Infinity.new(context => self, region => self.region);
+#        #            say (:$vtInf);
+#        #            @!stack.push($vtInf)
+#        #        }
+#    }
 
     #======================================================
     # Stack management methods
