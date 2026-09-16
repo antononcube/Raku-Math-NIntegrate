@@ -43,8 +43,8 @@ class Math::NIntegrate::Rule::General
             my @point = @!abscissas[$i] ~~ Numeric:D ?? [@!abscissas[$i], ] !! @!abscissas[$i];
             my $value = $region.eval-integrand(@point);
             @values.push($value);
-            $integralLocal += @!weights * $value;
-            $errorLocal += @!error-weights * $value;
+            $integralLocal += @!weights[$i] * $value;
+            $errorLocal += @!error-weights[$i] * $value;
         }
 
         $!integral = $integralLocal;
