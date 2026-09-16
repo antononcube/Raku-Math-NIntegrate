@@ -13,6 +13,17 @@ This document outlines the OOP architecture and gives rationale for some of the 
 
 ---
 
+## Dictionary
+
+- **Integration Region (IReg)** : integration region (or simplex) with boundaries.
+- **Integration Rule (IRule)** : integration rule with three lists: abscissas, weights, and error weights.
+- **Integration Strategy (IS)** : integration strategies manage sets of integration regions in order to compute integral estimates according to certain precision goals or performance specs. 
+- **Singularity Handler (SH)** : singularity handlers are applied when interation strategies do not converge fast enough.
+- **Variable Transformer (VT)** : variable transformer object use formulas to map one domain to another.
+- **IntegrationMonitor (IM)** : a function that (if specified) is called after every step of an integration strategy. 
+
+---
+
 ## Overall process
 
 Each integration strategy of "Math::NIntegrate" creates and manipulates a collection of integration regions. 
@@ -142,12 +153,17 @@ method specs Builder was chosen since gives more control over the building steps
 
 ## References
 
-### Article, blog posts
+### Articles, blog posts
 
 [AAmse1] Anton Antonov,
 ["Determining which rule NIntegrate selects automatically", answer](https://mathematica.stackexchange.com/a/96663),
 (2015)
 [MathematicaStackExchange](https://mathematica.stackexchange.com).
+
+[AA1] Anton Antonov,
+["Adaptive numerical Lebesgue integration by set measure estimates"](https://mathematicaforprediction.wordpress.com/2016/07/01/adaptive-numerical-lebesgue-integration-by-set-measure-estimates/),
+(2026),
+[MathematicaForPrediction at WordPress](https://mathematicaforprediction.wordpress.com).
 
 ### Wolfram Language documentation
 
