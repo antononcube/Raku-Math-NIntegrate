@@ -1,0 +1,39 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+use Math::NIntegrate::VariableTransformer::Composite;
+use Math::NIntegrate::NumericalFunction;
+use Math::NIntegrate::Region;
+
+plan *;
+
+## 1
+subtest {
+
+    # Integrand
+    sub f($x) {1 / $x ** 2}
+    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f);
+
+    # Region
+    my $region = Math::NIntegrate::Region.new(min => [-2,], max => [5, ], dimension => 1);
+
+    my %args =
+            region => $region,
+            min-original-bounds => 0,
+            max-original-bounds => 1,
+            min-transform-bounds => $region.min.head,
+            max-transform-bounds => $region.max.head,
+            working-precision => Rat
+            ;
+
+    ok Math::NIntegrate::VariableTransformer::Composite.new(|%args), 'Composite object creation is ok';
+
+    my $vt = Math::NIntegrate::VariableTransformer::Composite.new(|%args);
+
+    $region.variable-transformer = $vt
+
+}, 'Region integration';
+
+
+done-testing;
