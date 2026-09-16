@@ -2,6 +2,7 @@ use v6.d;
 
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::Affine;
+use Math::NIntegrate::VariableTransformer::Infinity;
 
 class Math::NIntegrate::VariableTransformer::Composite
         is Math::NIntegrate::VariableTransformer {
@@ -19,9 +20,12 @@ class Math::NIntegrate::VariableTransformer::Composite
 
         # All variable transformers in the stack have this object as context.
         # The method get-region() is going return this object's region.
-        with @!stack {
-            for @!stack -> $vt { $vt.context = self }
-        }
+#        if @!stack.elems == 0 {
+#            my $vtInf = Math::NIntegrate::VariableTransformer::Infinity.new(context => self, region => self.region);
+#            say (:$vtInf);
+#            @!stack.push($vtInf)
+#        }
+        for @!stack -> $vt { $vt.context = self }
 
         # Should Composite be made to always have a region object?
         # without self.region {
@@ -81,19 +85,36 @@ class Math::NIntegrate::VariableTransformer::Composite
     }
 
     method get-transform-bounds(-->Map:D) {
-        return @!stack.tail.get-tranform-bounds
+        return @!stack.elems
+                ?? @!stack.tail.get-transform-bounds
+                !! self.Math::NIntegrate::VariableTransformer::get-transform-bounds
     }
 
     method get-scale(-->Numeric:D) {
         return reduce({$^a * $^b.scale}, self.scale, |@!stack>>.scale )
     }
 
-    method transform(:@point, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {
+    method transform(:@point is copy, :$jacobian is copy, Bool:D :fb(:$functional-bounds) = False --> Map:D) {
+
+        $jacobian = 1;
         # Special treatment is needed for functional boundaries
         if $functional-bounds {
             die 'Functional boundaries variable transformation is not implemented yet.'
         } else {
             # Affine transformation is always done with Composite
+            if $.vtAffine {
+                # Affine transform is multidimensional
+                my %res = $.vtAffine.transform(:@point, :$jacobian);
+                @point = |%res<point>;
+                $jacobian = %res<jacobian>
+            }
+
+            # Apply the stack of transformations in reverse order
+            for @!stack.reverse -> $vt {
+                my %res = $vt.transform(:@point, :$jacobian);
+                @point = |%res<point>;
+                $jacobian = %res<jacobian>
+            }
         }
 
         return %(:@point, :$jacobian)
