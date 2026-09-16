@@ -67,13 +67,13 @@ class Math::NIntegrate::Region {
     #--------------------------------------
 
     # Quadrature rule object
-    has Math::NIntegrate::Rule::General $.rule;
+    has Math::NIntegrate::Rule::General $.rule is rw;
 
     # Numerical function object
-    has Math::NIntegrate::NumericalFunction $.numerical-function;
+    has Math::NIntegrate::NumericalFunction $.numerical-function is rw;
 
     # Variable transformator, usually a Math::NIntegrate::VariableTransformer::Composite object
-    has Math::NIntegrate::VariableTransformer $.variable-transformer;
+    has Math::NIntegrate::VariableTransformer $.variable-transformer is rw;
 
     # Reference to the "main" integration object;
     # it should be Math::NIntegrate::Strategy or Whatever
