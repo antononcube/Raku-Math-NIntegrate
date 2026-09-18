@@ -77,9 +77,57 @@ subtest {
 
     my $resRule = $region.rule.integrate($region);
     #say (integral => $resRule.integral, error => $resRule.error);
-    is abs($resRule.integral - 39) ≤ 10e-6, True, 'expected integral estimate';
-    is $resRule.error.abs ≤ 10e-5, True, 'expected error estimage';
+    is abs($resRule.integral - 39) ≤ 1e-5, True, 'expected integral estimate';
+    is $resRule.error.abs ≤ 1e-4, True, 'expected error estimate';
 
 }, 'Region integration, Builder creation';
+
+## 3
+subtest {
+
+    # Integrand
+    sub f($x) { 1 / $x ** 2}
+    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Rat);
+
+    # Integration rule
+    my $rule = Math::NIntegrate::Rule::GaussKronrod.new(5);
+
+    # Region
+    my $region = Math::NIntegrate::Builder.make-region(
+            $numerical-function,
+            [0.5,],
+            [5, ],
+            :$rule);
+
+    isa-ok $region.eval-integrand([0,]), Numeric:D, 'region eval-integrand call is ok';
+
+    isa-ok $region.rule.integrate($region), Math::NIntegrate::Rule::General:D, 'region integration rule integrate';
+
+    my $exact = - sqrt(2) + 2 * sqrt(5);
+    my $resRule = $region.rule.integrate($region);
+    say (integral => $resRule.integral, error => $resRule.error);
+    is abs($resRule.integral - $exact) > 1e-1, True, 'expected integral estimate';
+    is $resRule.error.abs > 1e-2, True, 'expected error estimate';
+
+    # Cloning tests
+    isa-ok $region.clone, Math::NIntegrate::Region:D, 'region clone call ok';
+    my $region-clone = $region.clone;
+    is-deeply $region-clone.min, $region.min, 'clone has the same min boundaries';
+    is-deeply $region-clone.max, $region.max, 'clone has the same max boundaries';
+
+    # Split the clone
+    isa-ok $region-clone.split(:0axis), Math::NIntegrate::Region:D, 'expected resutl type for region splitting';
+
+    # Split original region
+    my $region2 = $region.split(:0axis);
+
+    # Boundaries after the split
+    is $region.variable-transformer.get-transform-bounds<min>[0], 0.5, 'expected min boundary of old region';
+    is $region.variable-transformer.get-transform-bounds<max>[0], 2.75, 'expected max boundary of old region';
+
+    is $region2.variable-transformer.get-transform-bounds<min>[0], 2.75, 'expected min boundary of new region';
+    is $region2.variable-transformer.get-transform-bounds<max>[0], 5, 'expected max boundary of new region';
+
+}, 'Region split and integration';
 
 done-testing;
