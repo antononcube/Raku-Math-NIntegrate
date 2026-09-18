@@ -36,7 +36,7 @@ class Math::NIntegrate::VariableTransformer {
     # has Math::NIntegrate::VariableTransformer $.context is rw;
 
     #| Integration region
-    has $.region;
+    has $.region is rw;
 
     #======================================================
     # Creators
