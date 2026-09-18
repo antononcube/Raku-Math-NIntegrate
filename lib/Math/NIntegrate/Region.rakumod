@@ -83,8 +83,6 @@ class Math::NIntegrate::Region {
     # Creators
     #--------------------------------------
 
-    #method new() {!!!}
-
     method copy(
             Math::NIntegrate::Region:D $from,
             Bool:D :deep(:deep-copy(:$clone)) = False
