@@ -102,6 +102,18 @@ class Math::NIntegrate::VariableTransformer {
         }
     }
 
+    #| Set min transformation bound(s)
+    method set-min-transform-bound(UInt:D $axis, Numeric:D $value) {
+        @!min-transform-bounds[$axis] = $value;
+        return self
+    }
+
+    #| Set max transformation bound(s)
+    method set-max-transform-bound(UInt:D $axis, Numeric:D $value) {
+        @!max-transform-bounds[$axis] = $value;
+        return self
+    }
+
     #| Abstract transform method
     method transform(
             :@point is copy,

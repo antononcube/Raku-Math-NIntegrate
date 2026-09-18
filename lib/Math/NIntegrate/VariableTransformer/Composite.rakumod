@@ -104,6 +104,18 @@ class Math::NIntegrate::VariableTransformer::Composite
                 !! self.Math::NIntegrate::VariableTransformer::get-transform-bounds
     }
 
+    #| Set min transformation bound(s)
+    method set-min-transform-bound(UInt:D $axis, Numeric:D $value) {
+        @!stack.tail.min-transform-bounds[$axis] = $value;
+        return self
+    }
+
+    #| Set max transformation bound(s)
+    method set-max-transform-bound(UInt:D $axis, Numeric:D $value) {
+        @!stack.tail.max-transform-bounds[$axis] = $value;
+        return self
+    }
+
     method get-scale(-->Numeric:D) {
         return reduce({$^a * $^b.scale}, self.scale, |@!stack>>.scale )
     }
