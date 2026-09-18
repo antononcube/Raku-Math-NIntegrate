@@ -31,8 +31,9 @@ class Math::NIntegrate::VariableTransformer {
     #| Scaling factors for each dimension; each scale should be either 1 or -1
     has @.scales;
 
-    #| Contextual variable transformer (e.g. Composite)
-    has Math::NIntegrate::VariableTransformer $.context is rw;
+    # Contextual variable transformer (e.g. Composite)
+    # Cannot be used -- Raku hangs when being set in TWEAK or a Builder method.
+    # has Math::NIntegrate::VariableTransformer $.context is rw;
 
     #| Integration region
     has $.region;
@@ -60,7 +61,6 @@ class Math::NIntegrate::VariableTransformer {
         @!max-transform-bounds = $clone ?? $from.max-transform-bounds>>.clone.Array !! $from.max-transform-bounds;
         $!working-precision = $from.working-precision;
         @!scales = $clone ?? $from.scales>>.clone.Array !! $from.scales;
-        $!context = $from.context;
         $!region = $from.region;
             
         return self
@@ -76,34 +76,39 @@ class Math::NIntegrate::VariableTransformer {
     #======================================================
 
     #| Get original bounds
-    method get-original-bounds(-->Map:D) {
-        return do if $!context {
-            $!context.get-original-bounds()
+    method get-original-bounds(:$context = Nil -->Map:D) {
+        return do if $context {
+            $context.get-original-bounds()
         } else {
             %(min => @!min-original-bounds, max => @!max-original-bounds)
         }
     }
 
     #| Get transformation bounds
-    method get-transform-bounds(-->Map:D) {
-        return do if $!context {
-            $!context.get-transform-bounds()
+    method get-transform-bounds(:$context = Nil -->Map:D) {
+        return do if $context {
+            $context.get-transform-bounds()
         } else {
             %(min => @!min-transform-bounds, max => @!max-transform-bounds)
         }
     }
 
     #| Get region object
-    method get-region(-->Map:D) {
-        return do if $!context {
-            $!context.get-region()
+    method get-region(:$context = Nil) {
+        return do if $context {
+            $context.get-region()
         } else {
             self.region
         }
     }
 
     #| Abstract transform method
-    method transform(:@point, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {!!!}
+    method transform(
+            :@point is copy,
+            :$jacobian is copy,
+            Bool:D :fb(:$functional-bounds) = False,
+            :$context = Nil
+            --> Map:D) {!!!}
 
     #======================================================
     # Jacobian

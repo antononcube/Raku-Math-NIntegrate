@@ -106,8 +106,13 @@ class Math::NIntegrate::VariableTransformer::Infinity
         return %(:$point, jacobian => 1)
     }
 
-    method transform(:@point, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {
-        my %bounds = self.get-transform-bounds();
+    method transform(
+            :@point is copy,
+            :$jacobian is copy,
+            Bool:D :fb(:$functional-bounds) = False,
+            :$context = Nil
+            --> Map:D) {
+        my %bounds = self.get-transform-bounds(:$context);
 
         if $functional-bounds {
             die 'Functional boundaries variable transformation is not implemented yet.'

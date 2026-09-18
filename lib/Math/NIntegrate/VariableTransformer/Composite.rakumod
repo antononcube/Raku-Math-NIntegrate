@@ -15,32 +15,28 @@ class Math::NIntegrate::VariableTransformer::Composite
     # Creators
     #======================================================
     submethod TWEAK(*%args) {
+        # Should Composite be made to always have a region object?
+         without self.region {
+             fail 'MISSING_OBJECT: composite variable transformer initialized without region object'
+         }
+
         # Composite always uses the Affine variable transformer
         # in order to put the rule abscissas within the boundaries of region.
         $!vtAffine = Math::NIntegrate::VariableTransformer::Affine.new(context => self);
 
-        # Should the stack have at least one variable transformer?
-        # The Infinity transform can be seen as finite-range proxy of the region.
-        # The Affine transform is for mapping or the finite boundaries to integration rules [0, 1] abscissas ranges.
-
-        # All variable transformers in the stack have this object as context.
+        # Initially, all variable transformers in the stack were envisioned to have this object as context.
         # The method get-region() is going return this object's region.
-        for @!stack -> $vt { $vt.context = self }
-
-        # Should Composite be made to always have a region object?
-        # without self.region {
-        #     fail 'MISSING_OBJECT: composite initialized without region object'
-        # }
+        # But doing this here produces a hang.
+        # for @!stack -> $vt { $vt.context = self }
     }
 
-#    method new(Math::NIntegrate::Region:D $region) {
-#
-#        #        if @!stack.elems == 0 {
-#        #            my $vtInf = Math::NIntegrate::VariableTransformer::Infinity.new(context => self, region => self.region);
-#        #            say (:$vtInf);
-#        #            @!stack.push($vtInf)
-#        #        }
-#    }
+    multi method new(Math::NIntegrate::Region:D $region, *%args) {
+        self.bless(:$region, |%args.grep(*.key ne 'region').Hash)
+    }
+
+    multi method new(Math::NIntegrate::Region:D :$region, *%args) {
+        self.bless(:$region, |%args.grep(*.key ne 'region').Hash)
+    }
 
     #======================================================
     # Stack management methods
@@ -48,17 +44,26 @@ class Math::NIntegrate::VariableTransformer::Composite
     #| Add a transformer
     method add(Math::NIntegrate::VariableTransformer:D $obj) {
 
-        if $obj.region.dimension != self.region.dimension {
+        # Should the check of dimensions be between regions or transform min/max boundaries?
+        # if $obj.get-region.dimension != self.region.dimension {
+        if $obj.min-original-bounds.elems != self.region.dimension {
             fail 'DIMENSIONS_DO_NOT_MATCH: Non-equal dimension when adding a variable transformer.'
         }
 
+        if @!stack.elems > 0 {
+            $obj.min-original-bounds = @!stack.tail.min-transform-bounds;
+            $obj.max-original-bounds = @!stack.tail.max-transform-bounds;
+        }
+
         @!stack.push($obj);
+        #$obj.context = self;
+
         return self
     }
 
     #| Remove a transformer object
     multi method remove(Math::NIntegrate::VariableTransformer:D $obj) {
-        @!stack .= grep({ $_ ne $obj });
+        @!stack .= grep({ $_ !=== $obj });
         return self
     }
 
@@ -78,15 +83,15 @@ class Math::NIntegrate::VariableTransformer::Composite
         self.Math::NIntegrate::VariableTransformer::copy($from, :$clone);
 
         # No need to copy the Affine object
-        @!stack = $clone ?? $from.stack>>.clone !! $from.stack;
+        # The stack is always cloned
+        @!stack = $from.stack>>.clone;
 
         return self
     }
 
     method clone(-->Math::NIntegrate::VariableTransformer::Composite) {
-
         # No need to clone the Affine object
-        Math::NIntegrate::VariableTransformer::Composite.new().copy(self)
+        Math::NIntegrate::VariableTransformer::Composite.new().copy(self, :clone)
     }
 
     method get-original-bounds(-->Map:D) {
@@ -103,7 +108,12 @@ class Math::NIntegrate::VariableTransformer::Composite
         return reduce({$^a * $^b.scale}, self.scale, |@!stack>>.scale )
     }
 
-    method transform(:@point is copy, :$jacobian is copy, Bool:D :fb(:$functional-bounds) = False --> Map:D) {
+    method transform(
+            :@point is copy,
+            :$jacobian is copy,
+            Bool:D :fb(:$functional-bounds) = False,
+            :$context = Nil
+            --> Map:D) {
 
         $jacobian = 1;
         # Special treatment is needed for functional boundaries
@@ -113,14 +123,14 @@ class Math::NIntegrate::VariableTransformer::Composite
             # Affine transformation is always done with Composite
             if $.vtAffine {
                 # Affine transform is multidimensional
-                my %res = $.vtAffine.transform(:@point, :$jacobian);
+                my %res = $.vtAffine.transform(:@point, :$jacobian, context => self);
                 @point = |%res<point>;
                 $jacobian = %res<jacobian>
             }
 
             # Apply the stack of transformations in reverse order
             for @!stack.reverse -> $vt {
-                my %res = $vt.transform(:@point, :$jacobian);
+                my %res = $vt.transform(:@point, :$jacobian, context => self);
                 @point = |%res<point>;
                 $jacobian = %res<jacobian>
             }

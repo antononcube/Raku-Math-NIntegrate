@@ -5,10 +5,15 @@ use Math::NIntegrate::VariableTransformer;
 class Math::NIntegrate::VariableTransformer::Affine
         is Math::NIntegrate::VariableTransformer {
 
-    method transform(:@point, :$jacobian, Bool:D :fb(:$functional-bounds) = False --> Map:D) {
+    method transform(
+            :@point is copy,
+            :$jacobian is copy,
+            Bool:D :fb(:$functional-bounds) = False,
+            :$context = Nil
+            --> Map:D) {
         # If the Affine object has a context (most likely, a Composite object)
         # then the transform boundaries of the context object are used.
-        my %bounds = self.get-transform-bounds();
+        my %bounds = self.get-transform-bounds(:$context);
 
         fail 'DIMENSIONS_DO_NOT_MATCH: for point argument and boundary' if @point.elems != %bounds<min>.elems;
 
