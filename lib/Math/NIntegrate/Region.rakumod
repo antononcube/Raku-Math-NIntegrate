@@ -54,7 +54,7 @@ class Math::NIntegrate::Region {
     # Accumulated number of levels of recursion for which the error
     # has failed to decrease by a factor of at least 7.
     # If this gets as high as 4 a message regarding convergence rate is issued.
-    has UInt $!no-error-decrease-count;
+    has UInt $.no-error-decrease-count;
 
     # Region type
     has Str $.type;
@@ -82,6 +82,11 @@ class Math::NIntegrate::Region {
     #--------------------------------------
     # Creators
     #--------------------------------------
+    submethod TWEAK(*%args) {
+        without self.dimension {
+            $!dimension = @!min.elems
+        }
+    }
 
     method copy(
             Math::NIntegrate::Region:D $from,
@@ -128,7 +133,7 @@ class Math::NIntegrate::Region {
         without $!numerical-function {
             fail 'MISSING_OBJECT: no numerical function object for working precision request'
         }
-        $!numerical-function ?? $!numerical-function.working-preicions !! Whatever
+        $!numerical-function ?? $!numerical-function.working-precision !! Whatever
     }
 
     #| Get integration estimate
@@ -137,7 +142,7 @@ class Math::NIntegrate::Region {
     }
 
     #| Split region across given axis and dithering
-    multi method split(Int:D :$axis!, Numeric:D :$dithering = 0) {
+    multi method split(Int:D $axis, Numeric:D $dithering = 0) {
         self.split(:$axis, :$dithering)
     }
 
@@ -153,14 +158,14 @@ class Math::NIntegrate::Region {
         # See the variable transformer split below.
         my $mid = (@!min[$axis] + @!max[$axis]) / 2 + $dithering * (@!max[$axis] - @!min[$axis]);
         # Should this precision setting be before or after the computation of the mid point?
-        $mid .= numerical($mid, self.get-working-precision);
+        $mid = numerical($mid, self.get-working-precision);
         self.max[$axis] = $mid;
         $new-obj.min[$axis] = $mid;
 
         # Change the boundaries of the transformation object.
         # This is needed in order to map the integration rule abscissas to into the transformed half-ranges.
         without $!variable-transformer {
-            fail 'MISSING_OBJEVT: no variable transformer in region spliting.'
+            fail 'MISSING_OBJECT: no variable transformer in region spliting.'
         }
         my $min = $!variable-transformer.min-transform-bounds[$axis];
         my $max = $!variable-transformer.max-transform-bounds[$axis];
