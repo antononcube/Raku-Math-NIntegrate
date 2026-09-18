@@ -5,6 +5,10 @@ use Math::NIntegrate::VariableTransformer;
 class Math::NIntegrate::VariableTransformer::Affine
         is Math::NIntegrate::VariableTransformer {
 
+    method clone(-->Math::NIntegrate::VariableTransformer::Affine) {
+        Math::NIntegrate::VariableTransformer::Affine.new(region => self.region).copy(self, :clone)
+    }
+
     method transform(
             :@point is copy,
             :$jacobian is copy,

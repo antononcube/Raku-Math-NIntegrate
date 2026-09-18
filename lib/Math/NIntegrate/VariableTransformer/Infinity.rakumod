@@ -7,6 +7,10 @@ use Math::NIntegrate::Codes;
 class Math::NIntegrate::VariableTransformer::Infinity
         is Math::NIntegrate::VariableTransformer {
 
+    method clone(-->Math::NIntegrate::VariableTransformer::Infinity) {
+        Math::NIntegrate::VariableTransformer::Infinity.new(region => self.region).copy(self, :clone)
+    }
+
     submethod TWEAK(*%args) {
 
         # For each dimension
