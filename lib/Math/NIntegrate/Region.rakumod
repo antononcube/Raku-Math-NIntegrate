@@ -112,7 +112,8 @@ class Math::NIntegrate::Region {
         # The numerical function is not cloned
         $!numerical-function = $from.numerical-function;
 
-        # Note that the variable transformation object is cloned too
+        # Note that the variable transformation object is cloned too,
+        # but the region has to be replaced.
         $!variable-transformer = $clone ?? $from.variable-transformer.clone !! $from.variable-transformer;
 
         $!strategy = $from.strategy;
@@ -121,7 +122,9 @@ class Math::NIntegrate::Region {
     }
 
     method clone() {
-        Math::NIntegrate::Region.new.copy(self, :clone)
+        my $obj = Math::NIntegrate::Region.new.copy(self, :clone);
+        $obj.variable-transformer.region = $obj;
+        return $obj
     }
 
     #--------------------------------------
