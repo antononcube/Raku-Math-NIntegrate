@@ -167,14 +167,15 @@ class Math::NIntegrate::Region {
         without $!variable-transformer {
             fail 'MISSING_OBJECT: no variable transformer in region spliting.'
         }
-        my $min = $!variable-transformer.min-transform-bounds[$axis];
-        my $max = $!variable-transformer.max-transform-bounds[$axis];
+        my %bounds = $!variable-transformer.get-transform-bounds();
+        my $min = %bounds<min>[$axis];
+        my $max = %bounds<max>[$axis];
 
         $mid = ($min + $max) / 2 + $dithering * ($max - $min);
 
-        $mid .= numerical($mid, self.get-working-precision);
-        $!variable-transformer.max-transform-bounds[$axis] = $mid;
-        $new-obj.variable-transformer.min-transform-bounds[$axis] = $mid;
+        $mid = numerical($mid, self.get-working-precision);
+        $!variable-transformer.set-max-transform-bound($axis, $mid);
+        $new-obj.variable-transformer.set-min-transform-bound($axis, $mid);
 
         # Level of splitting
         @!levels[$axis] += 1;
