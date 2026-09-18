@@ -22,7 +22,7 @@ class Math::NIntegrate::VariableTransformer::Composite
 
         # Composite always uses the Affine variable transformer
         # in order to put the rule abscissas within the boundaries of region.
-        $!vtAffine = Math::NIntegrate::VariableTransformer::Affine.new(context => self);
+        $!vtAffine = Math::NIntegrate::VariableTransformer::Affine.new;
 
         # Initially, all variable transformers in the stack were envisioned to have this object as context.
         # The method get-region() is going return this object's region.
@@ -91,7 +91,7 @@ class Math::NIntegrate::VariableTransformer::Composite
 
     method clone(-->Math::NIntegrate::VariableTransformer::Composite) {
         # No need to clone the Affine object
-        Math::NIntegrate::VariableTransformer::Composite.new().copy(self, :clone)
+        Math::NIntegrate::VariableTransformer::Composite.new(region => self.region).copy(self, :clone)
     }
 
     method get-original-bounds(-->Map:D) {
