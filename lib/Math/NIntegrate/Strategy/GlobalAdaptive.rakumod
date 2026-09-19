@@ -38,12 +38,16 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         while !($done-tol || $done-accuracy || $done-max-recursion) {
             $step++;
 
+            #say ('start of loop:', :$integral, :$error, :$step, region-count => $heap.elems);
             # Delete from heap the region with largest error
             $topRegion = $heap.delete-top-element;
+
 
             $error -= $topRegion.error;
             $integral -= $topRegion.integral;
             my $axis = $topRegion.axis;
+
+            #say ('after removing top region:', :$integral, :$error, :$step, region-count => $heap.elems);
 
             # Application of singularity handler
             if $topRegion.levels[$axis] == self.singularity-depth {
@@ -67,6 +71,10 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             $error += $topRegion.error + $newRegion.error;
             $integral += $topRegion.integral + $newRegion.integral;
 
+            # Instead of compensated summation
+            #$error = [|$heap.values.map(*.error), $topRegion.error, $newRegion.error].sort(*.abs).sum;
+            #$integral = [|$heap.values.map(*.integral), $topRegion.integral, $newRegion.integral].sort(*.abs).sum;
+
             # Add the split regions to the heap
             $heap.insert($topRegion);
             $heap.insert($newRegion);
@@ -78,6 +86,8 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             $done-tol = $error ≤ $relative-tolerance * $integral.abs;
             $done-accuracy = $error ≤ $absolute-tolerance;
             $done-max-recursion = $topRegion.levels[$axis] > self.max-recursion;
+
+            #say ('end of loop:', :$integral, :$error, relative-error => $error/$integral, region-count => $heap.elems, :$step)
         }
 
         # Warning the max recursion was reached
