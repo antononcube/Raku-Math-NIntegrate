@@ -8,8 +8,8 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
     #| GlobalAdaptive strategy's algorithm
     method algorithm(
-            Numeric:D :$relative-tolerance = 1e-6,
-            Numeric:D :$absolute-tolerance = 0,
+            Numeric:D :tol(:$relative-tolerance) = 1e-6,
+            Numeric:D :acc(:$absolute-tolerance) = 0,
             :$working-precision = Num
             -->Map:D) {
 
