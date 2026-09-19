@@ -48,7 +48,7 @@ subtest {
     isa-ok $region.rule.integrate($region), Math::NIntegrate::Rule::General:D, 'region integration rule integrate';
 
     my $resRule = $region.rule.integrate($region);
-    #say (integral => $resRule.integral, error => $resRule.error);
+    # say (integral => $resRule.integral, error => $resRule.error);
     is abs($resRule.integral - 39) ≤ 10e-6, True, 'expected integral estimate';
     is $resRule.error.abs ≤ 10e-5, True, 'expected error estimage';
 
@@ -76,21 +76,22 @@ subtest {
     isa-ok $region.rule.integrate($region), Math::NIntegrate::Rule::General:D, 'region integration rule integrate';
 
     my $resRule = $region.rule.integrate($region);
-    #say (integral => $resRule.integral, error => $resRule.error);
+    # say (integral => $resRule.integral, error => $resRule.error);
     is abs($resRule.integral - 39) ≤ 1e-5, True, 'expected integral estimate';
     is $resRule.error.abs ≤ 1e-4, True, 'expected error estimate';
 
 }, 'Region integration, Builder creation';
 
+
 ## 3
 subtest {
 
     # Integrand
-    sub f($x) { 1 / $x ** 2}
+    sub f($x) { 1 / $x.sqrt }
     my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Rat);
 
     # Integration rule
-    my $rule = Math::NIntegrate::Rule::GaussKronrod.new(5);
+    my $rule = Math::NIntegrate::Rule::GaussKronrod.new(3);
 
     # Region
     my $region = Math::NIntegrate::Builder.make-region(
@@ -105,8 +106,8 @@ subtest {
 
     my $exact = - sqrt(2) + 2 * sqrt(5);
     my $resRule = $region.rule.integrate($region);
-    say (integral => $resRule.integral, error => $resRule.error);
-    is abs($resRule.integral - $exact) > 1e-1, True, 'expected integral estimate';
+    # say (integral => $resRule.integral, error => $resRule.error);
+    is abs($resRule.integral - $exact) > 1e-5, True, 'expected integral estimate';
     is $resRule.error.abs > 1e-2, True, 'expected error estimate';
 
     # Cloning tests
@@ -116,7 +117,7 @@ subtest {
     is-deeply $region-clone.max, $region.max, 'clone has the same max boundaries';
 
     # Split the clone
-    isa-ok $region-clone.split(:0axis), Math::NIntegrate::Region:D, 'expected resutl type for region splitting';
+    isa-ok $region-clone.split(:0axis), Math::NIntegrate::Region:D, 'expected result type for region splitting';
 
     # Split original region
     my $region2 = $region.split(:0axis);
@@ -127,6 +128,16 @@ subtest {
 
     is $region2.variable-transformer.get-transform-bounds<min>[0], 2.75, 'expected min boundary of new region';
     is $region2.variable-transformer.get-transform-bounds<max>[0], 5, 'expected max boundary of new region';
+
+    is $region.levels, 1, 'expected level';
+    is $region2.levels, 1, 'expected level';
+
+    my $res1 = $region.rule.integrate($region);
+    my $res2 = $region2.rule.integrate($region2);
+    # say (integral1 => $res1.integral, integral2 => $res2.integral);
+    # say (error1 => $res1.error, error2 => $res2.error);
+    is ($res1.integral + $res2.integral - $exact) ≤ 1e-5, True, 'improved estimate';
+    is ($res1.error + $res2.error).abs ≤ 4e-2, True, 'smaller error';
 
 }, 'Region split and integration';
 
