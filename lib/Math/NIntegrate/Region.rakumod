@@ -139,10 +139,9 @@ class Math::NIntegrate::Region {
         $!numerical-function ?? $!numerical-function.working-precision !! Whatever
     }
 
-    #| Get integration estimate
-    method integrate(-->Math::NIntegrate::Region) {
-        die 'Region.integrate is not implemented yet.'
-    }
+    #--------------------------------------
+    # Split
+    #--------------------------------------
 
     #| Split region across given axis and dithering
     multi method split(Int:D $axis, Numeric:D $dithering = 0) {
@@ -194,6 +193,31 @@ class Math::NIntegrate::Region {
         return $new-obj
     }
 
+    #--------------------------------------
+    # Divide
+    #--------------------------------------
+
+    #| Divide the region with a given array of number of divisions for each dimension
+    method divide(@divisions --> Array) {
+        die 'The region method divide is not implemented yet.'
+    }
+
+    #--------------------------------------
+    # Partition
+    #--------------------------------------
+
+    # The argument points are, likely, integration rule abscissas.
+    # This method facilitates reuse of integral computations, by strategies, like, LocalAdaptive.
+
+    #| Partition the region with a given array of partition points.
+    method parition(@points --> Array) {
+        die 'The region method paritition is not implemented yet.'
+    }
+
+    #--------------------------------------
+    # Evaluate integrand
+    #--------------------------------------
+
     #| Evaluate integrand over transformed arguments and multiply by the Jacobian
     method eval-integrand(@point is copy) {
         my $jacobian = 1;
@@ -228,6 +252,15 @@ class Math::NIntegrate::Region {
         } else {
             $value * $jacobian
         }
+    }
+
+    #--------------------------------------
+    # Integrate
+    #--------------------------------------
+
+    #| Get integration estimate
+    method integrate(-->Math::NIntegrate::Region) {
+        die 'Region.integrate is not implemented yet.'
     }
 
     #--------------------------------------
