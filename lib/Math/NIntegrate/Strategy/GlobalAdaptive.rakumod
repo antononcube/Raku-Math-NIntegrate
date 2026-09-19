@@ -11,7 +11,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             Numeric:D :$relative-tolerance = 1e-6,
             Numeric:D :$absolute-tolerance = 0,
             :$working-precision = Num
-            -->Math::NIntegrate::Strategy) {
+            -->Map:D) {
 
         # At this point the working precision should be known in the integrand and region.
         # Do we want to reset the working precision here?
