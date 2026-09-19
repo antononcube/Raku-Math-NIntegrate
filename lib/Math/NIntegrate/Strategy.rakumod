@@ -4,8 +4,9 @@ use Math::NIntegrate::Region;
 
 class Math::NIntegrate::Strategy {
 
-    has Numeric $.absolute-tolerance;
-    has Numeric $.relative-tolerance;
+    # Do we need these here or they should be arguments to the method algorithm?
+    #has Numeric $.absolute-tolerance;
+    #has Numeric $.relative-tolerance;
 
     # Precision epsilon
     has Numeric $.epsilon;
@@ -34,8 +35,6 @@ class Math::NIntegrate::Strategy {
             UInt :$!max-recursion = 12,
             :$!max-points = Whatever,
             :$!singularity-depth = 4,
-            Numeric :$!absolute-tolerance = 0,
-            Numeric :$!relative-tolerance = 1e-6,
             :$!max-number-of-error-increases = Whatever
             :@!regions
                     ) {
@@ -70,5 +69,9 @@ class Math::NIntegrate::Strategy {
     method stopping-criteria(-->Map:D) {!!!}
 
     #| Strategy's algorithm
-    method algorithm(-->Math::NIntegrate::Strategy) {!!!}
+    method algorithm(
+            Numeric:D :$relative-tolerance = 1e-6,
+            Numeric:D :$absolute-tolerance = 0,
+            :$working-precision = Num
+            -->Math::NIntegrate::Strategy) {!!!}
 }
