@@ -106,8 +106,8 @@ class Math::NIntegrate::Region {
         $!type = $from.type;
         @!reuse-values = $clone ?? $from.reuse-values.clone !! $from.reuse-values;
 
-        # The rule is not cloned
-        $!rule = $from.rule;
+        # The rule must be cloned
+        $!rule = $clone ?? $from.rule.clone !! $from.rule;
 
         # The numerical function is not cloned
         $!numerical-function = $from.numerical-function;
