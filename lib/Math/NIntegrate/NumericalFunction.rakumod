@@ -4,6 +4,7 @@ class Math::NIntegrate::NumericalFunction {
     has &.function is rw;
     has @.argument-dimensions;
     has @.argument-names;
+    has @.last-argument-values;
     has $.working-precision is rw;
     has $.monitor is rw;
     has $.value;
@@ -14,7 +15,9 @@ class Math::NIntegrate::NumericalFunction {
                     :@!argument-names!,
                     :$!working-precision = Num,
                     :$!monitor = Nil,
-                    :$!value = Nil) {}
+                    :$!value = Nil) {
+        @!last-argument-values = Whatever xx @!argument-names;
+    }
 
     multi method new(:f(:func(:&function)), :wprec(:$working-precision) = Num) {
         my $signature = &function.signature;
@@ -37,7 +40,18 @@ class Math::NIntegrate::NumericalFunction {
 
     multi method evaluate(*@args) { self.eval(@args) }
     multi method eval(*@args) {
-        $!value = &!function(|@args);
-        return $!value;
+        try {
+            $!value = &!function(|@args);
+        }
+
+        # It seems it is a better to keep argument values with which the function failed to evaluate
+        @!last-argument-values = @args;
+
+        if $! {
+            warn 'Cannot evaluate numerical function at {@args}.';
+            return Whatever
+        }
+
+        return $!value
     }
 }
