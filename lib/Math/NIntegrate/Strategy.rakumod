@@ -1,5 +1,7 @@
 use v6.d;
 
+use Math::NIntegrate::Region;
+
 class Math::NIntegrate::Strategy {
 
     has Numeric $.absolute-tolerance;
@@ -12,21 +14,57 @@ class Math::NIntegrate::Strategy {
     has Numeric $.integral-estimate;
 
     # Options
-    has $.singularity-depth;
-    has $.min-recursion;
-    has $.max-recursion;
+    has Numeric $.singularity-depth;
+    has UInt $.min-recursion;
+    has UInt $.max-recursion;
     has $.max-points;
     has $.max-number-of-error-increases;
 
     # State
-    has $.error-increase-count;
+    has UInt $.error-increase-count;
 
-    # Regions, all Math::NIntegrate::Region
-    has @.regions;
+    # Regions
+    has Math::NIntegrate::Region @.regions is rw;
+
+    #======================================================
+    # Creators
+    #======================================================
+    submethod BUILD(
+            UInt :$!min-recursion = 0,
+            UInt :$!max-recursion = 12,
+            :$!max-points = Whatever,
+            :$!singularity-depth = 4,
+            Numeric :$!absolute-tolerance = 0,
+            Numeric :$!relative-tolerance = 1e-6,
+            :$!max-number-of-error-increases = Whatever
+            :@!regions
+                    ) {
+        without @!regions {
+            fail 'MISSING_OBJECT: at least one region is expected for integration startegy creation.'
+        }
+
+        # :12max-recursion is going to produce combinatorial explosion in high dimensional integrals.
+        # Hence, it can be Whatever and determined by regions' dimension.
+
+        # The option max-points is "soft", i.e., hard to respect precisely.
+        # Being Whatever means that it is ignored.
+    }
 
     #======================================================
     # Methods
     #======================================================
 
+    #| Template method
+    method min-recursion-regions(-->Array:D) {
+        # Split the regions $!min-recursion number of times
+    }
+
+    #| Strategy's initialization
+    method intialize(-->Math::NIntegrate::Strategy) {!!!}
+
+    #| Strategy's stopping criteria
+    method stopping-criteria(-->Map:D) {!!!}
+
+    #| Strategy's algorithm
     method algorithm(-->Math::NIntegrate::Strategy) {!!!}
 }
