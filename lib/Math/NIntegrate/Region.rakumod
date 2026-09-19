@@ -39,6 +39,8 @@ class Math::NIntegrate::Region {
     # dimension == Length(@!A) == Length(@!B)
     has UInt $.dimension;
 
+    # Maybe this should be just delegated to $!rule ?
+    # See apply-rule()
     has $.integral = Whatever;
     has $.error = Whatever;
 
@@ -259,8 +261,11 @@ class Math::NIntegrate::Region {
     #--------------------------------------
 
     #| Get integration estimate
-    method apply-ryle(-->Math::NIntegrate::Region) {
-        return self.rule.integrate(self);
+    method apply-rule(-->Math::NIntegrate::Region) {
+        $!.rule.integrate(self);
+        $!integral = $!rule.integral;
+        $!error = $!rule.error;
+        return self
     }
 
     #--------------------------------------
