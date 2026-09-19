@@ -1,0 +1,48 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+use Math::NIntegrate::VariableTransformer::Composite;
+use Math::NIntegrate::NumericalFunction;
+use Math::NIntegrate::Rule::GaussKronrod;
+use Math::NIntegrate::Rule::General;
+use Math::NIntegrate::Region;
+use Math::NIntegrate::Builder;
+use Math::NIntegrate::Strategy;
+use Math::NIntegrate::Strategy::GlobalAdaptive;
+
+plan *;
+
+## 1
+subtest {
+
+    # Integrand
+    sub f($x) { 1 / $x.sqrt }
+    my ($a, $b) = 1/2, 5;
+    my $exact = - sqrt(2) + 2 * sqrt(5);
+    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Rat);
+
+    # Integration rule
+    my $rule = Math::NIntegrate::Rule::GaussKronrod.new(5);
+
+    # Region
+    my $region = Math::NIntegrate::Builder.make-region($numerical-function, [$a,], [$b,], :$rule);
+
+    # Strategy
+    isa-ok Math::NIntegrate::Strategy::GlobalAdaptive.new(:0min-recursion, :5max-recursion, regions => [$region,]), Math::NIntegrate::Strategy, 'ok, strategy creation';
+
+    my $strategy = Math::NIntegrate::Strategy::GlobalAdaptive.new(:0min-recursion, :5max-recursion, regions => [$region,]);
+
+    # Integrate
+    my $relative-tolerance = 1e-5;
+    isa-ok $strategy.algorithm(:$relative-tolerance), Map:D, 'expected algorithm invocation result';
+
+    my %res = $strategy.algorithm(:$relative-tolerance);
+
+    say (:%res);
+
+    is (%res<integral> - $exact).abs ≤ $relative-tolerance * $exact, True, 'expected integral precision';
+
+}, 'GlobalAdaptive, low-level invocation';
+
+done-testing;
