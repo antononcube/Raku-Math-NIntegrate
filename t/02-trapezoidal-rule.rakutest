@@ -8,7 +8,15 @@ use Math::NIntegrate::Rule::Trapezoidal;
 ok Math::NIntegrate::Rule::Trapezoidal.new(5);
 
 # 2
-ok Math::NIntegrate::Rule::Trapezoidal.new(5, working-precision => Rat);
+subtest {
+    ok Math::NIntegrate::Rule::Trapezoidal.new(5, Rat);
+
+    my $rule = Math::NIntegrate::Rule::Trapezoidal.new(5, Rat);
+
+    is $rule.abscissas.all ~~ Rat:D, True, 'all Rat abscissas';
+    is $rule.weights.all ~~ Rat:D, True, 'all Rat weights';
+
+}, 'Trapezoidal rule with Rat precision';
 
 # 3
 subtest {
