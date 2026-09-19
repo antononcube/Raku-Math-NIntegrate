@@ -85,8 +85,14 @@ class Math::NIntegrate::Region {
     # Creators
     #--------------------------------------
     submethod TWEAK(*%args) {
-        without self.dimension {
+        without $!dimension {
             $!dimension = @!min.elems
+        }
+        if @!levels.elems == 0 {
+            @!levels = 0 xx $!dimension
+        }
+        without $!axis {
+            $!axis = 0
         }
     }
 
