@@ -56,13 +56,17 @@ class Math::NIntegrate::Strategy {
 
     #| Template method
     method min-recursion-regions(-->Array:D) {
-        # Split the regions $!min-recursion number of times
+        # Divide -- not split -- the regions $!min-recursion number of times
+        warn 'Processing of regions by min-recursion are is not implemented yet.';
+        return @!regions;
     }
 
     #| Strategy's initialization
     method intialize(-->Math::NIntegrate::Strategy) {!!!}
 
-    #| Strategy's stopping criteria
+    #| Strategy's stopping criteria.
+    #| Returns a hashmap with Boolean values of different stopping criteria:
+    #| <precision accuracy max-recursion max-points max-number-of-error-increases>
     method stopping-criteria(-->Map:D) {!!!}
 
     #| Strategy's algorithm
