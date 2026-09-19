@@ -28,7 +28,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         my $integral = self.regions.map(*.integral).sum;
 
         # Make the heap of regions
-        my $heap = LeftistHeap.new(self.regions, comparator => { $^a > $^b });
+        my $heap = LeftistHeap.new(self.regions, comparator => { $^a.error > $^b.error });
 
         my Bool:D $done-tol = $error ≤ $relative-tolerance * $integral.abs;
         my Bool:D $done-accuracy = $error ≤ $absolute-tolerance;
@@ -89,6 +89,6 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         self.regions = $heap.values;
 
         # Result
-        return %(:$integral, :$error, number-of-regions => self.regions.elems)
+        return %(:$integral, :$error, region-count => self.regions.elems)
     }
 }
