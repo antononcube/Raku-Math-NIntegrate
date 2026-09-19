@@ -20,7 +20,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         my $dim = self.regions.head.dimension;
 
         # Divide regions according to min-recursion
-        self.regions = self.min-recursion.regions();
+        # self.min-recursion-regions;
 
         # First integration step
         self.regions>>.apply-rule;
@@ -32,10 +32,10 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
         my Bool:D $done-tol = $error ≤ $relative-tolerance * $integral.abs;
         my Bool:D $done-accuracy = $error ≤ $absolute-tolerance;
-        my Bool:D $done-max-recursion = $heap.top.level > self.max-recursion;
+        my Bool:D $done-max-recursion = $heap.top.levels.max > self.max-recursion;
         my $step;
         my $topRegion;
-        while !($done-tol || $done-accuracy || ) {
+        while !($done-tol || $done-accuracy || $done-max-recursion) {
             $step++;
 
             # Delete from heap the region with largest error
@@ -46,7 +46,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             my $axis = $topRegion.axis;
 
             # Application of singularity handler
-            if $topRegion.level == self.singularity-depth {
+            if $topRegion.levels[$axis] == self.singularity-depth {
                 # Apply singularity handler
             }
 
@@ -77,7 +77,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             # Stopping criteria
             $done-tol = $error ≤ $relative-tolerance * $integral.abs;
             $done-accuracy = $error ≤ $absolute-tolerance;
-            $done-max-recursion = $topRegion.level > self.max-recursion;
+            $done-max-recursion = $topRegion.levels[$axis] > self.max-recursion;
         }
 
         # Warning the max recursion was reached
