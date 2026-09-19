@@ -259,8 +259,8 @@ class Math::NIntegrate::Region {
     #--------------------------------------
 
     #| Get integration estimate
-    method integrate(-->Math::NIntegrate::Region) {
-        die 'Region.integrate is not implemented yet.'
+    method apply-ryle(-->Math::NIntegrate::Region) {
+        return self.rule.integrate(self);
     }
 
     #--------------------------------------
