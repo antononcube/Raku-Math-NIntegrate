@@ -5,6 +5,7 @@ use Math::NIntegrate;
 use Math::NIntegrate::VariableTransformer::Composite;
 use Math::NIntegrate::NumericalFunction;
 use Math::NIntegrate::Rule::GaussKronrod;
+use Math::NIntegrate::Rule::Trapezoidal;
 use Math::NIntegrate::Rule::General;
 use Math::NIntegrate::Region;
 use Math::NIntegrate::Builder;
@@ -20,10 +21,13 @@ subtest {
     sub f($x) { 1 / $x.sqrt }
     my ($a, $b) = 1/2, 5;
     my $exact = - sqrt(2) + 2 * sqrt(5);
-    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Rat);
+
+    my $working-precision = Rat;
+    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, :$working-precision);
 
     # Integration rule
-    my $rule = Math::NIntegrate::Rule::GaussKronrod.new(5);
+    #my $rule = Math::NIntegrate::Rule::GaussKronrod.new(5);
+    my $rule = Math::NIntegrate::Rule::Trapezoidal.new(15, :$working-precision);
 
     # Region
     my $region = Math::NIntegrate::Builder.make-region($numerical-function, [$a,], [$b,], :$rule);
@@ -39,7 +43,7 @@ subtest {
 
     my %res = $strategy.algorithm(:$relative-tolerance);
 
-    say (:%res);
+    #say (:%res);
 
     is (%res<integral> - $exact).abs ≤ $relative-tolerance * $exact, True, 'expected integral precision';
 
