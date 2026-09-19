@@ -48,7 +48,7 @@ class Math::NIntegrate::NumericalFunction {
         @!last-argument-values = @args;
 
         if $! {
-            warn 'Cannot evaluate numerical function at {@args}.';
+            warn "Cannot evaluate numerical function at {@args.raku}.";
             return Whatever
         }
 
