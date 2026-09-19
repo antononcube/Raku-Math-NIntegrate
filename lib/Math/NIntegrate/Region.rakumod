@@ -262,7 +262,7 @@ class Math::NIntegrate::Region {
 
     #| Get integration estimate
     method apply-rule(-->Math::NIntegrate::Region) {
-        $!.rule.integrate(self);
+        $!rule.integrate(self);
         $!integral = $!rule.integral;
         $!error = $!rule.error;
         return self
