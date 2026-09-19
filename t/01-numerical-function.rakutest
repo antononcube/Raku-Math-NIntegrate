@@ -1,15 +1,22 @@
 use v6.d;
 use Test;
 
-use lib <. lib>;
 use Math::NIntegrate;
 use Math::NIntegrate::NumericalFunction;
 
 # 1
-sub f($x) {$x}
+sub f(Numeric:D $x) {$x}
 ok Math::NIntegrate::NumericalFunction.new(&f);
 
 # 2
 is Math::NIntegrate::NumericalFunction.new(&f).evaluate(4), 4;
+
+# 3
+subtest {
+    sub f(Numeric:D $x) {$x}
+    my $nf = Math::NIntegrate::NumericalFunction.new(&f);
+    isa-ok $nf.evaluate('a'), Whatever, 'expected result with wrong arguments';
+    is-deeply $nf.last-argument-values, ['a',], 'last arugments with wrong arguments';
+}, 'wrong arguments';
 
 done-testing;
