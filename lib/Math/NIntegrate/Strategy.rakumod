@@ -35,7 +35,7 @@ class Math::NIntegrate::Strategy {
             UInt :$!max-recursion = 12,
             :$!max-points = Whatever,
             :$!singularity-depth = 4,
-            :$!max-number-of-error-increases = Whatever
+            :$!max-number-of-error-increases = Whatever,
             :@!regions
                     ) {
         without @!regions {
@@ -73,5 +73,5 @@ class Math::NIntegrate::Strategy {
             Numeric:D :$relative-tolerance = 1e-6,
             Numeric:D :$absolute-tolerance = 0,
             :$working-precision = Num
-            -->Math::NIntegrate::Strategy) {!!!}
+            -->Map:D) {!!!}
 }
