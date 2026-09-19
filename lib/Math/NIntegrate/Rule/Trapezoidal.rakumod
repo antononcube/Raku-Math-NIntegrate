@@ -24,9 +24,9 @@ class Math::NIntegrate::Rule::Trapezoidal
     }
 
     method make-weights(UInt:D $points, $working-precision = Num) {
-        my $n1 = $points;
+        my $n1 = numerical($points, $working-precision);
 
-        my $n = 2 * $n1 - 1;
+        my $n = numerical(2 * $n1 - 1, $working-precision);
 
         my @abscissas;
         my @weights;
