@@ -94,6 +94,13 @@ subtest {
     is @stats.elems ≥ 3, True, 'non-empty array of stats';
     is abs(@stats.tail<integral> - %res<integral>) ≤ 1e-12, True, 'expected last stat integral estimate';
 
+    # Giving a wrong integration monitor is ok, just warnings are produced.
+    ok $strategy.algorithm(:$relative-tolerance, integration-monitor => { ('duo:', $^a.elems, $^b.elems) } );
+
+    my $res2 = $strategy.algorithm(:$relative-tolerance, integration-monitor => { ('duo:', $^a.elems, $^b.elems) } );
+    isa-ok $res2, Map:D, 'expected result with wrong integration monitor';
+    is ($res2<integral> - %res<integral>) ≤ 1e-14, True, 'expected integral estimate with wrong integration monitor';
+
 }, 'Using integration monitor';
 
 done-testing;
