@@ -4,7 +4,9 @@ use Test;
 use Math::NIntegrate;
 use Math::NIntegrate::VariableTransformer::Composite;
 use Math::NIntegrate::NumericalFunction;
+use Math::NIntegrate::Rule::ClenshawCurtis;
 use Math::NIntegrate::Rule::GaussKronrod;
+use Math::NIntegrate::Rule::Trapezoidal;
 use Math::NIntegrate::Rule::General;
 use Math::NIntegrate::Region;
 use Math::NIntegrate::Builder;
@@ -140,5 +142,49 @@ subtest {
     is ($res1.error + $res2.error).abs ≤ 4e-2, True, 'smaller error';
 
 }, 'Region split and integration';
+
+
+## 4
+subtest {
+
+    # Integrand
+    sub f($x) {exp(- $x ** 2)}
+    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Rat);
+
+    # Exact value
+    my $exact = π.sqrt / 2; # 0.886227
+
+    # Integration rule
+    #my $rule = Math::NIntegrate::Rule::Trapezoidal.new(15);
+    my $rule = Math::NIntegrate::Rule::ClenshawCurtis.new(9);
+
+    # Region
+    my $region = Math::NIntegrate::Builder.make-region(
+            $numerical-function,
+            [0,],
+            [Inf, ],
+            :$rule);
+
+    isa-ok $region.eval-integrand([0,]), Numeric:D, 'region eval-integrand call is ok';
+
+    isa-ok $region.apply-rule, Math::NIntegrate::Region:D, 'region integration rule integrate';
+
+    $region.apply-rule;
+    say (integral => $region.integral, error => $region.error);
+    is abs($region.integral - $exact) ≤ 1e-3, True, 'expected integral estimate';
+    is $region.error.abs ≤ 1e-3, True, 'expected error estimate';
+
+    # Region
+    my $region2 = Math::NIntegrate::Builder.make-region(
+            $numerical-function,
+            [-Inf,],
+            [0, ],
+            :$rule);
+
+    $region2.apply-rule;
+    #say abs($region2.integral - $region.integral);
+    is abs($region2.integral - $region.integral) ≤ 1e-10, True, '[-Inf, 0] and [0, Inf] integral estimates are almost the same';
+
+}, 'Infinite region integration';
 
 done-testing;
