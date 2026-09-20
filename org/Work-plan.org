@@ -1,0 +1,124 @@
+#+TITLE: Work plan for the Raku package "Math::NIntegrate"
+#+AUTHOR: Anton Antonov
+#+EMAIL: antononcube@posteo.net
+#+TODO: TODO ONGOING MAYBE | DONE CANCELED 
+#+OPTIONS: toc:1 num:0
+
+* TODO Work plan [10%] [1/10]
+** DONE Numerical function [100%] [2/2]
+- [X] Creation
+- [X] Evaluation
+  - ~eval~ method
+** TODO Utilties [66%] [4/6]
+- [X] Numerical precision coercion
+- [X] Process range of single dimension
+  - ~parse-range-boundaries~ 
+- [X] ~compute-machine-epsilon~
+- [X] Effective zero check
+- [ ] Process user ranges spec
+- [ ] Process goals to tolerances
+** TODO Integration Rules [10%] [1/10]
+*** DONE General rule 1D [100%] [2/2]
+- [X] Attributes: abscissas, weights, error-weights
+- [X] Integration
+*** TODO Trapezoidal rule [66%] [2/3]
+- [X] Abscissas & weights
+- [X] Any precision
+- [ ] Romberg integration
+*** TODO Clenshaw-Curtis rule [33%] [1/3]
+- [X] Abscissas & weights
+- [C] Any precision
+  - Not possible
+- [ ] Large precision with "extra-precision" spec
+*** TODO Gauss-Kronrod rule [33%] [1/3]
+- [X] Hard coded (low precision)
+- [ ] Abscissas & weights
+- [C] Any precision
+  - Not possible
+- [ ] Large precision with "extra-precision" spec
+*** TODO Lobatto-Kronrod rule
+*** TODO Cartesian rule [0%] [0/3]
+- [ ] Creation
+- [ ] Integration
+- [ ] 2D speed-up by flattening
+*** TODO Multidimensional rule [%]
+- [ ] Genz-Malik
+- [ ] DCUHRE
+*** TODO Multi-panel rule
+*** TODO Monte Carlo rule
+*** TODO Quasi Monte Carlo rule
+** TODO Integration Region [66%] [4/6]
+- [X] Design: attributes & methods
+- [X] Clone
+- [X] Apply rule
+- [X] Split
+- [ ] Divide
+- [ ] Partition
+** TODO Variable Transformers [0%] [0/5]
+*** TODO Affine
+- [X] Constant ranges
+- [ ] Functional ranges 
+*** TODO Infinity
+- [X] Constant ranges
+- [ ] Functional ranges 
+*** TODO Composite
+- [X] Constant ranges
+- [ ] Functional ranges 
+*** TODO IMT
+- [ ] Constant ranges
+- [ ] Functional ranges
+*** TODO Double Exponent
+- [ ] Constant ranges
+- [ ] Functional ranges
+** TODO Integration Strategies [0%] [0/8]
+*** TODO Global Adaptive [66%] [2/3]
+- [ ] Initial regions by min-recursion
+- [X] Main integration loop
+  - With Leftist Heap
+- [ ] Singularity handling
+- [ ] Convergence monitoring
+- [X] Integration monitor
+*** TODO Local Adaptive [0%] [0/6]
+- [ ] Initial regions by min-recursion
+- [ ] Main integration loop
+- [ ] Reuse of integrand values 
+- [ ] Singularity handling
+- [ ] Convergence monitoring
+- [ ] Integration monitor
+*** TODO Saturating
+*** TODO Trapezoidal
+*** TODO Double Exponential
+*** TODO Monte Carlo
+*** TODO Adaptive Monte Carlo
+*** TODO Importance Sampling
+** TODO Builder [75%] [3/4]
+- [X] Numerical function (for the integrand) making
+- [X] Composite variable transformer
+- [X] Integration region making
+- [ ] Strategy
+** MAYBE Abstract Factory
+** TODO Unit tests [57%] [4/7]
+- [X] Numerical function
+- [X] Trapezoidal rule
+  - [X] Creation
+  - [X] Rat working precision
+  - [X] Integration
+- [X] Clenshaw-Curtis rule
+  - [X] Creation
+  - [C] Rat working precision
+  - [X] Integration
+- [ ] Gauss-Kronrod rule
+- [ ] Lobatto-Kronrod rule
+- [-] Integration region
+  - [X] Constant ranges 1D
+  - [ ] Constant ranges 2D
+  - [ ] Functional ranges 2D
+  - [ ] Functional ranges 3D
+- [X] Global strategy
+  - [X] Integration 1D
+  - [X] Integration monitor use
+** TODO Documentation [%] [/]
+- [ ] Methodology and design
+- [ ] Design notes
+- [ ] Functionality page
+- [ ] Advanced documentation
