@@ -51,4 +51,49 @@ subtest {
 
 }, 'GlobalAdaptive, low-level invocation';
 
+## 2
+subtest {
+    # Integrand
+    sub f($x) { 1 / $x.sqrt }
+    my ($a, $b) = 1/2, 5;
+
+    my $working-precision = Rat;
+    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, :$working-precision);
+
+    # Integration rule
+    my $rule = Math::NIntegrate::Rule::Trapezoidal.new(15, :$working-precision);
+
+    # Region
+    my $region = Math::NIntegrate::Builder.make-region($numerical-function, [$a,], [$b,], :$rule);
+
+    # Strategy
+    my $strategy = Math::NIntegrate::Strategy::GlobalAdaptive.new(:0min-recursion, :5max-recursion, regions => [$region,]);
+
+    # Integration monitor
+    my @stats;
+    my &integration-monitor = -> @regions {
+        my $error = @regions>>.error.sum;
+        my $integral = @regions>>.integral.sum;
+        my %stat =
+                region-count => @regions.elems,
+                max-error => @regions>>.error.max,
+                :$error,
+                relative-error => $error.abs / ($integral.abs ?? $integral.abs !! 1),
+                :$integral;
+        @stats.push(%stat)
+    };
+
+    # Integrate
+    my $relative-tolerance = 1e-5;
+
+    my %res = $strategy.algorithm(:$relative-tolerance, :&integration-monitor);
+
+    #.say for @stats;
+
+    is @stats.all ~~ Map:D, True, 'stats are hashmaps';
+    is @stats.elems ≥ 3, True, 'non-empty array of stats';
+    is abs(@stats.tail<integral> - %res<integral>) ≤ 1e-12, True, 'expected last stat integral estimate';
+
+}, 'Using integration monitor';
+
 done-testing;
