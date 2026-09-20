@@ -4,6 +4,7 @@ use Test;
 use Math::NIntegrate;
 use Math::NIntegrate::VariableTransformer::Composite;
 use Math::NIntegrate::NumericalFunction;
+use Math::NIntegrate::Rule::ClenshawCurtis;
 use Math::NIntegrate::Rule::GaussKronrod;
 use Math::NIntegrate::Rule::Trapezoidal;
 use Math::NIntegrate::Rule::General;
@@ -27,6 +28,7 @@ subtest {
 
     # Integration rule
     #my $rule = Math::NIntegrate::Rule::GaussKronrod.new(5);
+    #my $rule = Math::NIntegrate::Rule::ClenshawCurtis.new(5, :$working-precision);
     my $rule = Math::NIntegrate::Rule::Trapezoidal.new(15, :$working-precision);
 
     # Region
