@@ -10,7 +10,8 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
     method algorithm(
             Numeric:D :tol(:$relative-tolerance) = 1e-6,
             Numeric:D :acc(:$absolute-tolerance) = 0,
-            :$working-precision = Num
+            :$working-precision = Num,
+            :&integration-monitor = WhateverCode
             -->Map:D) {
 
         # At this point the working precision should be known in the integrand and region.
@@ -30,11 +31,19 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         # Make the heap of regions
         my $heap = LeftistHeap.new(self.regions, comparator => { $^a.error > $^b.error });
 
+        # Integration monitor
+        with &integration-monitor {
+            &integration-monitor($heap.values)
+        }
+
+        # Criteria variables and their first values
         my Bool:D $done-tol = $error ≤ $relative-tolerance * $integral.abs;
         my Bool:D $done-accuracy = $error ≤ $absolute-tolerance;
         my Bool:D $done-max-recursion = $heap.top.levels.max > self.max-recursion;
         my $step;
         my $topRegion;
+
+        # Main loop
         while !($done-tol || $done-accuracy || $done-max-recursion) {
             $step++;
 
@@ -72,6 +81,8 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             $integral += $topRegion.integral + $newRegion.integral;
 
             # Instead of compensated summation
+            # LeftistHeap has a traverse method which can be used to get error and integral estimates
+            # without making a new array of regions, only a new array of scalar values.
             #$error = [|$heap.values.map(*.error), $topRegion.error, $newRegion.error].sort(*.abs).sum;
             #$integral = [|$heap.values.map(*.integral), $topRegion.integral, $newRegion.integral].sort(*.abs).sum;
 
@@ -80,7 +91,9 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             $heap.insert($newRegion);
 
             # Integration monitor
-            # TBD...
+            with &integration-monitor {
+                &integration-monitor($heap.values)
+            }
 
             # Stopping criteria
             $done-tol = $error ≤ $relative-tolerance * $integral.abs;
