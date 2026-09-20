@@ -33,7 +33,8 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
         # Integration monitor
         with &integration-monitor {
-            &integration-monitor($heap.values)
+            try &integration-monitor($heap.values);
+            warn 'Cannot apply integration monitor.' if $!
         }
 
         # Criteria variables and their first values
@@ -92,7 +93,8 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
             # Integration monitor
             with &integration-monitor {
-                &integration-monitor($heap.values)
+                try &integration-monitor($heap.values);
+                warn 'Cannot apply integration monitor.' if $!
             }
 
             # Stopping criteria
