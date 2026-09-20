@@ -9,8 +9,9 @@
     "auth": "zef:antononcube",
     "depends": [
         "Data::Transformers",
+        "Hash::Merge:ver<2.0.0>:api<2>",
         "LeftistHeap",
-        "Hash::Merge:ver<2.0.0>:api<2>"
+        "Math::Polynomial::Chebyshev"
     ],
     "build-depends": [],
     "provides": {
@@ -20,6 +21,7 @@
         "Math::NIntegrate::NumericalFunction": "lib/Math/NIntegrate/NumericalFunction.rakumod",
         "Math::NIntegrate::Region": "lib/Math/NIntegrate/Region.rakumod",
         "Math::NIntegrate::Rule": "lib/Math/NIntegrate/Rule.rakumod",
+        "Math::NIntegrate::Rule::ClenshawCurtis": "lib/Math/NIntegrate/Rule/ClenshawCurtis.rakumod",
         "Math::NIntegrate::Rule::General": "lib/Math/NIntegrate/Rule/General.rakumod",
         "Math::NIntegrate::Rule::GaussKronrod": "lib/Math/NIntegrate/Rule/GaussKronrod.rakumod",
         "Math::NIntegrate::Rule::Trapezoidal": "lib/Math/NIntegrate/Rule/Trapezoidal.rakumod",
