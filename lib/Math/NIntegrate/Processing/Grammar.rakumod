@@ -21,11 +21,13 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     rule option-sequence { <option>+ % ',' }
 
-    rule method-option {:i
-     | 'method' '=>' <method-option-value>
-     | ':method(' <method-option-value> ')'
+    regex method-option {:i
+     | <method> \s* '=>' \s* <method-option-value>
+     | ':' <method> '(' \s* <method-option-value> \s* ')'
+     | '"' <method> '"' \s* ':' \s* <method-option-value>
     }
 
+    # This rules is too general: parses correct syntax, but does not impose only allowed sub-options.
     rule method-option-value {
         |  <method-symbol> 
         | '(' <method-symbol> ')'
@@ -36,23 +38,40 @@ grammar Math::NIntegrate::Processing::Grammar {
         <strategy-symbol> | <decorator-strategy-symbol> | <rule-symbol>
     }
 
+    # Option names
+    token max-points { MaxPoints | max <[\-_]> points }
+    token max-recursion { MaxRecursion | max <[\-_]> recursion }
+    token method {:i method }
+    token min-recursion { MinRecursion | min <[\-_]> recursion }
+    token points {:i points }
+    token singularity-depth { SingularityDepth | singularity <[\-_]> depth }
+    token symbolic-processing { SymbolicProcessing | symbolic <[\-_]> processing }
+
+    # Integration strategy names
+    token adaptive-monte-carlo { AdaptiveMonteCarlo | adaptive <[_\-]> monte <[_\-]> carlo }
+    token adaptive-quasi-monte-carlo { AdaptiveQuasiMonteCarlo | adaptive <[_\-]> quasi <[_\-]> monte <[_\-]> carlo }
+    token double-exponential { DoubleExponential | double <[_\-]> exponential }
     token global-adaptive { GlobalAdaptive | global <[_\-]> adaptive }
     token local-adaptive { LocalAdaptive | local <[_\-]> adaptive }
-    token double-exponential { DoubleExponential | double <[_\-]> exponential }
     token monte-carlo { MonteCarlo | monte <[_\-]> carlo }
-    token adaptive-monte-carlo { AdaptiveMonteCarlo | adaptive <[_\-]> monte <[_\-]> carlo }
     token quasi-monte-carlo { QuasiMonteCarlo | quasi <[_\-]> monte <[_\-]> carlo }
-    token adaptive-quasi-monte-carlo { AdaptiveQuasiMonteCarlo | adaptive <[_\-]> quasi <[_\-]> monte <[_\-]> carlo }
 
-    token symbolic-piecewise-subdivision { SymbolicPiecewiseSubdivision | symbolic <[_\-]> piecewise <[_\-]> subdivision }
+    # Integration preprocessor names
     token even-odd-subdivision { EvenOddSubdivision | even <[_\-]> odd <[_\-]> subdivision }
+    token symbolic-piecewise-subdivision { SymbolicPiecewiseSubdivision | symbolic <[_\-]> piecewise <[_\-]> subdivision }
 
-    token trapezoidal-rule { TrapezoidalRule | trapezoidal <[_\-]> rule }
+    # Integration rule names
+    token cartesian-rule { CartesianRule | cartesian <[_\-]> rule }
     token clenshaw-curtis-rule { ClenshawCurtisRule | clenshaw <[_\-]> curtis <[_\-]> rule }
     token gauss-kronrod-rule { GaussKronrodRule | gauss <[_\-]> kronrod <[_\-]> rule }
     token lobatto-kronrod-rule { LobattoKronrodRule | lobatto <[_\-]> kronrod <[_\-]> rule }
-    token cartesian-rule { CartesianRule | cartesian <[_\-]> rule }
     token monte-carlo-rule { MonteCarloRule | monte <[_\-]> carlo <[_\-]> rule }
+    token trapezoidal-rule { TrapezoidalRule | trapezoidal <[_\-]> rule }
+
+    # Singularity handler names
+    token imt {:i imt | iri <[\-_]> moriguti <[\-_]> takesawa }
+    token no-singularity-handler {:i none | no <[\-_]> singularity <[\-_]> handler }
+    token duffy-coordinates {:i DuffyCoordinates | duffy <[\-_]> coordinates } # This is, actually, a preprocessor
 
     rule strategy-symbol-known {
         | <global-adaptive> | <local-adaptive> | <double-exponential>
@@ -75,8 +94,49 @@ grammar Math::NIntegrate::Processing::Grammar {
         | <clenshaw-curtis-rule>  | <monte-carlo-rule>
         | <cartesian-rule>
     }
+
     rule rule-symbol {
         | <rule-symbol-known>
         | <top-level-rule>
     }
+
+    rule singularity-handler-symbol {
+        | <imt>
+        | <double-exponential>
+        | <duffy-coordinates>
+        | <no-singularity-handler>
+    }
+
+    token numeric-option-symbol { <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> }
+
+    regex numeric-option-spec {
+        | <numeric-option-symbol> \s* '=>' \s* <number>
+        | ':' <number> <numeric-option-symbol>
+        | ':' <numeric-option-symbol> '(' \s* <number> \s* ')'
+        | '"' <numeric-option-symbpl> '"' \s* ':' \s* <number>
+    }
+
+    rule strategy-spec {
+        ||  <strategy-symbol>
+        || '(' <strategy-symbol> [ ',' [ <method-option> | <numeric-option-spec> ]* % ',' ]? ')'
+    }
+
+    rule rule-component-spec {
+        ||  <rule-symbol>
+        || '(' <rule-symbol> [ ',' <numeric-option-spec>* % ',' ]? ')'
+    }
+
+    # This might be not a sufficiently strong production rule.
+    # Cartesian rule is not allowed to have method that is a Cartesian rule.
+    # (Although, in principle, that can be processed and corresponding "flattened" Cartesian rule be created.)
+    rule cartesian-rule-spec {
+        ||  <cartesian-rule>
+        || '(' <cartesian-rule> [ ',' [ <method-option> | <numeric-option-spec> ]* % ',' ]? ')'
+    }
+
+    rule rule-spec {
+        || <cartesian-rule-spec>
+        || <rule-component-spec>
+    }
+
 }
