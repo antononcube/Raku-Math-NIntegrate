@@ -96,7 +96,11 @@
 - [X] Composite variable transformer
 - [X] Integration region making
 - [ ] Strategy
-** MAYBE Abstract Factory
+** TODO Abstract Factory [33%] [1/3]
+- Done with a grammar parsing the method option and actions
+- [X] Simple method-option grammar
+- [ ] Concrete allowed method-option specs grammar
+- [ ] Actions invoking Builder methods
 ** TODO Unit tests [57%] [4/7]
 - [X] Numerical function
 - [X] Trapezoidal rule
@@ -117,6 +121,8 @@
 - [X] Global strategy
   - [X] Integration 1D
   - [X] Integration monitor use
+- [-] Grammar parsing
+  - [X] Simple grammar method specs
 ** TODO Documentation [%] [/]
 - [ ] Methodology and design
 - [ ] Design notes
