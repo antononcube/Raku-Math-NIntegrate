@@ -36,18 +36,47 @@ grammar Math::NIntegrate::Processing::Grammar {
         <strategy-symbol> | <decorator-strategy-symbol> | <rule-symbol>
     }
 
+    token global-adaptive { GlobalAdaptive | global <[_\-]> adaptive }
+    token local-adaptive { LocalAdaptive | local <[_\-]> adaptive }
+    token double-exponential { DoubleExponential | double <[_\-]> exponential }
+    token monte-carlo { MonteCarlo | monte <[_\-]> carlo }
+    token adaptive-monte-carlo { AdaptiveMonteCarlo | adaptive <[_\-]> monte <[_\-]> carlo }
+    token quasi-monte-carlo { QuasiMonteCarlo | quasi <[_\-]> monte <[_\-]> carlo }
+    token adaptive-quasi-monte-carlo { AdaptiveQuasiMonteCarlo | adaptive <[_\-]> quasi <[_\-]> monte <[_\-]> carlo }
+
+    token symbolic-piecewise-subdivision { SymbolicPiecewiseSubdivision | symbolic <[_\-]> piecewise <[_\-]> subdivision }
+    token even-odd-subdivision { EvenOddSubdivision | even <[_\-]> odd <[_\-]> subdivision }
+
+    token trapezoidal-rule { TrapezoidalRule | trapezoidal <[_\-]> rule }
+    token clenshaw-curtis-rule { ClenshawCurtisRule | clenshaw <[_\-]> curtis <[_\-]> rule }
+    token gauss-kronrod-rule { GaussKronrodRule | gauss <[_\-]> kronrod <[_\-]> rule }
+    token lobatto-kronrod-rule { LobattoKronrodRule | lobatto <[_\-]> kronrod <[_\-]> rule }
+    token cartesian-rule { CartesianRule | cartesian <[_\-]> rule }
+    token monte-carlo-rule { MonteCarloRule | monte <[_\-]> carlo <[_\-]> rule }
+
+    rule strategy-symbol-known {
+        | <global-adaptive> | <local-adaptive> | <double-exponential>
+        | <monte-carlo> | <adaptive-monte-carlo> | <quasi-monte-carlo>
+        | <adaptive-quasi-monte-carlo>
+    }
+
     rule strategy-symbol {
-        'GlobalAdaptive' | 'LocalAdaptive' | 'DoubleExponential'
-      | 'MonteCarlo' | 'AdaptiveMonteCarlo' | 'QuasiMonteCarlo'
-      | 'AdaptiveQuasiMonteCarlo' | <top-level-strategy>
+        | <strategy-symbol-known>
+        | <top-level-strategy>
     }
 
     rule decorator-strategy-symbol {
-        'SymbolicPiecewiseSubdivision' | 'EvenOddSubdivision'
+        <symbolic-piecewise-subdivision> | <even-odd-subdivision>
     }
 
+    rule rule-symbol-known {
+        | <trapezoidal-rule>
+        | <gauss-kronrod-rule>  | <lobatto-kronrod-rule>
+        | <clenshaw-curtis-rule>  | <monte-carlo-rule>
+        | <cartesian-rule>
+    }
     rule rule-symbol {
-        'TrapezoidalRule' | 'GaussKronrodRule' | 'LobattoKronrodRule'
-      | 'CartesianRule' | 'MonteCarloRule' | <top-level-rule>
+        | <rule-symbol-known>
+        | <top-level-rule>
     }
 }
