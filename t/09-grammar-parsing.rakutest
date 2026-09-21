@@ -1,0 +1,26 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+use Math::NIntegrate::Processing::Grammar;
+
+my $gr = Math::NIntegrate::Processing::Grammar.new;
+
+# 1
+subtest {
+    my @specs =
+            'method => GlobalAdaptive',
+            'method => (GlobalAdataptive)',
+            'method => (GlobalAdataptive, method => ClenshawCurtisRule)',
+            'method => (GlobalAdataptive, max-recursion => 10, singulity-depth => 4)',
+            'method => (GlobalAdataptive, method => (ClenshawCurtisRule, points => 5))',
+            'method => (GlobalAdataptive, method => (ClenshawCurtisRule, :10points))',
+            'method => (GlobalAdataptive, method => (ClenshawCurtisRule, :10points), max-recursion => 20)',
+    ;
+    for @specs.kv -> $i, $spec {
+        ok $gr.parse($spec), "failed simple spec $i : ⎡$spec⎦";
+    }
+
+}, 'simple specs';
+
+done-testing;
