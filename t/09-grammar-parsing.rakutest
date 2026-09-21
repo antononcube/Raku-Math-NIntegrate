@@ -21,7 +21,7 @@ subtest {
 
 }, 'known strategy names';
 
-# 1
+# 2
 subtest {
     my @specs =
             'GaussKronrodRule',
@@ -39,20 +39,36 @@ subtest {
 # 3
 subtest {
     my @specs =
-            'method => GlobalAdaptive',
-            'method => ( GlobalAdaptive )',
-            'method => (GlobalAdaptive, method => ClenshawCurtisRule)',
-            'method => (GlobalAdaptive, max-recursion => 10, singulity-depth => 4)',
-            'method => (GlobalAdaptive, method => (TrapezoidalRule, points => 5))',
-            'method => (GlobalAdaptive, method => (TrapezoidalRule, :10points))',
-            'method => (GlobalAdaptive, method => (TrapezoidalRule, :10points), max-recursion => 20)',
-            'method => (GlobalAdaptive, method => (CartesianRule, method => (TrapezoidalRule, :10points), max-recursion => 20))',
-    ;
+            'GlobalAdaptive',
+            '( GlobalAdaptive )',
+            '(GlobalAdaptive, method => ClenshawCurtisRule)',
+            '(GlobalAdaptive, max-recursion => 10, singularity-depth => 4)',
+            '(GlobalAdaptive, method => (TrapezoidalRule, points => 5))',
+            '(GlobalAdaptive, method => (TrapezoidalRule, :10points))',
+            '(GlobalAdaptive, method => (TrapezoidalRule, :10points), max-recursion => 20)',
+            '(GlobalAdaptive, method => (CartesianRule, method => (TrapezoidalRule, :10points), max-recursion => 20))',
+            ;
     for @specs.kv -> $i, $spec {
-        ok $gr.parse($spec), "failed strategy method spec $i : ⎡$spec⎦";
+        ok $gr.parse($spec, rule => 'strategy-spec'), "failed GlobalAdaptive spec $i : ⎡$spec⎦";
     }
 
-}, 'strategy method specs';
+}, 'Strategy specs';
 
+
+# 4
+subtest {
+    my @specs =
+            'method => GlobalAdaptive',
+            'method => ( GlobalAdaptive )',
+            'method => (GlobalAdaptive, method => (TrapezoidalRule, points => 5))',
+            'method => (GlobalAdaptive, method => (CartesianRule, method => (TrapezoidalRule, :10points), max-recursion => 20))',
+            # Note that nested Cartesian rule is parsed
+            'method => (GlobalAdaptive, method => (CartesianRule, method => (CartesianRule, method => (TrapezoidalRule, :10points))), max-recursion => 20)',
+    ;
+    for @specs.kv -> $i, $spec {
+        ok $gr.parse($spec, rule => 'method-option'), "failed method spec $i : ⎡$spec⎦";
+    }
+
+}, 'generic, correct syntax parser';
 
 done-testing;
