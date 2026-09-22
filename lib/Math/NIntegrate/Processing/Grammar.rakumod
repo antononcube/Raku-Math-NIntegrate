@@ -21,13 +21,13 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     rule option-sequence { <option>+ % <sep> }
 
-    regex method-option {:i
+    regex method-option {
      | <method> \s* <arrow> \s* <method-option-value>
      | ':' <method> <lb> \s* <method-option-value> \s* <rb>
      | '"' <method> '"' \s* ':' \s* <method-option-value>
     }
 
-    # This rules is too general: parses correct syntax, but does not impose only allowed sub-options.
+    # This rule is too general: parses correct syntax, but does not impose only allowed sub-options.
     rule method-option-value {
         | <method-symbol>
         | <lb> <method-symbol> <rb>
@@ -78,7 +78,7 @@ grammar Math::NIntegrate::Processing::Grammar {
         | <numeric-option-symbol> \s* <arrow> \s* <number>
         | ':' <number> <numeric-option-symbol>
         | ':' <numeric-option-symbol> <lb> \s* <number> \s* <rb>
-        | '"' <numeric-option-symbpl> '"' \s* ':' \s* <number>
+        | '"' <numeric-option-symbol> '"' \s* ':' \s* <number>
     }
 
     regex singularity-handler-option {
