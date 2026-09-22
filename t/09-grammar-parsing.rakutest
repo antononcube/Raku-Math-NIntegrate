@@ -77,7 +77,6 @@ subtest {
 
 }, 'Cartesian rule specs';
 
-
 # 5
 subtest {
     my @specs =
@@ -93,5 +92,31 @@ subtest {
     }
 
 }, 'generic, correct syntax parser';
+
+# 6
+subtest {
+    grammar WLStyle is Math::NIntegrate::Processing::Grammar {
+        token lb {'{'}
+        token rb {'}'}
+        token arrow {'->'}
+    }
+
+    my $gr = WLStyle.new;
+
+    my @specs =
+            'GlobalAdaptive',
+            '{ GlobalAdaptive }',
+            '{GlobalAdaptive, Method -> ClenshawCurtisRule}',
+            '{GlobalAdaptive, MaxRecursion -> 10, SingularityDepth -> 4}',
+            '{GlobalAdaptive, Method -> {TrapezoidalRule, Points -> 5}}',
+            '{GlobalAdaptive, Method -> {TrapezoidalRule, Points -> 5}}',
+            '{GlobalAdaptive, Method -> {TrapezoidalRule, Points -> 10}, max-recursion -> 20}',
+            '{GlobalAdaptive, Method -> {CartesianRule, Method -> {TrapezoidalRule, Points -> 10}, MaxRecursion -> 20}}',
+            ;
+    for @specs.kv -> $i, $spec {
+        ok $gr.parse($spec, rule => 'strategy-spec'), "failed WL GlobalAdaptive spec $i : ⎡$spec⎦";
+    }
+
+}, 'Strategy specs: Wolfram Language syntax';
 
 done-testing;
