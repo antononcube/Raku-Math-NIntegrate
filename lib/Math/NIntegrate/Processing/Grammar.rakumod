@@ -81,9 +81,15 @@ grammar Math::NIntegrate::Processing::Grammar {
         | '"' <numeric-option-symbpl> '"' \s* ':' \s* <number>
     }
 
+    regex singularity-handler-option {
+        | <singularity-handler> \s* <arrow> \s* <singularity-handler-symbol>
+        | ':' <singularity-handler> <lb> \s* <singularity-handler-symbol> \s* <rb>
+        | '"' <singularity-handler> '"' \s* ':' \s* <singularity-handler-symbol>
+    }
+
     rule strategy-spec {
         || <strategy-symbol>
-        || <lb> <strategy-symbol> [ <sep> [ <method-option> | <numeric-option-spec> ]* % <sep> ]? <rb>
+        || <lb> <strategy-symbol> [ <sep> [ <method-option> | <numeric-option-spec> | <singularity-handler-option> ]* % <sep> ]? <rb>
     }
 
     rule rule-component-spec {
@@ -135,6 +141,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     token min-recursion { MinRecursion | min <[\-_]> recursion }
     token points {:i points }
     token singularity-depth { SingularityDepth | singularity <[\-_]> depth }
+    token singularity-handler { SingularityHandler | singularity <[\-_]> handler }
     token symbolic-processing { SymbolicProcessing | symbolic <[\-_]> processing }
 
     # Integration strategy names
