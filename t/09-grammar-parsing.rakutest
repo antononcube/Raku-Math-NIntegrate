@@ -54,8 +54,31 @@ subtest {
 
 }, 'Strategy specs';
 
-
 # 4
+subtest {
+    ok
+            $gr.parse('((TrapezoidalRule, :10points), (GaussKronrodRule, :10points))', rule => 'rule-component-option-value'),
+            'rule component option value';
+
+    my @specs =
+            'CartesianRule',
+            '( CartesianRule )',
+            '(CartesianRule, method => ClenshawCurtisRule)',
+            '(CartesianRule, method => (TrapezoidalRule, points => 5))',
+            '(CartesianRule, method => (TrapezoidalRule, :10points))',
+            '(CartesianRule, method => ((TrapezoidalRule, :10points), (GaussKronrodRule, :10points)) )',
+            ;
+    for @specs.kv -> $i, $spec {
+        ok $gr.parse($spec, rule => 'cartesian-rule-spec'), "failed CartesianRule spec $i : ⎡$spec⎦";
+    }
+
+    my $spec = '(GlobalAdaptive, method => (CartesianRule, method => (TrapezoidalRule, :10points), max-recursion => 20))';
+    nok $gr.parse($spec, rule => 'cartesian-rule-spec'), 'nested Cartesian rule specs are nok';
+
+}, 'Cartesian rule specs';
+
+
+# 5
 subtest {
     my @specs =
             'method => GlobalAdaptive',
