@@ -133,6 +133,32 @@ class Math::NIntegrate::Spec {
         %!options = %options;
     }
 
+    #| Normalize method spec
+    method normalize-method($method, $dim) {
+        # The normalizations of the non-Whatever specs are not needed because
+        # they are handled by Math::NIntegrate::Processing::Grammar .
+        # Some other normalizations might be implemented later.
+
+        my $method-spec = do given $method {
+            when WhateverCode { self.normalize-method-spec('GlobalAdaptive', $dim) }
+            when Whatever { self.normalize-method-spec('GlobalAdaptive', $dim) }
+            when $_ ~~ Str:D && $_.lc ∈ <globaladaptive global-adaptive global_adaptive automatic auto> {
+                # I am not sure is this variant good, but probably can be supported at some point
+                # %( name => 'GlobalAdaptive', method => %( name => 'ClenshawCurtisRule', points => 6 ) )
+                ( 'GlobalAdaptive', method => ( 'ClenshawCurtisRule', points => 6 ) )
+            }
+            when $_ ~~ Str:D && $_.ends-with('Rule') {
+                # %( name => 'GlobalAdaptive', method => %( name => $_ ) )
+                ( 'GlobalAdaptive', method => ( $_, ) )
+            }
+            default {
+                die 'Cannot process method spec.'
+            }
+        }
+
+        return $method-spec
+    }
+
     #| Normalize integrand and ranges
     proto method normalize(&func, $ranges, $options) {*}
 
@@ -145,10 +171,18 @@ class Math::NIntegrate::Spec {
         # The arity of the function should equal %ranges.elems.
         %!ranges = self.normalize-ranges(%ranges);
 
-        # Check argument names correspond to variable names in ranges
+        # Numerical function object for integrand
         $!integrand = Math::NIntegrate::NumericalFunction.new(function => &func);
 
+        # Check argument names correspond to variable names in ranges
+        die 'None of the integrand arguments are found in the ranges spec.'
+        unless ($!integrand.argument-names (&) %ranges.keys).elems == 0;
+
+        die 'Not all integrand arguments are found in the ranges spec.'
+        unless ($!integrand.argument-names (&) %ranges.keys).elems < $!integrand.argument-names;
+
         $options = %default-options if $options.isa(Whatever);
+
         die 'The value of options is expected to be a hashmap or Whatever.' unless $options ~~ Map:D;
         %!options = self.normalize-options($options);
     }
