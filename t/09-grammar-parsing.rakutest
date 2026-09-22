@@ -46,6 +46,7 @@ subtest {
             '(GlobalAdaptive, method => (TrapezoidalRule, points => 5))',
             '(GlobalAdaptive, method => (TrapezoidalRule, :10points))',
             '(GlobalAdaptive, method => (TrapezoidalRule, :10points), max-recursion => 20)',
+            '(GlobalAdaptive, method => (TrapezoidalRule, :10points), max-recursion => 20, singularity-handler => IMT)',
             '(GlobalAdaptive, method => (CartesianRule, method => (TrapezoidalRule, :10points), max-recursion => 20))',
             ;
     for @specs.kv -> $i, $spec {
