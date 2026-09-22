@@ -16,13 +16,13 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     regex option {
         # I do not like this conditional chack, but it was quick to do with the generic <method-option>
-        [ <symbol> \s* '=>' \s* <option-value> | ':' <number> <symbol> ] <!{ $<symbol>.Str.lc eq 'method' }>
+        [ <symbol> \s* <arrow> \s* <option-value> | ':' <number> <symbol> ] <!{ $<symbol>.Str.lc eq 'method' }>
     }
 
     rule option-sequence { <option>+ % <sep> }
 
     regex method-option {:i
-     | <method> \s* '=>' \s* <method-option-value>
+     | <method> \s* <arrow> \s* <method-option-value>
      | ':' <method> <lb> \s* <method-option-value> \s* <rb>
      | '"' <method> '"' \s* ':' \s* <method-option-value>
     }
@@ -75,7 +75,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     token numeric-option-symbol { <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> }
 
     regex numeric-option-spec {
-        | <numeric-option-symbol> \s* '=>' \s* <number>
+        | <numeric-option-symbol> \s* <arrow> \s* <number>
         | ':' <number> <numeric-option-symbol>
         | ':' <numeric-option-symbol> <lb> \s* <number> \s* <rb>
         | '"' <numeric-option-symbpl> '"' \s* ':' \s* <number>
@@ -100,7 +100,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     regex cartesian-rule-method {:i
-        | <method> \s* '=>' \s* <rule-component-option-value>
+        | <method> \s* <arrow> \s* <rule-component-option-value>
         | ':' <method> <lb> \s* <rule-component-option-value> \s* <rb>
         | '"' <method> '"' \s* ':' \s* <lb> \s* <rule-component-option-value> \s* <rb>
     }
@@ -121,6 +121,9 @@ grammar Math::NIntegrate::Processing::Grammar {
     # Brackets
     token lb { '(' }
     token rb { ')' }
+
+    # Arrow
+    token arrow { '=>' }
     
     # Separator
     token sep { ',' }
