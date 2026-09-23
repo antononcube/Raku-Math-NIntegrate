@@ -27,21 +27,21 @@ subtest {
 
 ## 2
 subtest {
-    my %ranges = x => { a => 0, b => 1, :0index }, y => { a => -3, b => 5, :1index };
+    my %ranges = x => { min => 0, max => 1, :0index }, y => { min => -3, max => 5, :1index };
     my &integrand = -> $x, $y {$x + $y};
     ok Math::NIntegrate::Spec.new(&integrand, %ranges), 'hashmap ranges are ok';
 }, 'hashmap ranges';
 
 ## 3
 subtest {
-    my %ranges = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 2 };
+    my %ranges = x => {min => 0, max => 1, :0index}, y => { min => -3, max => 2 };
     my &integrand = -> $x, $y {$x + $y};
     dies-ok { Math::NIntegrate::Spec.new(&integrand, %ranges) }, 'no index range';
 
-    %ranges = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 2, :5index};
+    %ranges = x => {min => 0, max => 1, :0index}, y => { min => -3, max => 2, :5index};
     dies-ok { Math::NIntegrate::Spec.new(&integrand, %ranges) }, 'index out of range';
 
-    %ranges = x => {a => 0, b => 1, :0index}, y => { a => -3, b => 2, :1index};
+    %ranges = x => {min => 0, max => 1, :0index}, y => { min => -3, max => 2, :1index};
     my %options = max-recursion => -3;
     dies-ok { Math::NIntegrate::Spec.new(&integrand, %ranges, %options) }, 'negative max-recursion';
 

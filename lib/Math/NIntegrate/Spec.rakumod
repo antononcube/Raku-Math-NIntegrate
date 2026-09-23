@@ -50,19 +50,19 @@ class Math::NIntegrate::Spec {
 
         die $msg unless @ranges>>.head.all ~~ Str:D && ([&&] @ranges>>.elems <<≥>> 3);
 
-        return @ranges.kv.map( -> $i, @r { @r.head => %(index => $i, var => @r.head, a => @r[1], b => @r.tail, interval-points => @r[2... @r.elems - 2]) }).Hash
+        return @ranges.kv.map( -> $i, @r { @r.head => %(index => $i, var => @r.head, min => @r[1], max => @r.tail, interval-points => @r[2... @r.elems - 2]) }).Hash
     }
 
     multi method normalize-ranges(%ranges is copy) {
         my $msg1 = 'A ranges hashmap is expected to have string varible names as keys and hashmaps as values.';
-        my $msg2 = 'Each value of a ranges hashmap is expected to have the keys: "a", "b", and "index".';
+        my $msg2 = 'Each value of a ranges hashmap is expected to have the keys: "min", "max", and "index".';
 
         die $msg1 unless %ranges.keys.all ~~ Str:D;
         die $msg1 unless %ranges.values.all ~~ Map:D;
 
         # At some point no-index should be allowed and index => Whatever be handled.
         # The indexes can be concluded from integrand's arguments names and positions.
-        die $msg2 unless [&&] %ranges.map({ ($_.value.keys (&) <a b index>).elems == 3});
+        die $msg2 unless [&&] %ranges.map({ ($_.value.keys (&) <max min index>).elems == 3});
 
         %ranges .= map({ $_.key => merge-hash($_.value, %(var => $_.head) ) });
 
@@ -76,7 +76,7 @@ class Math::NIntegrate::Spec {
     }
 
     #| Verify options
-    method normalize-options(%options is copy) {
+    method normalize-options(%options is copy --> Map:D) {
 
         %options = merge-hash(%default-options, %options);
 
@@ -103,11 +103,15 @@ class Math::NIntegrate::Spec {
             die $msg-pg
         }
 
+        %options<precision-tolerance> = 10 ** -%options<precision-goal>;
+
         # Accuracy
         %options<accuracy-goal> = Inf if %options<accuracy-goal>.isa(Whatever);
 
         die 'The value of accuracy-goal is expected to be a positive integer, Inf, or Whatever.'
         unless %options<accuracy-goal> ~~ Int:D && %options<accuracy-goal> > 0 || %options<accuracy-goal> ~~ Inf;
+
+        %options<accuracy-tolerance> = 10 ** -%options<accuracy-goal>;
 
         # Recursion options
         die 'The value of max-recursion is expected to be a non-negative integer.'
@@ -134,7 +138,7 @@ class Math::NIntegrate::Spec {
     }
 
     #| Normalize method spec
-    method normalize-method($method, $dim) {
+    method normalize-method($method, $dim --> Positional:D) {
         # The normalizations of the non-Whatever specs are not needed because
         # they are handled by Math::NIntegrate::Processing::Grammar .
         # Some other normalizations might be implemented later.
@@ -171,8 +175,14 @@ class Math::NIntegrate::Spec {
         # The arity of the function should equal %ranges.elems.
         %!ranges = self.normalize-ranges(%ranges);
 
+        # Options
+        $options = %default-options if $options.isa(Whatever);
+
+        die 'The value of options is expected to be a hashmap or Whatever.' unless $options ~~ Map:D;
+        %!options = self.normalize-options($options);
+
         # Numerical function object for integrand
-        $!integrand = Math::NIntegrate::NumericalFunction.new(function => &func);
+        $!integrand = Math::NIntegrate::NumericalFunction.new(function => &func, working-precision => %!options<working-precision>);
 
         # Check argument names correspond to variable names in ranges
         die 'None of the integrand arguments are found in the ranges spec.'
@@ -181,9 +191,5 @@ class Math::NIntegrate::Spec {
         die 'Not all integrand arguments are found in the ranges spec.'
         unless ($!integrand.argument-names (&) %ranges.keys).elems < $!integrand.argument-names;
 
-        $options = %default-options if $options.isa(Whatever);
-
-        die 'The value of options is expected to be a hashmap or Whatever.' unless $options ~~ Map:D;
-        %!options = self.normalize-options($options);
     }
 }
