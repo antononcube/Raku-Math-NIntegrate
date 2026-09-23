@@ -10,7 +10,7 @@ my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new;
 
 # 1
 subtest {
-    my %specs =
+    my @specs =
             'GlobalAdaptive' =>
                     {name => 'GlobalAdaptive', type => 'strategy'},
 
@@ -39,11 +39,11 @@ subtest {
                       type => 'strategy',
                       max-recursion => 20},
             ;
-    for %specs.kv -> $cmd, %spec {
+    for @specs.kv -> $i, $p {
         is-deeply
-                $gr.parse($cmd, rule => 'strategy-spec', :$actions).made,
-                %spec,
-                "failed strategy spec ⎡$cmd⎦";
+                $gr.parse($p.key, rule => 'strategy-spec', :$actions).made,
+                $p.value,
+                "failed strategy spec $i, ⎡{$p.key}⎦";
     }
 
 }, 'Method spec';

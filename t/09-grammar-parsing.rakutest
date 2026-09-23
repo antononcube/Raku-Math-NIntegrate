@@ -19,6 +19,15 @@ subtest {
         ok $gr.parse($spec, rule => 'strategy-symbol-known'), "failed strategy name $i : ⎡$spec⎦";
     }
 
+    # Quoted
+    @specs =
+            '"GlobalAdaptive"',
+            '"global-adaptive"',
+            ;
+    for @specs.kv -> $i, $spec {
+        ok $gr.parse($spec, rule => 'strategy-symbol'), "failed strategy name $i : ⎡$spec⎦";
+    }
+
 }, 'known strategy names';
 
 # 2
@@ -119,5 +128,19 @@ subtest {
     }
 
 }, 'Strategy specs: Wolfram Language syntax';
+
+
+# 7
+subtest {
+
+    ok $gr.subparse('"GlobalAdaptive"', rule => 'strategy-spec');
+    ok $gr.subparse('"ClenshawCurtisRule"', rule => 'rule-spec');
+    ok $gr.subparse('("ClenshawCurtisRule", :points(6))', rule => 'rule-spec');
+    ok $gr.subparse('("ClenshawCurtisRule", :points(6))', rule => 'method-option-value');
+    ok $gr.subparse('("ClenshawCurtisRule", points => 6)', rule => 'method-option-value');
+    ok $gr.subparse(':method(("ClenshawCurtisRule", :points(6)))', rule => 'method-option');
+    ok $gr.subparse('("GlobalAdaptive", :method(("ClenshawCurtisRule", :points(6))))', rule => 'strategy-spec');
+
+}, '.raku forms';
 
 done-testing;
