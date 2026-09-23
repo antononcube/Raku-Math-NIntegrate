@@ -1,18 +1,33 @@
 use v6.d;
 
-use Math::NIntegrate::Strategy;
+# Preprocessing
+use Math::NIntegrate::Spec;
+use Math::NIntegrate::Processing::Grammar;
+use Math::NIntegrate::Processing::Actions::MethodSpec;
+
 use Math::NIntegrate::Region;
 use Math::NIntegrate::NumericalFunction;
-use Math::NIntegrate::Rule;
 use Math::NIntegrate::VariableTransformer::Composite;
+
+# Strategies
+use Math::NIntegrate::Strategy;
+use Math::NIntegrate::Strategy::GlobalAdaptive;
+
+# Rules
+use Math::NIntegrate::Rule;
+use Math::NIntegrate::Rule::Cartesian;
+use Math::NIntegrate::Rule::ClenshawCurtis;
+use Math::NIntegrate::Rule::GaussKronrod;
+use Math::NIntegrate::Rule::Trapezoidal;
 
 class Math::NIntegrate::Builder {
 
     has Math::NIntegrate::Strategy $.strategy;
 
+    #| Make variable transformer composite
     method make-variable-transformer-composite(
             :$region
-            --> Math::NIntegrate::VariableTransformer::Composite) {
+            --> Math::NIntegrate::VariableTransformer::Composite:D) {
 
         my $obj = Math::NIntegrate::VariableTransformer::Composite.new(:$region);
 
@@ -27,6 +42,7 @@ class Math::NIntegrate::Builder {
         return $obj
     }
 
+    #| Make region
     method make-region(
             Math::NIntegrate::NumericalFunction:D $numerical-function,
             @min,
@@ -50,21 +66,222 @@ class Math::NIntegrate::Builder {
         return $region
     }
 
-    method make-numerical-function(&function, :$working-precision = Num) {
+    #| Make numerical function
+    method make-numerical-function(
+            &function,
+            :$working-precision = Num,
+            --> Math::NIntegrate::NumericalFunction:D) {
 
         # Numerical function
-        my $nf = Math::NIntegrate::NumericalFunction(:&function, $working-precision);
+        my $nf = Math::NIntegrate::NumericalFunction.new(:&function, $working-precision);
 
         return $nf
     }
 
-    method make-rule() {
+    #| Make an integration rule object according to method-spec and dimension.
+    method make-rule(
+            UInt:D :dim(:$dimension)!,
+            :$method = Whatever,
+            :$working-precision = Num
+            --> Math::NIntegrate::Rule:D
+                     ) {
+        fail 'INCORRECT_ARGUMENTS: the dimension for integration rules is expected to a positive integer.'
+        unless $dimension > 0;
 
-        # At this point $!strategy has regions
+        # Not a rigorous check -- just prevent developer mistakes.
+        fail 'INCORRECT_ARGUMENTS: the method argument is expected to a Map:D, Whatever, or WhateverCode.'
+        unless $method.isa(Whatever) || $method.isa(WhateverCode) || $method ~~ Map:D;
 
-        # Integration rule is created according to specified strategy name and integration rule
-        # $rule = ...
+        # A more rigorous rule check.
+        with $method {
+            fail 'INCORRECT_ARGUMENTS: if $method is Map:D then is expected to have the keys "type", "name", and other options.'
+            unless ($method.keys (&) <type name>).elems == 2;
 
-        # Integration rule object is set to all regions
+            fail 'INCORRECT_ARGUMENTS: if $method is Map:D its key "type" is expected to have the value "rule".'
+            unless $method<type> eq 'rule';
+        }
+
+        # Default 1D rule
+        my %default-spec = type => 'rule', name => 'ClenshawCurtisRule', points => 5;
+
+        # Create rule by spec
+        my $rule = do given $method {
+            when $_.isa(Whatever) || $_.isa(WhateverCode) {
+                return $dimension == 1
+                        ?? self.make-rule(method => %default-spec, :$dimension, :$working-precision)
+                        !! self.make-rule(method => {type => 'rule', name => 'CartesianRule', method => %default-spec}, :$dimension, :$working-precision)
+            }
+
+            when $_<name> eq 'TrapezoidalRule' {
+                Math::NIntegrate::Rule::Trapezoidal.new(points => $_<points> // 10, :$working-precision);
+            }
+
+            when $_<name> eq 'ClenshawCurtisRule' {
+                Math::NIntegrate::Rule::ClenshawCurtis.new(points => $_<points> // 5, :$working-precision);
+            }
+
+            when $_<name> eq 'GaussKronrodRule' {
+                die 'The Gauss-Kronrod rule is not implemented yet.'
+                # Math::NIntegrate::Rule::GaussKronrod.new(gauss-points => $_<gauss-points> // $_<points> // 5, :$working-precision);
+            }
+
+            when $_<name> eq 'LobattoKronrodRule' {
+                die 'The Lobatto-Kronrod rule is not implemented yet.'
+                # Math::NIntegrate::Rule::LobattoKronrod.new(gauss-points => $_<gauss-points> // $_<points> // 5, :$working-precision);
+            }
+
+            when $_<name> eq 'CartesianRule' {
+                die 'The Cartesian rule is not implemented yet.'
+                # Math::NIntegrate::Rule::Cartesian.new(gauss-points => $_<gauss-points> // $_<points> // 5, :$working-precision);
+            }
+
+            default {
+                die "Unknown integration rule: $_<name>."
+            }
+        }
+
+        return $rule
+    }
+
+    #| Make an integration strategy object according to method-spec and ranges/dimension.
+    method make-strategy(
+            :$method = Whatever,
+            :dim(:$dimension) is copy = Whatever,
+            :$singularity-depth = Whatever,
+            :$max-recursion is copy = Whatever,
+            :$min-recursion is copy = Whatever,
+            :$max-points is copy = Whatever,
+            :$working-precision = Num,
+            :$precision-t = Whatever,
+            :$accuracy-goal = Whatever,
+            *%args
+            --> Math::NIntegrate::Strategy:D
+                         ) {
+
+        # In the current design the strategy object is created before the regions.
+        # Hence, only dimension is potentially needed for some of the strategies.
+        # The most used strategies: GlobalAdaptive, LocalAdaptive, and AdaptiveMonteCarlo
+        # do not need to know the dimensions of the integrand and ranges.
+
+        fail 'INCORRECT_ARGUMENTS: the dimension for integration strategies is expected to a positive integer.'
+        unless $dimension > 0;
+
+        # Not a rigorous check -- just prevent developer mistakes.
+        fail 'INCORRECT_ARGUMENTS: the method argument is expected to a Map:D, Whatever, or WhateverCode.'
+        unless $method.isa(Whatever) || $method.isa(WhateverCode) || $method ~~ Map:D;
+
+        # A more rigorous rule check.
+        with $method {
+            fail 'INCORRECT_ARGUMENTS: if $method is Map:D then is expected to have the keys "type", "name", and other options.'
+            unless ($method.keys (&) <type name>).elems == 2;
+
+            fail 'INCORRECT_ARGUMENTS: if $method is Map:D its key "type" is expected to have the value "strategy".'
+            unless $method<type> eq 'strategy';
+        }
+
+        # Reassign options
+        $max-points = $method<max-points> // $max-points // Whatever;
+        $max-recursion = $method<max-recursion> // $max-recursion // Whatever;
+        $min-recursion = $method<min-recursion> // $min-recursion // Whatever;
+        $singularity-depth = $method<singularity-depth> // $singularity-depth // Whatever;
+
+        # Default strategy
+        #my %default-spec = type => 'strategy', name => 'GlobalAdaptive', min-recursion => 0, max-recursion => 12, singularity-depth => 4, max-points => Whatever;
+        my %default-spec = type => 'strategy', name => 'GlobalAdaptive', method => Whatever;
+
+        # Create strategy by spec
+        my $!strategy = do given $method {
+            when $_.isa(Whatever) || $_.isa(WhateverCode) {
+                return $dimension == 1
+                        ?? self.make-rule(method => %default-spec, :$dimension, :$working-precision)
+                        !! self.make-rule(method => {type => 'rule', name => 'CartesianRule', method => %default-spec}, :$dimension, :$working-precision)
+            }
+
+            when $_<name> eq 'GlobalAdaptive' {
+                Math::NIntegrate::Strategy::GlobalAdaptive.new(
+                        :$min-recursion,
+                        :$max-recursion,
+                        :$singularity-depth,
+                        :$max-points
+                        );
+            }
+
+            when $_<name> eq 'LocalAdaptive' {
+                die 'The LocalAdaptive strategy is not implemented yet.'
+#                Math::NIntegrate::Strategy::LocalAdaptive.new(
+#                        :$min-recursion,
+#                        :$max-recursion,
+#                        :$singularity-depth,
+#                        :$max-points
+#                        );
+            }
+
+            when $_<name> eq 'AdaptiveMonteCarlo' {
+                die 'The AdaptiveMonteCarlo strategy is not implemented yet.'
+                #                Math::NIntegrate::Strategy::LocalAdaptive.new(
+                #                        :$min-recursion,
+                #                        :$max-recursion,
+                #                        :$singularity-depth,
+                #                        :$max-points
+                #                        );
+            }
+
+            default {
+                die "Unknown integration strategy: $_<name>."
+            }
+        }
+
+        return $!strategy
+    }
+
+    #| Full integrator creation
+    method make-integrator(
+            Math::NIntegrate::NumericalFunction :$integrand!,
+            :$ranges! is copy,
+            :$method = Whatever,
+            :$singularity-depth = Whatever,
+            :$max-recursion is copy = Whatever,
+            :$min-recursion is copy = Whatever,
+            :$max-points is copy = Whatever,
+            :$working-precision = Num,
+            :$precision-goal = Whatever,
+            :$accuracy-goal = Whatever,
+            *%args
+            --> Math::NIntegrate::Strategy:D
+                         ) {
+
+        # The method option is parsed and validated at this point.
+
+        # Default strategy options
+        my %default = singularity-depth => 4, min-recursion => 4, max-recursion => 12;
+
+        # Process ranges
+        my %ranges = Math::NIntegrate::Spec::normalize-ranges($ranges);
+
+        # Bounds
+        my %bounds = min => [], max => [];
+        %ranges.sort(*<index>).map({
+            %bounds<min>.push($_<min>);
+            %bounds<max>.push($_<max>)
+        });
+
+        # Integration rule
+        my $rule = self.make-rule(dimension => %bounds<min>.elems, :$working-precision);
+
+        # Make regions
+        # The numerical function object for the integrand is already made
+        my @regions = self.make-region($integrand, %bounds<min>, %bounds<max>, :$rule);
+
+        # Attach rules to regions
+
+        # In the future:
+        # - More than one region is obtained from the original ranges
+        # - The integration rule object is set to all regions
+
+        # Make the strategy
+
+        # Attach regions to strategies
+
+        return $!strategy
     }
 }
