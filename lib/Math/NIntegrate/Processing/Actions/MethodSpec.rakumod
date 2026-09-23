@@ -21,7 +21,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
     }
 
     method !merge-options(%spec is copy, $/ --> Hash:D) {
-        for flat $<method-option>, $<numeric-option-spec>, $<singularity-handler-option>, $<cartesian-rule-method>, $<option> -> $option {
+        for flat $<method-option>, $<numeric-option-spec>, $<singularity-handler-option>, $<cartesian-rule-method>, $<method-rule-spec>, $<option> -> $option {
             next unless $option.defined;
             my $pair = $option.made;
             %spec{$pair.key} = $pair.value;
@@ -92,7 +92,13 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
         make self!merge-options(%spec, $/);
     }
 
-    method rule-spec($/) { make $<cartesian-rule-spec> ?? $<cartesian-rule-spec>.made !! $<rule-component-spec>.made; }
+    method rule-spec($/) {
+        make $<cartesian-rule-spec> ?? $<cartesian-rule-spec>.made !! $<rule-component-spec>.made;
+    }
+
+    method method-rule-spec($/) {
+        make 'method' => $<rule-spec>.made;
+    }
 
     method TOP($/) { make $<method-option>.made; }
 }

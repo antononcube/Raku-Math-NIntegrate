@@ -16,22 +16,23 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     regex option {
         # I do not like this conditional chack, but it was quick to do with the generic <method-option>
-        [ <symbol> \s* <arrow> \s* <option-value> | ':' <number> <symbol> ] <!{ $<symbol>.Str.lc eq 'method' }>
+        # <!{ $<symbol>.Str.lc eq 'method' }>
+        [ <symbol> \s* <.arrow> \s* <option-value> | ':' <number> <symbol> | ':' <symbol> <.lb> \s* <number> \s* <.rb>]
     }
 
     rule option-sequence { <option>+ % <.sep> }
 
     regex method-option {
-     | <method> \s* <arrow> \s* <method-option-value>
+     | <method> \s* <.arrow> \s* <method-option-value>
      | ':' <method> <.lb> \s* <method-option-value> \s* <.rb>
      | '"' <method> '"' \s* ':' \s* <method-option-value>
     }
 
     # This rule is too general: parses correct syntax, but does not impose only allowed sub-options.
-    rule method-option-value {
-        | <method-symbol>
-        | <.lb> <method-symbol> <.rb>
-        | <.lb> <method-symbol> <.sep> [ <method-option> | <option> ]+ % <.sep> <.rb>
+    regex method-option-value {
+        || <method-symbol>
+        || <.lb> \s* <method-symbol> \s* <.rb>
+        || <.lb> \s* <method-symbol> \s* <.sep> \s* [ <method-option> | <option> ]+ % [\s* <.sep> \s*] \s* <.rb>
     }
 
     rule method-symbol {
@@ -45,8 +46,9 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     rule strategy-symbol {
-        | <strategy-symbol-known>
-        | <top-level-strategy>
+        || '"' ~ '"' <strategy-symbol-known>
+        || <strategy-symbol-known>
+        || <top-level-strategy>
     }
 
     rule decorator-strategy-symbol {
@@ -61,8 +63,9 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     rule rule-symbol {
-        | <rule-symbol-known>
-        | <top-level-rule>
+        || '"' ~ '"' <rule-symbol-known>
+        || <rule-symbol-known>
+        || <top-level-rule>
     }
 
     rule singularity-handler-symbol {
@@ -75,26 +78,26 @@ grammar Math::NIntegrate::Processing::Grammar {
     token numeric-option-symbol { <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> }
 
     regex numeric-option-spec {
-        | <numeric-option-symbol> \s* <arrow> \s* <number>
+        | <numeric-option-symbol> \s* <.arrow> \s* <number>
         | ':' <number> <numeric-option-symbol>
         | ':' <numeric-option-symbol> <.lb> \s* <number> \s* <.rb>
         | '"' <numeric-option-symbol> '"' \s* ':' \s* <number>
     }
 
     regex singularity-handler-option {
-        | <singularity-handler> \s* <arrow> \s* <singularity-handler-symbol>
+        | <singularity-handler> \s* <.arrow> \s* <singularity-handler-symbol>
         | ':' <singularity-handler> <.lb> \s* <singularity-handler-symbol> \s* <.rb>
         | '"' <singularity-handler> '"' \s* ':' \s* <singularity-handler-symbol>
     }
 
     rule strategy-spec {
         || <strategy-symbol>
-        || <.lb> <strategy-symbol> [ <.sep> [ <method-option> | <numeric-option-spec> | <singularity-handler-option> ]* % <.sep> ]? <.rb>
+        || <.lb> <strategy-symbol> [ <.sep> [ <method-rule-spec> | <numeric-option-spec> | <singularity-handler-option> ]* % <.sep> ]? <.rb>
     }
 
-    rule rule-component-spec {
+    regex rule-component-spec {
         || <rule-symbol>
-        || <.lb> <rule-symbol> [ <.sep> <numeric-option-spec>* % <.sep> ]? <.rb>
+        || <.lb> \s* <rule-symbol> \s* [ <.sep> \s* <numeric-option-spec>* % [ \s* <.sep> \s*] ]? <.rb>
     }
 
     regex rule-component-sequence {
@@ -106,7 +109,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     regex cartesian-rule-method {:i
-        | <method> \s* <arrow> \s* <rule-component-option-value>
+        | <method> \s* <.arrow> \s* <rule-component-option-value>
         | ':' <method> <.lb> \s* <rule-component-option-value> \s* <.rb>
         | '"' <method> '"' \s* ':' \s* <.lb> \s* <rule-component-option-value> \s* <.rb>
     }
@@ -122,6 +125,12 @@ grammar Math::NIntegrate::Processing::Grammar {
     rule rule-spec {
         || <cartesian-rule-spec>
         || <rule-component-spec>
+    }
+
+    regex method-rule-spec {
+        | <method> \s* <.arrow> \s* <rule-spec>
+        | ':' <method> <.lb> \s* <rule-spec> \s* <.rb>
+        | '"' <method> '"' \s* ':' \s* <rule-spec>
     }
 
     # Brackets
