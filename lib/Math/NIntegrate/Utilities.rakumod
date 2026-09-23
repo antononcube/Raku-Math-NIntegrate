@@ -93,3 +93,30 @@ sub parse-range-boundaries($orig-min,
 
         return  %(:$min, :$max, :$min-inf-dir, :$max-inf-dir, :$real-flag, :$bounds-case)
 }
+
+#==========================================================
+# Ranges or dimension spec
+#==========================================================
+
+#| Determine dimension
+our sub determine-dimension($ranges, $dimension) {
+    return do given ($ranges, $dimension) {
+        when $_.head ~~ (Array:D | List:D | Seq:D) && $_.tail.isa(Whatever) {
+            $ranges.elems
+        }
+        when $_.head.defined && $_.tail ~~ Int:D && $_.tail > 0 {
+            warn 'The specified $ranges values is ignored, since $dimension is a positive integer';
+            $_.tail
+        }
+        when $_.tail ~~ Int:D && $_.tail > 0 {
+            # No change
+            $_.tail
+        }
+        when $_.tail.defined {
+            die 'The argument $dimensions is expected to be a positive integer,';
+        }
+        default {
+            die 'At least one of the arguments $ranges and $dimension have to be specified.'
+        }
+    }
+}
