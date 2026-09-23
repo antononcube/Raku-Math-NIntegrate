@@ -19,7 +19,7 @@ class Math::NIntegrate::NumericalFunction {
         @!last-argument-values = Whatever xx @!argument-names;
     }
 
-    multi method new(:f(:func(:&function)), :wprec(:$working-precision) = Num) {
+    multi method new(:f(:func(:&function)), :prec(:$working-precision) = Num) {
         my $signature = &function.signature;
         my $num-args = $signature.params.elems;
         my @argument-names = $signature.params.map(*.name);
