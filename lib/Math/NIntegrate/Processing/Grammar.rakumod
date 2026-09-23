@@ -19,19 +19,19 @@ grammar Math::NIntegrate::Processing::Grammar {
         [ <symbol> \s* <arrow> \s* <option-value> | ':' <number> <symbol> ] <!{ $<symbol>.Str.lc eq 'method' }>
     }
 
-    rule option-sequence { <option>+ % <sep> }
+    rule option-sequence { <option>+ % <.sep> }
 
     regex method-option {
      | <method> \s* <arrow> \s* <method-option-value>
-     | ':' <method> <lb> \s* <method-option-value> \s* <rb>
+     | ':' <method> <.lb> \s* <method-option-value> \s* <.rb>
      | '"' <method> '"' \s* ':' \s* <method-option-value>
     }
 
     # This rule is too general: parses correct syntax, but does not impose only allowed sub-options.
     rule method-option-value {
         | <method-symbol>
-        | <lb> <method-symbol> <rb>
-        | <lb> <method-symbol> <sep> [ <method-option> | <option> ]+ % <sep> <rb>
+        | <.lb> <method-symbol> <.rb>
+        | <.lb> <method-symbol> <.sep> [ <method-option> | <option> ]+ % <.sep> <.rb>
     }
 
     rule method-symbol {
@@ -77,38 +77,38 @@ grammar Math::NIntegrate::Processing::Grammar {
     regex numeric-option-spec {
         | <numeric-option-symbol> \s* <arrow> \s* <number>
         | ':' <number> <numeric-option-symbol>
-        | ':' <numeric-option-symbol> <lb> \s* <number> \s* <rb>
+        | ':' <numeric-option-symbol> <.lb> \s* <number> \s* <.rb>
         | '"' <numeric-option-symbol> '"' \s* ':' \s* <number>
     }
 
     regex singularity-handler-option {
         | <singularity-handler> \s* <arrow> \s* <singularity-handler-symbol>
-        | ':' <singularity-handler> <lb> \s* <singularity-handler-symbol> \s* <rb>
+        | ':' <singularity-handler> <.lb> \s* <singularity-handler-symbol> \s* <.rb>
         | '"' <singularity-handler> '"' \s* ':' \s* <singularity-handler-symbol>
     }
 
     rule strategy-spec {
         || <strategy-symbol>
-        || <lb> <strategy-symbol> [ <sep> [ <method-option> | <numeric-option-spec> | <singularity-handler-option> ]* % <sep> ]? <rb>
+        || <.lb> <strategy-symbol> [ <.sep> [ <method-option> | <numeric-option-spec> | <singularity-handler-option> ]* % <.sep> ]? <.rb>
     }
 
     rule rule-component-spec {
         || <rule-symbol>
-        || <lb> <rule-symbol> [ <sep> <numeric-option-spec>* % <sep> ]? <rb>
+        || <.lb> <rule-symbol> [ <.sep> <numeric-option-spec>* % <.sep> ]? <.rb>
     }
 
     regex rule-component-sequence {
-        <rule-component-spec>+ % [\s* <sep> \s*]
+        <rule-component-spec>+ % [\s* <.sep> \s*]
     }
 
     regex rule-component-option-value {
-        <lb> \s* <rule-component-sequence> \s* <rb> || <rule-component-spec>
+        <.lb> \s* <rule-component-sequence> \s* <.rb> || <rule-component-spec>
     }
 
     regex cartesian-rule-method {:i
         | <method> \s* <arrow> \s* <rule-component-option-value>
-        | ':' <method> <lb> \s* <rule-component-option-value> \s* <rb>
-        | '"' <method> '"' \s* ':' \s* <lb> \s* <rule-component-option-value> \s* <rb>
+        | ':' <method> <.lb> \s* <rule-component-option-value> \s* <.rb>
+        | '"' <method> '"' \s* ':' \s* <.lb> \s* <rule-component-option-value> \s* <.rb>
     }
 
     # This might be not a sufficiently strong production rule.
@@ -116,7 +116,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     # (Although, in principle, that can be processed and corresponding "flattened" Cartesian rule be created.)
     rule cartesian-rule-spec {
         || <cartesian-rule>
-        || <lb> <cartesian-rule> [ <sep> [ <cartesian-rule-method> | <numeric-option-spec> ]* % <sep> ]? <rb>
+        || <.lb> <cartesian-rule> [ <.sep> [ <cartesian-rule-method> | <numeric-option-spec> ]* % <.sep> ]? <.rb>
     }
 
     rule rule-spec {
