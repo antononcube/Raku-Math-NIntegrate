@@ -2,9 +2,8 @@ use v6.d;
 
 # Preprocessing
 use Math::NIntegrate::Spec;
-use Math::NIntegrate::Processing::Grammar;
-use Math::NIntegrate::Processing::Actions::MethodSpec;
 
+# Core classes
 use Math::NIntegrate::Region;
 use Math::NIntegrate::NumericalFunction;
 use Math::NIntegrate::VariableTransformer::Composite;
@@ -190,7 +189,7 @@ class Math::NIntegrate::Builder {
         my %default-spec = type => 'strategy', name => 'GlobalAdaptive', method => Whatever;
 
         # Create strategy by spec
-        my $!strategy = do given $method {
+        my $strategy = do given $method {
             when $_.isa(Whatever) || $_.isa(WhateverCode) {
                 return $dimension == 1
                         ?? self.make-rule(method => %default-spec, :$dimension, :$working-precision)
@@ -231,7 +230,7 @@ class Math::NIntegrate::Builder {
             }
         }
 
-        return $!strategy
+        return $strategy
     }
 
     #| Full integrator creation
@@ -272,15 +271,15 @@ class Math::NIntegrate::Builder {
         # The numerical function object for the integrand is already made
         my @regions = self.make-region($integrand, %bounds<min>, %bounds<max>, :$rule);
 
-        # Attach rules to regions
-
         # In the future:
         # - More than one region is obtained from the original ranges
         # - The integration rule object is set to all regions
 
         # Make the strategy
+        $!strategy = self.make-strategy(dim => %ranges.elems, |%args);
 
         # Attach regions to strategies
+        $!strategy.regions = |@regions;
 
         return $!strategy
     }
