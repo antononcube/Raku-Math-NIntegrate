@@ -2,6 +2,8 @@ use v6.d;
 
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::NumericalFunction;
+use Math::NIntegrate::Processing::Grammar;
+use Math::NIntegrate::Processing::Actions::MethodSpec;
 use Hash::Merge;
 
 class Math::NIntegrate::Spec {
@@ -138,16 +140,16 @@ class Math::NIntegrate::Spec {
     }
 
     #| Normalize method spec
-    method normalize-method($method, $dim --> Positional:D) {
+    method normalize-method($method is copy --> Map:D) {
         # The normalizations of the non-Whatever specs are not needed because
         # they are handled by Math::NIntegrate::Processing::Grammar .
         # Some other normalizations might be implemented later.
 
-        my $method-spec = do given $method {
-            when WhateverCode { self.normalize-method-spec('GlobalAdaptive', $dim) }
-            when Whatever { self.normalize-method-spec('GlobalAdaptive', $dim) }
+        $method = do given $method {
+            when WhateverCode { self.normalize-method-spec('GlobalAdaptive') }
+            when Whatever { self.normalize-method-spec('GlobalAdaptive') }
             when $_ ~~ Str:D && $_.lc ∈ <globaladaptive global-adaptive global_adaptive automatic auto> {
-                # I am not sure is this variant good, but probably can be supported at some point
+                # This is the normalized variant and has to be supported at some point.
                 # %( name => 'GlobalAdaptive', method => %( name => 'ClenshawCurtisRule', points => 6 ) )
                 ( 'GlobalAdaptive', method => ( 'ClenshawCurtisRule', points => 6 ) )
             }
@@ -160,7 +162,19 @@ class Math::NIntegrate::Spec {
             }
         }
 
-        return $method-spec
+        my $gr = Math::NIntegrate::Processing::Grammar.new;
+        my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new;
+
+        my %method-spec;
+        try {
+            %method-spec = $gr.parse($method, rule => 'strategy-spec', :$actions).made,
+        }
+
+        if $! {
+            die 'Cannot parse method option.'
+        }
+
+        return %method-spec
     }
 
     #| Normalize integrand and ranges
