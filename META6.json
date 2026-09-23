@@ -19,6 +19,7 @@
         "Math::NIntegrate::Builder": "lib/Math/NIntegrate/Builder.rakumod",
         "Math::NIntegrate::Codes": "lib/Math/NIntegrate/Codes.rakumod",
         "Math::NIntegrate::NumericalFunction": "lib/Math/NIntegrate/NumericalFunction.rakumod",
+        "Math::NIntegrate::Processing::Actions::MethodSpec": "lib/Math/NIntegrate/Processing/Actions/MethodSpec.rakumod",
         "Math::NIntegrate::Processing::Grammar": "lib/Math/NIntegrate/Processing/Grammar.rakumod",
         "Math::NIntegrate::Region": "lib/Math/NIntegrate/Region.rakumod",
         "Math::NIntegrate::Rule": "lib/Math/NIntegrate/Rule.rakumod",
