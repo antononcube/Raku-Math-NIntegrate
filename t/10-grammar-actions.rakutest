@@ -1,0 +1,52 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+use Math::NIntegrate::Processing::Grammar;
+use Math::NIntegrate::Processing::Actions::MethodSpec;
+
+my $gr = Math::NIntegrate::Processing::Grammar.new;
+my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new;
+
+# 1
+subtest {
+    my %specs =
+            'GlobalAdaptive' =>
+                    {name => 'GlobalAdaptive', type => 'strategy'},
+
+            '( global-adaptive )' =>
+                    {name => 'GlobalAdaptive', type => 'strategy'},
+
+            '(GlobalAdaptive, method => ClenshawCurtisRule)' =>
+                    {method => {name => 'ClenshawCurtisRule', type => 'rule'}, name => 'GlobalAdaptive', type => 'strategy'},
+
+            '(GlobalAdaptive, max-recursion => 10, singularity-depth => 4)' =>
+                    {name => 'GlobalAdaptive', type => 'strategy', max-recursion => 10, singularity-depth => 4},
+
+            '(local-adaptive, method => (trapezoidal-rule, points => 5))' =>
+                    {method => {name => 'TrapezoidalRule', points => 5, type => 'rule'}, name => 'LocalAdaptive', type => 'strategy'},
+
+            '(GlobalAdaptive, method => (TrapezoidalRule, :10points), max-recursion => 20, singularity-handler => IMT)' =>
+                    {method => {name => 'TrapezoidalRule', points => 10, type => 'rule'}, name => 'GlobalAdaptive', type => 'strategy', singularity-handler => 'IMT', max-recursion => 20},
+
+            '(GlobalAdaptive, method => (CartesianRule, method => (TrapezoidalRule, :10points)), max-recursion => 20)' =>
+                    {method => {
+                        name => 'CartesianRule',
+                        type => 'rule',
+                        method => {name => 'TrapezoidalRule', points => 10, type => 'rule'}
+                    },
+                      name => 'GlobalAdaptive',
+                      type => 'strategy',
+                      max-recursion => 20},
+            ;
+    for %specs.kv -> $cmd, %spec {
+        is-deeply
+                $gr.parse($cmd, rule => 'strategy-spec', :$actions).made,
+                %spec,
+                "failed strategy spec ⎡$cmd⎦";
+    }
+
+}, 'Method spec';
+
+
+done-testing;
