@@ -114,6 +114,9 @@ class Math::NIntegrate::Region {
         $!type = $from.type;
         @!reuse-values = $clone ?? $from.reuse-values.clone !! $from.reuse-values;
 
+        # This is somewhat redundant
+        $!dimension = $from.dimension;
+
         # The rule must be cloned
         $!rule = $clone ?? $from.rule.clone !! $from.rule;
 
