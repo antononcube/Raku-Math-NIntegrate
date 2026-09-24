@@ -115,6 +115,11 @@ class Math::NIntegrate::Builder {
                         !! self.make-rule(method => {type => 'rule', name => 'CartesianRule', method => %default-spec}, :$dimension, :$working-precision)
             }
 
+            when $dimension > 1 &&
+                    $_<name> ∈ <ClenshawCurtisRule GaussKronrodRule LobattoKronrodRule TrapezoidalRule>  {
+                self.make-rule(:$dimension, method => {name => 'CartesianRule', type => 'rule', :$method}, :$working-precision)
+            }
+
             when $_<name> eq 'TrapezoidalRule' {
                 Math::NIntegrate::Rule::Trapezoidal.new(points => $_<points> // 10, :$working-precision);
             }
