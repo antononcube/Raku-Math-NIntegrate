@@ -9,6 +9,8 @@ subtest {
     sub f(Numeric:D $x) {$x};
     ok nintegrate(&f, ('x', 0, 1)), 'ok to call';
 
+    isa-ok nintegrate(&f, <x 0 1>), Numeric:D, 'Numeric result for the call <x 0 1>';
+
     # Num
     is abs(nintegrate(&f, ('x', 0, 3)) - 9/2) ≤ 1e-6, True, 'expected Num result';
 
@@ -29,6 +31,7 @@ subtest {
     is abs($res - 9/2) ≤ 1e-10, True, 'expected Rat result';
 
 }, 'nintegrate(&f, (x, 0, 3))';
+
 
 # 2
 subtest {
@@ -55,7 +58,7 @@ subtest {
 }, 'nintegrate( { exp(- $^x ** 2) }, (x, 0, Inf))';
 
 
-# 2
+# 3
 subtest {
     my &f = {$^x + $^y ** 2};
     # The undefined integral of &f is (x^2 y)/2 + (x y^3)/3.
