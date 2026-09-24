@@ -23,7 +23,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         my $dim = self.regions.head.dimension;
 
         # Divide regions according to min-recursion
-        # self.min-recursion-regions;
+        self.min-recursion-regions;
 
         # First integration step
         try self.regions>>.apply-rule;
