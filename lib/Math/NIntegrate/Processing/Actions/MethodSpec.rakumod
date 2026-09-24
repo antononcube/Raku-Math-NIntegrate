@@ -72,7 +72,8 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
     }
 
     method rule-component-spec($/) {
-        my %spec = $<rule-symbol>.made.Hash; make self!merge-options(%spec, $/);
+        my %spec = $<rule-symbol>.made.Hash;
+        make self!merge-options(%spec, $/);
     }
 
     method rule-component-sequence($/) {
@@ -100,5 +101,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
         make 'method' => $<rule-spec>.made;
     }
 
-    method TOP($/) { make $<method-option>.made; }
+    method TOP($/) {
+        make $/.values.head.made;
+    }
 }

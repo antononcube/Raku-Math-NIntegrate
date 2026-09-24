@@ -2,13 +2,16 @@ use v6.d;
 
 grammar Math::NIntegrate::Processing::Grammar {
 
-    rule TOP { <method-option> }
+    rule TOP { <strategy-spec> | <rule-spec> }
 
     token symbol { <[\w \- _]>+ }
 
     token number { \d+ }
 
-    rule top-level-strategy { <symbol> }
+    # Conditional parsing with a very weak predicate.
+    # This is used in order to prevent <top-level-strategy> parsing known rules.
+    # There should be a separate rule for parsing <top-level-rule> only within a strategy spec.
+    rule top-level-strategy { (<symbol>) <!{ $0.Str ~~ / [ 'Rule' | '-rule' ] $/ }>}
 
     rule top-level-rule { <symbol> }
 
