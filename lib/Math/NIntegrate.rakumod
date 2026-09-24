@@ -9,19 +9,28 @@ use Math::NIntegrate::Spec;
 #| C<&f> -- integrand.
 #| C<*@ranges> -- ranges like ('x', 0, 10) or ('$x', 1, 3), ('$y', 0, -> $x { $x } )
 #| C<*%args> -- options like max-recursion => 12, etc.
-proto sub nintegrate(&f, *@ranges,
+proto sub nintegrate(+@args,
                      :$method is copy = Whatever,
                      :prec(:$working-precision) = Whatever,
                      :acc(:$accuracy) = Whatever,
                      :p(:$pairs) = False,
                      *%args) is export {*}
 
-multi sub nintegrate(&f, *@ranges,
+multi sub nintegrate(+@args,
                      :$method = Whatever,
                      :prec(:$working-precision) = Whatever,
                      :acc(:$accuracy) = Whatever,
                      :p(:$pairs) = False,
                      *%args) {
+    die 'At least two positional arguments are expected.'
+    unless @args.elems ≥ 2;
+
+    die 'The first argument is expected to be a callable.'
+    unless @args.head ~~ Callable:D;
+
+    my &f = @args.head;
+
+    my @ranges = @args.tail(*-1);
 
     # Check and normalize
     my $spec = Math::NIntegrate::Spec.new(&f, @ranges, %(:$method, :$working-precision, :$accuracy, |%args));
@@ -30,7 +39,10 @@ multi sub nintegrate(&f, *@ranges,
     my $builder = Math::NIntegrate::Builder.new;
 
     # Integrator object
-    my $integrator = $builder.make-integrator($spec.numerical-function, ranges => $spec.ranges, options => $spec.options);
+    my $integrator = $builder.make-integrator(
+            integrand => $spec.integrand,
+            ranges => $spec.ranges,
+            |$spec.options);
 
     # Integrate
     my %res = $integrator.algorithm(
