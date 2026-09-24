@@ -20,6 +20,9 @@ subtest {
             '(GlobalAdaptive, method => ClenshawCurtisRule)' =>
                     {method => {name => 'ClenshawCurtisRule', type => 'rule'}, name => 'GlobalAdaptive', type => 'strategy'},
 
+            '(GlobalAdaptive, method => trapezoidal-rule)' =>
+                    {method => {name => 'TrapezoidalRule', type => 'rule'}, name => 'GlobalAdaptive', type => 'strategy'},
+
             '(GlobalAdaptive, max-recursion => 10, singularity-depth => 4)' =>
                     {name => 'GlobalAdaptive', type => 'strategy', max-recursion => 10, singularity-depth => 4},
 
