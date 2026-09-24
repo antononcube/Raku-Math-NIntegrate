@@ -67,7 +67,7 @@ class Math::NIntegrate::VariableTransformer::Composite
         return self
     }
 
-    #| Remove a transformer at give index
+    #| Remove a transformer at given index
     multi method remove(Int:D $index) {
         @!stack = @!stack.splice($index, 1);
         return self
