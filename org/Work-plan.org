@@ -74,8 +74,9 @@
 - [ ] Constant ranges
 - [ ] Functional ranges
 ** TODO Integration Strategies [0%] [0/8]
-*** TODO Global Adaptive [66%] [2/3]
-- [ ] Initial regions by min-recursion
+*** TODO Global Adaptive [60%] [3/5]
+- [X] Initial regions by min-recursion
+  - With Leftist Heap
 - [X] Main integration loop
   - With Leftist Heap
 - [ ] Singularity handling
