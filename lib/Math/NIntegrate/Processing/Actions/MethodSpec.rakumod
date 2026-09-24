@@ -3,7 +3,7 @@ use v6.d;
 class Math::NIntegrate::Processing::Actions::MethodSpec {
 
     method !canonical-name(Str:D $name --> Str:D) {
-        my $compact = $name.trim.subst(/<[-_\s]>/, '', :g).lc;
+        my $compact = $name.trim.subst(/<[-_\s]>/, '', :g).subst(/ ^ <["\']> | <["\']> $/, :g).lc;
 
         my %names =
                 globaladaptive => 'GlobalAdaptive', localadaptive => 'LocalAdaptive', doubleexponential => 'DoubleExponential',
