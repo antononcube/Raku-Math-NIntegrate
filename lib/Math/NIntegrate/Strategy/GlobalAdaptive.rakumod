@@ -75,10 +75,10 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             # TBD...
 
             # Integrate
-            $topRegion.apply-rule;
+            try $topRegion.apply-rule;
             return %no-result if $!;
 
-            $newRegion.apply-rule;
+            try $newRegion.apply-rule;
             return %no-result if $!;
 
             # Convergence monitoring
