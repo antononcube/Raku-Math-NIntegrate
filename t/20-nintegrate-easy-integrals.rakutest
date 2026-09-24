@@ -30,4 +30,27 @@ subtest {
 
 }, 'nintegrate(&f, (x, 0, 3))';
 
+# 2
+subtest {
+    sub f($x) {exp(- $x ** 2)}
+
+    my $exact = π.sqrt / 2; # 0.886227
+
+    is abs(nintegrate(&f, ('x', 0, Inf)) - $exact) ≤ 1e-6, True, 'expected Num result';
+
+    # Rat
+    my $res =
+            nintegrate(&f, ('x', 0, Inf),
+                    working-precision => Rat,
+                    precision-goal => 8,
+                    method => 'ClenshawCurtisRule'):pairs;
+
+    isa-ok $res, Map:D, 'obtained hashmap with :pairs';
+
+    is ($res.keys (&) <error integral region-count>).elems, 3, 'exected keys';
+
+    is abs($res<integral> - $exact) ≤ 1e-12, True, 'expected Rat result';
+
+}, 'nintegrate(-> $x { exp(- $x ** 2) }, (x, 0, Inf))';
+
 done-testing;
