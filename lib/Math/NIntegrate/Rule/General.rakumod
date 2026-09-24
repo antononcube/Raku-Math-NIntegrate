@@ -23,11 +23,11 @@ class Math::NIntegrate::Rule::General
     submethod BUILD(:@!abscissas = Empty, :@!weights = Empty, :@!error-weights = Empty) {}
 
     multi method new(@abscissas, @weights, @error-weights) {
-        self.bless(:@!abscissas, :@!weights, :@!error-weights);
+        self.bless(:@abscissas, :@weights, :@error-weights);
     }
 
     multi method new(:@abscissas, :@weights, :@error-weights) {
-        self.bless(:@!abscissas, :@!weights, :@!error-weights);
+        self.bless(:@abscissas, :@weights, :@error-weights);
     }
 
     #| Copy attributes from an object
@@ -42,7 +42,7 @@ class Math::NIntegrate::Rule::General
 
     #| Clone the object
     method clone(-->Math::NIntegrate::Rule::General:D) {
-        Math::NIntegrate::Rule::General.new.copy(self, :clone)
+        Math::NIntegrate::Rule::General.new(Empty, Empty, Empty).copy(self, :clone)
     }
 
     #======================================================
