@@ -30,6 +30,21 @@ class Math::NIntegrate::Rule::General
         self.bless(:@!abscissas, :@!weights, :@!error-weights);
     }
 
+    #| Copy attributes from an object
+    method copy(Math::NIntegrate::Rule::General:D $from, Bool:D :deep(:deep-copy(:$clone)) = False) {
+        # @!transforms are functions/subs, so, $from.transforms>>.clone.Array seems inappropriate.
+        @!abscissas = $clone ?? $from.abscissas.clone !! $from.abscissas;
+        @!weights = $clone ?? $from.weights.clone !! $from.weights;
+        @!error-weights = $clone ?? $from.error-weights.clone !! $from.error-weights;
+
+        return self
+    }
+
+    #| Clone the object
+    method clone(-->Math::NIntegrate::Rule::General:D) {
+        Math::NIntegrate::Rule::General.new.copy(self, :clone)
+    }
+
     #======================================================
     # Integration
     #======================================================
