@@ -134,8 +134,8 @@ class Math::NIntegrate::Builder {
             }
 
             when $_<name> eq 'CartesianRule' {
-                die 'The Cartesian rule is not implemented yet.'
-                # Math::NIntegrate::Rule::Cartesian.new(gauss-points => $_<gauss-points> // $_<points> // 5, :$working-precision);
+                my @components = ($_<method> ~~ Map:D ?? [$_<method>,] !! $_<method>).map({ self.make-rule(:1dimension, method => $_, :$working-precision) });
+                Math::NIntegrate::Rule::Cartesian.new(:@components, :$dimension);
             }
 
             default {
