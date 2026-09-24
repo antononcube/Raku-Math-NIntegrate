@@ -53,4 +53,36 @@ subtest {
 
 }, 'nintegrate(-> $x { exp(- $x ** 2) }, (x, 0, Inf))';
 
+
+# 2
+subtest {
+    sub f(Numeric:D $x, Numeric:D $y) {$x + $y ** 2};
+    # The undefined integral of &f is (x^2 y)/2 + (x y^3)/3.
+    # The exact value in [0, 1] x [0, 1] is 5/6.
+    # The exact value in [0, 3] x [0, 5] is 295/2.
+    my $exact = 295/2;
+
+    ok nintegrate(&f, ('x', 0, 1), ('y', 0, 1)), 'ok to call';
+
+    # Num
+    is abs(nintegrate(&f, ('x', 0, 3), ('y', 0, 5)) - $exact) ≤ 1e-6, True, 'expected Num result';
+
+    # Rat
+    ok
+            nintegrate(&f, ('x', 0, 3), ('y', 0, 5),
+                    working-precision => Rat,
+                    precision-goal => 8,
+                    method => 'clenshaw-curtis-rule'),
+            'ok Rat working precision';
+
+    my $res =
+            nintegrate(&f, ('x', 0, 3), ('y', 0, 5),
+                    working-precision => Rat,
+                    precision-goal => 8,
+                    method => 'clenshaw-curtis-rule');
+    say (:$res);
+    is abs($res - $exact) ≤ 1e-6, True, 'expected Rat result';
+
+}, 'nintegrate(&f, (x, 0, 3), (y, 0, 5))';
+
 done-testing;
