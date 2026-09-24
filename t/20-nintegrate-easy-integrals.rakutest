@@ -32,7 +32,8 @@ subtest {
 
 # 2
 subtest {
-    sub f($x) {exp(- $x ** 2)}
+    #sub f($x) {exp(- $x ** 2)}
+    my &f = {exp(- $^x ** 2)}
 
     my $exact = π.sqrt / 2; # 0.886227
 
@@ -51,12 +52,12 @@ subtest {
 
     is abs($res<integral> - $exact) ≤ 1e-12, True, 'expected Rat result';
 
-}, 'nintegrate(-> $x { exp(- $x ** 2) }, (x, 0, Inf))';
+}, 'nintegrate( { exp(- $^x ** 2) }, (x, 0, Inf))';
 
 
 # 2
 subtest {
-    sub f(Numeric:D $x, Numeric:D $y) {$x + $y ** 2};
+    my &f = {$^x + $^y ** 2};
     # The undefined integral of &f is (x^2 y)/2 + (x y^3)/3.
     # The exact value in [0, 1] x [0, 1] is 5/6.
     # The exact value in [0, 3] x [0, 5] is 295/2.
@@ -80,9 +81,9 @@ subtest {
                     working-precision => Rat,
                     precision-goal => 8,
                     method => 'clenshaw-curtis-rule');
-    say (:$res);
-    is abs($res - $exact) ≤ 1e-6, True, 'expected Rat result';
+    #say (:$res);
+    is abs($res - $exact) ≤ 1e-10, True, 'expected Rat result';
 
-}, 'nintegrate(&f, (x, 0, 3), (y, 0, 5))';
+}, 'nintegrate( { $^x + $^y ** 2 }, (x, 0, 3), (y, 0, 5))';
 
 done-testing;
