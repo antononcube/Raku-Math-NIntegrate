@@ -55,7 +55,7 @@ class Math::NIntegrate::Rule::General
         my @values;
 
         for ^@!abscissas.elems -> $i {
-            my @point = @!abscissas[$i] ~~ Numeric:D ?? [@!abscissas[$i], ] !! @!abscissas[$i];
+            my @point = @!abscissas[$i] ~~ Numeric:D ?? @!abscissas[$i] !! |@!abscissas[$i];
             my $value = $region.eval-integrand(@point);
             @values.push($value);
             $integralLocal += @!weights[$i] * $value;
