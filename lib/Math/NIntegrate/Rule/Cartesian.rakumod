@@ -101,13 +101,11 @@ class Math::NIntegrate::Rule::Cartesian
         # If the dimension of the composite rule is greater than the number of components
         # the components array is extended to correspond to the dimension.
         # Note that components are not cloned, since they are just sources of data.
-        say 'dimension : ', self.dimension;
         if self.dimension > @!components.elems {
             @!components = flat @!components xx ceiling(self.dimension / @!components.elems);
             @!components .= head(self.dimension)
         }
 
-        say @!components.elems;
         self.abscissas = cross(|@!components.map(*.abscissas));
         self.weights = cross(|@!components.map(*.weights)).map({ [*] |$_ });
         self.error-weights = cross(|@!components.map(*.error-weights)).map({ [*] |$_ });
