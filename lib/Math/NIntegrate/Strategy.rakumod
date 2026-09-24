@@ -1,6 +1,7 @@
 use v6.d;
 
 use Math::NIntegrate::Region;
+use LeftistHeap;
 
 class Math::NIntegrate::Strategy {
 
@@ -54,10 +55,41 @@ class Math::NIntegrate::Strategy {
     #======================================================
 
     #| Template method
-    method min-recursion-regions(-->Array:D) {
-        # Divide -- not split -- the regions $!min-recursion number of times
-        warn 'Processing of regions by min-recursion are is not implemented yet.';
-        return @!regions;
+    method min-recursion-regions(-->Math::NIntegrate::Strategy) {
+
+        without @!regions {
+            fail 'MISSING_OBJECT: no regions to partition according to min-recursion spec.'
+        }
+
+        say (:$!min-recursion);
+        return self if $!min-recursion == 0;
+
+        # Get dimension
+        my $dim = @!regions.head.dimension;
+
+        # Splitting each dimension $!min-recursion times is the
+        # how min-recursion spec is interpreted:
+        # :2min-recursion on a 2D region is going to produce 16 (4 x 4) subregions;
+        # :2min-recursion on a 3D region is going to produce 64 (4 x 4 x 4) subregions.
+
+        if (2 ** $!min-recursion) ** $dim > 1024 {
+            # Preventing combinatorial explosion
+            $!min-recursion = max((1024 ** (1/$dim)).log(2).floor, 1);
+            note "Combinatorial explosion with the specified min-recursion; using {$!min-recursion} instead."
+        }
+
+        # Using region splitting for now. Using partitioning should be considered.
+        my $heap = LeftistHeap.new(@!regions, comparator => { $^a.levels.min < $^b.levels.min });
+        while $heap.top.levels.min < $!min-recursion {
+            my $reg = $heap.delete-top-element;
+            my $newReg = $reg.split(axis => $reg.levels.min(:k).head);
+            $heap.insert($reg);
+            $heap.insert($newReg);
+        }
+
+        @!regions = $heap.values;
+
+        return self
     }
 
     #| Strategy's initialization
