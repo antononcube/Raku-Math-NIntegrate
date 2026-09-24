@@ -61,7 +61,6 @@ class Math::NIntegrate::Strategy {
             fail 'MISSING_OBJECT: no regions to partition according to min-recursion spec.'
         }
 
-        say (:$!min-recursion);
         return self if $!min-recursion == 0;
 
         # Get dimension
