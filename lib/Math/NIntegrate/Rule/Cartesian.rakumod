@@ -35,7 +35,7 @@ class Math::NIntegrate::Rule::Cartesian
         if @components.elems > 0 {
             # Check that all components are 1D integration rules
 
-            die 'Only integration rules can be Cartesia rule components.'
+            die 'Only integration rules can be Cartesian rule components.'
             unless @components.all ~~ Math::NIntegrate::Rule::General;
 
             die $msg1Donly unless @components>>.dimension.max == 1
