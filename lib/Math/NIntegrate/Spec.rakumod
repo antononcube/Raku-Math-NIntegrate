@@ -12,7 +12,7 @@ class Math::NIntegrate::Spec {
     has %.options;
     my %default-options =
             method => Whatever,
-            min-recursion => 1,
+            min-recursion => 0,
             max-recursion => 12,
             max-points => Whatever,
             working-precision => Num,
