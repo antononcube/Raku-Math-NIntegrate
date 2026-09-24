@@ -79,6 +79,37 @@ class Math::NIntegrate::Spec {
     }
 
     #------------------------------------------------------
+    #| Normalize method spec
+    method normalize-method($method is copy --> Map:D) {
+        # The normalizations of the non-Whatever specs are not needed because
+        # they are handled by Math::NIntegrate::Processing::Grammar .
+        # Some other normalizations might be implemented later.
+
+        # This is the normalized variant of $method and has to be supported at some point.
+        # %( name => 'GlobalAdaptive', method => %( name => 'ClenshawCurtisRule', points => 6 ) )
+
+        $method = do given $method {
+            when $_.isa(WhateverCode) || $_.isa(Whatever) { 'GlobalAdaptive' }
+            when $_ ~~ Str:D && $_.lc ∈ <automatic auto> { 'GlobalAdaptive' }
+            default { $method }
+        }
+
+        my $gr = Math::NIntegrate::Processing::Grammar.new;
+        my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new;
+
+        my %method-spec;
+        try {
+            %method-spec = $gr.parse($method.List.raku, rule => 'TOP', :$actions).made
+        }
+
+        if $! {
+            die 'Cannot parse method option.'
+        }
+
+        return %method-spec
+    }
+
+    #------------------------------------------------------
     #| Verify options
     method normalize-options(%options is copy --> Map:D) {
 
@@ -144,36 +175,6 @@ class Math::NIntegrate::Spec {
         %!options = %options;
     }
 
-    #------------------------------------------------------
-    #| Normalize method spec
-    method normalize-method($method is copy --> Map:D) {
-        # The normalizations of the non-Whatever specs are not needed because
-        # they are handled by Math::NIntegrate::Processing::Grammar .
-        # Some other normalizations might be implemented later.
-
-        # This is the normalized variant of $method and has to be supported at some point.
-        # %( name => 'GlobalAdaptive', method => %( name => 'ClenshawCurtisRule', points => 6 ) )
-
-        $method = do given $method {
-            when $_.isa(WhateverCode) || $_.isa(Whatever) { 'GlobalAdaptive' }
-            when $_ ~~ Str:D && $_.lc ∈ <automatic auto> { 'GlobalAdaptive' }
-            default { $method }
-        }
-
-        my $gr = Math::NIntegrate::Processing::Grammar.new;
-        my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new;
-
-        my %method-spec;
-        try {
-            %method-spec = $gr.parse($method.List.raku, rule => 'TOP', :$actions).made
-        }
-
-        if $! {
-            die 'Cannot parse method option.'
-        }
-
-        return %method-spec
-    }
 
     #------------------------------------------------------
     #| Normalize integrand and ranges
