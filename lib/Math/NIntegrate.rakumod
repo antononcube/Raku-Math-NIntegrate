@@ -5,6 +5,13 @@ unit module Math::NIntegrate;
 use Math::NIntegrate::Builder;
 use Math::NIntegrate::Spec;
 
+# Are these needed or good ideas?
+#| Synonym of &nintegrate.
+# sub numerical-integration(*@args, *%args) is export { nintegrate(|@args, |%args) }
+
+#| Synonym of &nintegrate.
+# sub NIntegrate(*@args, *%args) is export { nintegrate(|@args, |%args) }
+
 #| Numerical integration of a function for given ranges using method- and precision specifications.
 #| C<&f> -- integrand.
 #| C<*@ranges> -- ranges like ('x', 0, 10) or ('$x', 1, 3), ('$y', 0, -> $x { $x } )
