@@ -41,12 +41,34 @@ subtest {
             ;
     for @specs.kv -> $i, $p {
         is-deeply
-                $gr.parse($p.key, rule => 'strategy-spec', :$actions).made,
+                $gr.parse($p.key, rule => 'TOP', :$actions).made,
                 $p.value,
                 "failed strategy spec $i, ⎡{$p.key}⎦";
     }
 
-}, 'Method spec';
+}, 'Strategy method spec';
 
+
+# 2
+subtest {
+    my @specs =
+            'TrapezoidalRule' =>
+                    {name => 'TrapezoidalRule', type => 'rule'},
+
+            '( trapezoidal-rule )' =>
+                    {name => 'TrapezoidalRule', type => 'rule'},
+
+            '(ClenshawCurtisRule, :10points)' =>
+                    {name => 'ClenshawCurtisRule', points => 10, type => 'rule'},
+            ;
+
+    for @specs.kv -> $i, $p {
+        is-deeply
+                $gr.parse($p.key, rule => 'TOP', :$actions).made,
+                $p.value,
+                "failed rule spec $i, ⎡{$p.key}⎦";
+    }
+
+}, 'Rule only method spec';
 
 done-testing;
