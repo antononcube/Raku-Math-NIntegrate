@@ -5,7 +5,13 @@ use Math::NIntegrate;
 use Math::NIntegrate::Rule::ClenshawCurtis;
 
 ## 1
-ok Math::NIntegrate::Rule::ClenshawCurtis.new(5);
+subtest {
+    ok Math::NIntegrate::Rule::ClenshawCurtis.new(5), 'creation with positive integer is ok';
+
+    dies-ok { Math::NIntegrate::Rule::ClenshawCurtis.new(0) }, 'creation with 0 is nok';
+
+    dies-ok { Math::NIntegrate::Rule::ClenshawCurtis.new('blah') }, 'creation with string is nok';
+}, 'creations';
 
 ## 2
 #`[
@@ -27,13 +33,13 @@ subtest {
     # The undefined integral of &f is x^3/3 .
     my &f = {$_ ** 2};
 
-    say 'integral estimate : ', ($rule.abscissas».&f <<*>> $rule.weights).sum;
-    say '   error estimate : ', ($rule.abscissas».&f <<*>> $rule.error-weights).sum;
+    #say 'integral estimate : ', ($rule.abscissas».&f <<*>> $rule.weights).sum;
+    #say '   error estimate : ', ($rule.abscissas».&f <<*>> $rule.error-weights).sum;
 
     # The defined integral over [0, 1] is 1/3 .
     is abs(($rule.abscissas».&f <<*>> $rule.weights).sum - 1/3) < 10e-9, True, 'integral estimate';
 
     is ($rule.abscissas».&f <<*>> $rule.error-weights).sum.abs < 10e-9, True, 'error estimate';
-}
+}, 'integral estimates';
 
 done-testing;
