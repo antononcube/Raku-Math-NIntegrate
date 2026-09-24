@@ -6,6 +6,8 @@ use LeftistHeap;
 class Math::NIntegrate::Strategy::GlobalAdaptive
         is Math::NIntegrate::Strategy {
 
+    my %no-result = integral => Whatever, error => Whatever;
+
     #| GlobalAdaptive strategy's algorithm
     method algorithm(
             Numeric:D :tol(:$relative-tolerance) = 1e-6,
@@ -24,7 +26,9 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         # self.min-recursion-regions;
 
         # First integration step
-        self.regions>>.apply-rule;
+        try self.regions>>.apply-rule;
+        return %no-result if $!;
+
         my $error = self.regions.map(*.error).sum;
         my $integral = self.regions.map(*.integral).sum;
 
@@ -72,7 +76,10 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
             # Integrate
             $topRegion.apply-rule;
+            return %no-result if $!;
+
             $newRegion.apply-rule;
+            return %no-result if $!;
 
             # Convergence monitoring
             # TBD ...
