@@ -104,4 +104,24 @@ subtest {
 
 }, 'Nested method options';
 
+# 5
+subtest {
+    isa-ok
+            nintegrate( -> $x, $y { $x + $y² }, <x 0 2>, <y 0 12>, min-recursion => 2),
+            Numeric:D,
+            "min-recursion spec gives Numeric:D result";
+
+    my %res = nintegrate( -> $x, $y { $x + $y² }, <x 0 2>, <y 0 12>, min-recursion => 2):pairs;
+
+    is %res<region-count> == 16, True, "expected number of 2D regions";
+
+    # This is slow ≈10 s
+    # my %res3D = nintegrate( -> $x, $y, $z { $x + $y + $z }, <x 0 1>, <y 0 1>, <z 0 1>, min-recursion => 2):pairs;
+    # is %res3D<region-count> == 64, True, "expected number of 3D regions";
+
+    my %res3D = nintegrate( -> $x, $y, $z { $x + $y + $z }, <x 0 1>, <y 0 1>, <z 0 1>, min-recursion => 1):pairs;
+    is %res3D<region-count> == 8, True, "expected number of 3D regions";
+
+}, 'Min-recursion';
+
 done-testing;
