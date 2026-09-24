@@ -42,6 +42,7 @@ class Math::NIntegrate::Spec {
     # Normalization methods
     #======================================================
 
+    #------------------------------------------------------
     #| Validate & normalize ranges
     proto method normalize-ranges($ranges) {*}
 
@@ -77,6 +78,7 @@ class Math::NIntegrate::Spec {
         return %ranges
     }
 
+    #------------------------------------------------------
     #| Verify options
     method normalize-options(%options is copy --> Map:D) {
 
@@ -105,7 +107,7 @@ class Math::NIntegrate::Spec {
             die $msg-pg
         }
 
-        %options<precision-tolerance> = 10 ** -%options<precision-goal>;
+        %options<relative-tolerance> = 10 ** -%options<precision-goal>;
 
         # Accuracy
         %options<accuracy-goal> = Inf if %options<accuracy-goal>.isa(Whatever);
@@ -113,7 +115,7 @@ class Math::NIntegrate::Spec {
         die 'The value of accuracy-goal is expected to be a positive integer, Inf, or Whatever.'
         unless %options<accuracy-goal> ~~ Int:D && %options<accuracy-goal> > 0 || %options<accuracy-goal> ~~ Inf;
 
-        %options<accuracy-tolerance> = 10 ** -%options<accuracy-goal>;
+        %options<absolute-tolerance> = 10 ** -%options<accuracy-goal>;
 
         # Recursion options
         die 'The value of max-recursion is expected to be a non-negative integer.'
@@ -129,16 +131,20 @@ class Math::NIntegrate::Spec {
         die 'The value of max-points is expected to be a positive integer or Whatever.'
         unless %options<max-points> ~~ Int:D && %options<max-points> > 0 || %options<max-points>.isa(Whatever);
 
-        ## Singularity depth
+        # Singularity depth
         %options<singularity-depth> = 4 if %options<singularity-depth>.isa(Whatever);
 
         die 'The value of singularity-depth is expected to be a non-negative integer, Inf, or Whatever.'
         unless %options<singularity-depth> ~~ Int:D && %options<singularity-depth> ≥ 0 || %options<singularity-depth> ~~ Inf;
 
+        # Method option
+        %options<method> = self.normalize-method(%options<method> // Whatever);
+
         # Assign
         %!options = %options;
     }
 
+    #------------------------------------------------------
     #| Normalize method spec
     method normalize-method($method is copy --> Map:D) {
         # The normalizations of the non-Whatever specs are not needed because
@@ -146,8 +152,9 @@ class Math::NIntegrate::Spec {
         # Some other normalizations might be implemented later.
 
         $method = do given $method {
-            when WhateverCode { self.normalize-method-spec('GlobalAdaptive') }
-            when Whatever { self.normalize-method-spec('GlobalAdaptive') }
+            when $_.isa(WhateverCode) || $_.isa(Whatever) {
+                return self.normalize-method('GlobalAdaptive')
+            }
             when $_ ~~ Str:D && $_.lc ∈ <globaladaptive global-adaptive global_adaptive automatic auto> {
                 # This is the normalized variant and has to be supported at some point.
                 # %( name => 'GlobalAdaptive', method => %( name => 'ClenshawCurtisRule', points => 6 ) )
@@ -167,7 +174,7 @@ class Math::NIntegrate::Spec {
 
         my %method-spec;
         try {
-            %method-spec = $gr.parse($method, rule => 'strategy-spec', :$actions).made,
+            %method-spec = $gr.parse($method.List.raku, rule => 'strategy-spec', :$actions).made
         }
 
         if $! {
@@ -177,6 +184,7 @@ class Math::NIntegrate::Spec {
         return %method-spec
     }
 
+    #------------------------------------------------------
     #| Normalize integrand and ranges
     proto method normalize(&func, $ranges, $options) {*}
 
@@ -205,5 +213,6 @@ class Math::NIntegrate::Spec {
         die 'Not all integrand arguments are found in the ranges spec.'
         unless ($!integrand.argument-names (&) %ranges.keys).elems < $!integrand.argument-names;
 
+        self
     }
 }

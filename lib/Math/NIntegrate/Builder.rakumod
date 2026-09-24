@@ -23,6 +23,7 @@ class Math::NIntegrate::Builder {
 
     has Math::NIntegrate::Strategy $.strategy;
 
+    #------------------------------------------------------
     #| Make variable transformer composite
     method make-variable-transformer-composite(
             :$region
@@ -41,6 +42,7 @@ class Math::NIntegrate::Builder {
         return $obj
     }
 
+    #------------------------------------------------------
     #| Make region
     method make-region(
             Math::NIntegrate::NumericalFunction:D $numerical-function,
@@ -65,6 +67,7 @@ class Math::NIntegrate::Builder {
         return $region
     }
 
+    #------------------------------------------------------
     #| Make numerical function
     method make-numerical-function(
             &function,
@@ -77,6 +80,7 @@ class Math::NIntegrate::Builder {
         return $nf
     }
 
+    #-------------------------------------------------------------------------
     #| Make an integration rule object according to method-spec and dimension.
     method make-rule(
             UInt:D :dim(:$dimension)!,
@@ -142,16 +146,17 @@ class Math::NIntegrate::Builder {
         return $rule
     }
 
-    #| Make an integration strategy object according to method-spec and ranges/dimension.
+    #------------------------------------------------------------------------------------
+    #| Make an integration strategy object according to method-spec and dimension.
     method make-strategy(
             :$method = Whatever,
             :dim(:$dimension) is copy = Whatever,
-            :$singularity-depth = Whatever,
+            :$singularity-depth is copy = Whatever,
             :$max-recursion is copy = Whatever,
             :$min-recursion is copy = Whatever,
             :$max-points is copy = Whatever,
             :$working-precision = Num,
-            :$precision-t = Whatever,
+            :$precision-goal = Whatever,
             :$accuracy-goal = Whatever,
             *%args
             --> Math::NIntegrate::Strategy:D
@@ -180,9 +185,9 @@ class Math::NIntegrate::Builder {
 
         # Reassign options
         $max-points = $method<max-points> // $max-points // Whatever;
-        $max-recursion = $method<max-recursion> // $max-recursion // Whatever;
-        $min-recursion = $method<min-recursion> // $min-recursion // Whatever;
-        $singularity-depth = $method<singularity-depth> // $singularity-depth // Whatever;
+        $max-recursion = $method<max-recursion> // $max-recursion // 12;
+        $min-recursion = $method<min-recursion> // $min-recursion // 0;
+        $singularity-depth = $method<singularity-depth> // $singularity-depth // 4;
 
         # Default strategy
         #my %default-spec = type => 'strategy', name => 'GlobalAdaptive', min-recursion => 0, max-recursion => 12, singularity-depth => 4, max-points => Whatever;
@@ -191,9 +196,17 @@ class Math::NIntegrate::Builder {
         # Create strategy by spec
         my $strategy = do given $method {
             when $_.isa(Whatever) || $_.isa(WhateverCode) {
-                return $dimension == 1
-                        ?? self.make-rule(method => %default-spec, :$dimension, :$working-precision)
-                        !! self.make-rule(method => {type => 'rule', name => 'CartesianRule', method => %default-spec}, :$dimension, :$working-precision)
+                return self.make-strategy(
+                        method => %default-spec,
+                        :$dimension,
+                        :$singularity-depth,
+                        :$max-points,
+                        :$max-recursion,
+                        :$min-recursion,
+                        :$precision-goal,
+                        :$accuracy-goal,
+                        |%args
+                        )
             }
 
             when $_<name> eq 'GlobalAdaptive' {
@@ -233,10 +246,11 @@ class Math::NIntegrate::Builder {
         return $strategy
     }
 
+    #------------------------------------------------------
     #| Full integrator creation
     method make-integrator(
             Math::NIntegrate::NumericalFunction :$integrand!,
-            :$ranges! is copy,
+            :%ranges!,
             :$method = Whatever,
             :$singularity-depth = Whatever,
             :$max-recursion is copy = Whatever,
@@ -254,14 +268,12 @@ class Math::NIntegrate::Builder {
         # Default strategy options
         my %default = singularity-depth => 4, min-recursion => 4, max-recursion => 12;
 
-        # Process ranges
-        my %ranges = Math::NIntegrate::Spec::normalize-ranges($ranges);
-
         # Bounds
+        # Ranges are already normalized at this point.
         my %bounds = min => [], max => [];
-        %ranges.sort(*<index>).map({
-            %bounds<min>.push($_<min>);
-            %bounds<max>.push($_<max>)
+        %ranges.sort(*.value<index>).map({
+            %bounds<min>.push($_.value<min>);
+            %bounds<max>.push($_.value<max>)
         });
 
         # Integration rule
