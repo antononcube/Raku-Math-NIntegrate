@@ -151,22 +151,13 @@ class Math::NIntegrate::Spec {
         # they are handled by Math::NIntegrate::Processing::Grammar .
         # Some other normalizations might be implemented later.
 
+        # This is the normalized variant of $method and has to be supported at some point.
+        # %( name => 'GlobalAdaptive', method => %( name => 'ClenshawCurtisRule', points => 6 ) )
+
         $method = do given $method {
-            when $_.isa(WhateverCode) || $_.isa(Whatever) {
-                return self.normalize-method('GlobalAdaptive')
-            }
-            when $_ ~~ Str:D && $_.lc ∈ <globaladaptive global-adaptive global_adaptive automatic auto> {
-                # This is the normalized variant and has to be supported at some point.
-                # %( name => 'GlobalAdaptive', method => %( name => 'ClenshawCurtisRule', points => 6 ) )
-                ( 'GlobalAdaptive', method => ( 'ClenshawCurtisRule', points => 6 ) )
-            }
-            when $_ ~~ Str:D && $_.ends-with('Rule') {
-                # %( name => 'GlobalAdaptive', method => %( name => $_ ) )
-                ( 'GlobalAdaptive', method => ( $_, ) )
-            }
-            default {
-                die 'Cannot process method spec.'
-            }
+            when $_.isa(WhateverCode) || $_.isa(Whatever) { 'GlobalAdaptive' }
+            when $_ ~~ Str:D && $_.lc ∈ <automatic auto> { 'GlobalAdaptive' }
+            default { $method }
         }
 
         my $gr = Math::NIntegrate::Processing::Grammar.new;
@@ -174,7 +165,7 @@ class Math::NIntegrate::Spec {
 
         my %method-spec;
         try {
-            %method-spec = $gr.parse($method.List.raku, rule => 'strategy-spec', :$actions).made
+            %method-spec = $gr.parse($method.List.raku, rule => 'TOP', :$actions).made
         }
 
         if $! {

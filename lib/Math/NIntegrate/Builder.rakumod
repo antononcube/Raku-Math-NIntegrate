@@ -252,13 +252,7 @@ class Math::NIntegrate::Builder {
             Math::NIntegrate::NumericalFunction :$integrand!,
             :%ranges!,
             :$method = Whatever,
-            :$singularity-depth = Whatever,
-            :$max-recursion is copy = Whatever,
-            :$min-recursion is copy = Whatever,
-            :$max-points is copy = Whatever,
             :$working-precision = Num,
-            :$precision-goal = Whatever,
-            :$accuracy-goal = Whatever,
             *%args
             --> Math::NIntegrate::Strategy:D
                          ) {
@@ -277,7 +271,11 @@ class Math::NIntegrate::Builder {
         });
 
         # Integration rule
-        my $rule = self.make-rule(dimension => %bounds<min>.elems, :$working-precision);
+        # At this point $method is normalized
+        my $rule = self.make-rule(
+                method => $method<method> // Whatever,
+                dimension => %bounds<min>.elems,
+                :$working-precision);
 
         # Make regions
         # The numerical function object for the integrand is already made
@@ -288,7 +286,10 @@ class Math::NIntegrate::Builder {
         # - The integration rule object is set to all regions
 
         # Make the strategy
-        $!strategy = self.make-strategy(dim => %ranges.elems, |%args);
+        $!strategy = self.make-strategy(
+                method => $method<type> eq 'strategy' ?? $method !! Whatever,
+                dimension => %ranges.elems,
+                |%args);
 
         # Attach regions to strategies
         $!strategy.regions = |@regions;
