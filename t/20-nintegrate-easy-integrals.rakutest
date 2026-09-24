@@ -10,7 +10,7 @@ subtest {
     ok nintegrate(&f, ('x', 0, 1)), 'ok to call';
 
     # Num
-    is abs(nintegrate(&f, ('x', 0, 3)) - 9/5) ≤ 1e-6, True, 'expected Num result';
+    is abs(nintegrate(&f, ('x', 0, 3)) - 9/2) ≤ 1e-6, True, 'expected Num result';
 
     # Rat
     ok
@@ -26,7 +26,7 @@ subtest {
                     precision-goal => 8,
                     method => 'trapezoidal-rule');
 
-    is abs($res - 9/5) ≤ 1e-8, True, 'expected Rat result';
+    is abs($res - 9/2) ≤ 1e-10, True, 'expected Rat result';
 
 }, 'nintegrate(&f, (x, 0, 3))';
 
