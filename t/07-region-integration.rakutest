@@ -170,7 +170,7 @@ subtest {
     isa-ok $region.apply-rule, Math::NIntegrate::Region:D, 'region integration rule integrate';
 
     $region.apply-rule;
-    say (integral => $region.integral, error => $region.error);
+    # say (integral => $region.integral, error => $region.error);
     is abs($region.integral - $exact) ≤ 1e-3, True, 'expected integral estimate';
     is $region.error.abs ≤ 1e-3, True, 'expected error estimate';
 
