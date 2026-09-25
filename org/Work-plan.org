@@ -19,7 +19,7 @@
 - [ ] Process goals to tolerances
 - [ ] Process method option
   - See "Abstract Factory"
-** TODO Integration Rules [20%] [2/10]
+** TODO Integration Rules [27%] [3/11]
 *** DONE General rule 1D [100%] [2/2]
 - [X] Attributes: abscissas, weights, error-weights
 - [X] Integration
@@ -32,9 +32,12 @@
 - [C] Any precision
   - Not possible
 - [ ] Large precision with "extra-precision" spec
-*** TODO Gauss-Kronrod rule [33%] [1/3]
+*** DONE Newton-Cotes rule [33%] [1/3]
+- [X] Abscissas & weights
+- [X] Any precision (Rat & FatRat)
+*** TODO Gauss-Kronrod rule [66%] [2/3]
 - [X] Hard coded (low precision)
-- [ ] Abscissas & weights
+- [X] Abscissas & weights
 - [C] Any precision
   - Not possible
 - [ ] Large precision with "extra-precision" spec
@@ -44,7 +47,7 @@
 - [X] Fill-in components if they are less than the dimension
 - [X] Pre-compute rule data 
 - [X] Integration
-*** TODO Multidimensional rule [%]
+*** TODO MultiDimensional rule [%]
 - [ ] Genz-Malik
 - [ ] DCUHRE
 *** TODO Multi-panel rule
@@ -108,7 +111,7 @@
 - [X] Concrete allowed method-option specs grammar
 - [X] Grammar actions of canonical representation
 - [X] Actions invoking Builder methods
-** TODO Unit tests [66%] [6/9]
+** TODO Unit tests [72%] [8/11]
 - [X] Numerical function
 - [X] Trapezoidal rule
   - [X] Creation
@@ -118,19 +121,25 @@
   - [X] Creation
   - [C] Rat working precision
   - [X] Integration
-- [ ] Gauss-Kronrod rule
+- [X] Newton-Cotes rule
+- [X] Gauss-Kronrod rule
 - [ ] Lobatto-Kronrod rule
 - [X] Cartesian rule
 - [-] Integration region
   - [X] Constant ranges 1D
-  - [ ] Constant ranges 2D
+  - [X] Constant ranges 2D
   - [ ] Functional ranges 2D
   - [ ] Functional ranges 3D
 - [X] Global strategy
   - [X] Integration 1D
   - [X] Integration monitor use
+  - [X] Integration 2D
 - [X] Grammar parsing
   - [X] Simple grammar method specs
+  - [X] Method-spec interpretation
+- [-] Top-level ~nintegrate~
+  - [X] Easy integrals
+  - [ ] Graceful failure
 ** TODO Documentation [0%] [0/5]
 - [ ] Design
   - [ ] Initial version
