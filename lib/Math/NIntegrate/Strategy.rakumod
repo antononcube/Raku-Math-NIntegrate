@@ -39,6 +39,7 @@ class Math::NIntegrate::Strategy {
             UInt :$!max-recursion = 12,
             :$!max-points = Whatever,
             :$!singularity-depth = 4,
+            :$!singularity-handler = Whatever,
             :$!max-number-of-error-increases = Whatever,
             :@!regions
                     ) {
