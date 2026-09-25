@@ -1,0 +1,45 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+use Math::NIntegrate::Rule::MonteCarlo;
+use Math::NIntegrate::Region;
+
+# 1
+ok Math::NIntegrate::Rule::MonteCarlo.new(100);
+
+# 2
+#subtest {
+    # Integrand
+    my &f = {$_ ** 2};
+
+    # The undefined integral of &f is x^3/3 .
+    my &fExact = {$_ ** 3 / 3};
+
+    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Rat);
+
+    # Exact value
+    my ($a, $b) = 0, 2;
+    my $exact = &fExact($b) - &fExact($a);
+
+    my $rule = Math::NIntegrate::Rule::MonteCarlo.new(100);
+
+    # Region
+    my $region = Math::NIntegrate::Builder.make-region(
+            $numerical-function,
+            [$a,],
+            [$b,],
+            :$rule);
+
+    isa-ok $region.apply-rule, Math::NIntegrate::Region:D, 'region integration rule integrate';
+
+    $region.apply-rule;
+
+    #say (:$exact, integral => $region.integral, error => $region.error);
+
+    is abs($region.integral - $exact) / $exact ≤ 1e-1, True, 'expected integral estimate';
+    is $region.error.abs ≤ 0.5, True, 'expected error estimate';
+
+#}, 'Monte-Carlo integration in a region';
+
+done-testing;
