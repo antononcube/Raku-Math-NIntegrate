@@ -157,6 +157,7 @@ class Math::NIntegrate::Builder {
             :$method = Whatever,
             :dim(:$dimension) is copy = Whatever,
             :$singularity-depth is copy = Whatever,
+            :$singularity-handler is copy = Whatever,
             :$max-recursion is copy = Whatever,
             :$min-recursion is copy = Whatever,
             :$max-points is copy = Whatever,
@@ -193,6 +194,7 @@ class Math::NIntegrate::Builder {
         $max-recursion = $method<max-recursion> // $max-recursion // 12;
         $min-recursion = $method<min-recursion> // $min-recursion // 0;
         $singularity-depth = $method<singularity-depth> // $singularity-depth // 4;
+        $singularity-handler = $method<singularity-handler> // $singularity-handler // 'imt';
 
         # Default strategy
         #my %default-spec = type => 'strategy', name => 'GlobalAdaptive', min-recursion => 0, max-recursion => 12, singularity-depth => 4, max-points => Whatever;
@@ -205,6 +207,7 @@ class Math::NIntegrate::Builder {
                         method => %default-spec,
                         :$dimension,
                         :$singularity-depth,
+                        :$singularity-handler,
                         :$max-points,
                         :$max-recursion,
                         :$min-recursion,
@@ -219,6 +222,7 @@ class Math::NIntegrate::Builder {
                         :$min-recursion,
                         :$max-recursion,
                         :$singularity-depth,
+                        :$singularity-handler,
                         :$max-points
                         );
             }
@@ -229,6 +233,7 @@ class Math::NIntegrate::Builder {
 #                        :$min-recursion,
 #                        :$max-recursion,
 #                        :$singularity-depth,
+#                        :$singularity-handler,
 #                        :$max-points
 #                        );
             }
@@ -238,7 +243,8 @@ class Math::NIntegrate::Builder {
                 #                Math::NIntegrate::Strategy::LocalAdaptive.new(
                 #                        :$min-recursion,
                 #                        :$max-recursion,
-                #                        :$singularity-depth,
+                #                        :$singularity-depth,   # does not apply
+                #                        :$singularity-handler, # does not apply
                 #                        :$max-points
                 #                        );
             }
@@ -265,7 +271,7 @@ class Math::NIntegrate::Builder {
         # The method option is parsed and validated at this point.
 
         # Default strategy options
-        my %default = singularity-depth => 4, min-recursion => 4, max-recursion => 12;
+        my %default = min-recursion => 4, max-recursion => 12, singularity-depth => 4, singularity-handler => 'imt';
 
         # Bounds
         # Ranges are already normalized at this point.
