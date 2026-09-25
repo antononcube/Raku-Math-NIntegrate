@@ -9,7 +9,7 @@ use Math::NIntegrate::Region;
 ok Math::NIntegrate::Rule::MonteCarlo.new(100);
 
 # 2
-#subtest {
+subtest {
     # Integrand
     my &f = {$_ ** 2};
 
@@ -40,6 +40,6 @@ ok Math::NIntegrate::Rule::MonteCarlo.new(100);
     is abs($region.integral - $exact) / $exact ≤ 1e-1, True, 'expected integral estimate';
     is $region.error.abs ≤ 0.5, True, 'expected error estimate';
 
-#}, 'Monte-Carlo integration in a region';
+}, 'Monte-Carlo integration in a region';
 
 done-testing;
