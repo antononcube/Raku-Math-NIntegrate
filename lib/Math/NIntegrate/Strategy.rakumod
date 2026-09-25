@@ -77,7 +77,8 @@ class Math::NIntegrate::Strategy {
             note "Combinatorial explosion with the specified min-recursion; using {$!min-recursion} instead."
         }
 
-        # Using region splitting for now. Using partitioning should be considered.
+        # Using region splitting for now -- simple, elegant and slow.
+        # Using partitioning should be considered.
         my $heap = LeftistHeap.new(@!regions, comparator => { $^a.levels.min < $^b.levels.min });
         while $heap.top.levels.min < $!min-recursion {
             my $reg = $heap.delete-top-element;
