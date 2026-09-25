@@ -12,9 +12,9 @@ class Math::NIntegrate::Rule::General
     has UInt:D $.dimension is rw = 1;
 
     # Evaluation data
-    has Numeric $.integral;
-    has Numeric $.error;
-    has UInt $.largest-error-axis;
+    has Numeric $.integral is rw;
+    has Numeric $.error is rw;
+    has UInt $.largest-error-axis is rw;
 
     #======================================================
     # Creators
