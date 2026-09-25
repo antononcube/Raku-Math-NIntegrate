@@ -7,22 +7,22 @@ class Math::NIntegrate::Rule::GaussKronrod
         is Math::NIntegrate::Rule::General {
     has $.points;
 
-    submethod BUILD(UInt:D :$!points, :$wprec = Num) {
-        my %res = self.make-weights($!points, $wprec);
+    submethod BUILD(UInt:D :$!points, :$working-precision = Num) {
+        my %res = self.make-weights($!points, $working-precision);
         self.abscissas = |%res<abscissas>;
         self.weights = |%res<weights>;
         self.error-weights = |%res<error-weights>;
     }
 
-    multi method new($points, $wprec = Num) {
-        self.bless(:$points, :$wprec)
+    multi method new($points, $working-precision = Num) {
+        self.bless(:$points, :$working-precision)
     }
 
-    multi method new(:$points, :$wprec = Num) {
-        self.bless(:$points, :$wprec)
+    multi method new(:$points, :prec(:$working-precision) = Num) {
+        self.bless(:$points, :$working-precision)
     }
 
-    method make-weights(UInt:D $points, $wprec = Num) {
+    method make-weights(UInt:D $points, $working-precision = Num) {
         die 'The first argument is expected to be a positive integer.' unless $points > 0;
 
         # All construction is done on [-1, 1]. The returned rule is then mapped to [0, 1].
@@ -133,9 +133,9 @@ class Math::NIntegrate::Rule::GaussKronrod
         }
 
         return %(
-            abscissas => @nodes.map({ numerical(($_ + 1e0) / 2e0, $wprec) }).Array,
-            weights => @weights.map({ numerical($_ / 2e0, $wprec) }).Array,
-            error-weights => @error-weights.map({ numerical($_ / 2e0, $wprec) }).Array);
+            abscissas => @nodes.map({ numerical(($_ + 1e0) / 2e0, $working-precision) }).Array,
+            weights => @weights.map({ numerical($_ / 2e0, $working-precision) }).Array,
+            error-weights => @error-weights.map({ numerical($_ / 2e0, $working-precision) }).Array);
     }
 
     sub moment(Int:D $degree) {
