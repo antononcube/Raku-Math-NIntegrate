@@ -42,6 +42,10 @@
   - Not possible
 - [ ] Large precision with "extra-precision" spec
 *** TODO Lobatto-Kronrod rule
+- [X] Abscissas & weights
+- [C] Any precision
+  - Not possible
+- [ ] Large precision with "extra-precision" spec
 *** DONE Cartesian rule [100%] [4/4]
 - [X] Creation
 - [X] Fill-in components if they are less than the dimension
@@ -52,6 +56,8 @@
 - [ ] DCUHRE
 *** TODO Multi-panel rule
 *** TODO Monte Carlo rule
+- [X] Using a fine point generator
+- [ ] En bloc (rapid) generator
 *** TODO Quasi Monte Carlo rule
 ** TODO Integration Region [66%] [4/6]
 - [X] Design: attributes & methods
