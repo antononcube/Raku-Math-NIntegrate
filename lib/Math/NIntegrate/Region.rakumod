@@ -3,6 +3,7 @@ use v6.d;
 use Math::NIntegrate::Rule::General;
 use Math::NIntegrate::NumericalFunction;
 use Math::NIntegrate::VariableTransformer;
+use Math::NIntegrate::VariableTransformer::IMT;
 use Math::NIntegrate::Utilities;
 
 class Math::NIntegrate::Region {
@@ -278,11 +279,46 @@ class Math::NIntegrate::Region {
     }
 
     #--------------------------------------
+    # Add variable transformer
+    #--------------------------------------
+    method add-variable-transformer(Str:D $vtID, Int:D :$axis!, :$working-precision = Num) {
+
+        # These are options are for any variable transformer would use.
+        my @min-original-bounds = 0;
+        my @max-original-bounds = 1;
+        my @min-transform-bounds = 0 xx $!dimension;
+        my @max-transform-bounds = 1 xx $!dimension;
+
+        my %args =
+                region => self,
+                working-precision => Rat
+                ;
+
+        given $vtID.lc {
+            when 'imt' {
+
+                # Check that the last transformer in the Composite stack is IMT.
+                # If not make a new object and add it.
+                my $vt = Math::NIntegrate::VariableTransformer::IMT.new(
+                        :@min-original-bounds,
+                        :@max-original-bounds,
+                        :@min-transform-bounds,
+                        :@max-transform-bounds,
+                        |%args);
+
+                $vt.set-transform-axis($axis);
+
+                $!variable-transformer.add($vt)
+            }
+        }
+    }
+
+    #--------------------------------------
     # Future private methods
     #--------------------------------------
 
     method partition(@nodex) {!!!}
     method duffy-transform() {!!!}
     method reverse-variable(Int:D $var-index) {!!!}
-    method add-variable-transform(Math::NIntegrate::NumericalFunction:D $nf, Int:D $var-index) {!!!}
+
 }
