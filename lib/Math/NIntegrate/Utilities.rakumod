@@ -63,28 +63,28 @@ sub parse-range-boundaries($orig-min,
         my $max-inf-dir = 0;
         my $bounds-case;
 
-        if $orig-min.isa(Inf) {
-                $min = numerical($orig-min, $working-precision);
-                $min-inf-dir = numerical($orig-min.sign, $working-precision)
-        } else {
-                $min = numerical($orig-min, $working-precision);
+        if $orig-min ~~ Inf | -Inf {
+            $min = numerical($orig-min, $working-precision);
+            $min-inf-dir = numerical($orig-min.sign, $working-precision)
+        } else {;
+            $min = numerical($orig-min, $working-precision);
         }
 
-        if $orig-max.isa(Inf) {
-                $max = numerical($orig-max, $working-precision);
-                $max-inf-dir = numerical($orig-max.sign, $working-precision)
+        if $orig-max ~~ Inf | -Inf {
+            $max = numerical($orig-max, $working-precision);
+            $max-inf-dir = numerical($orig-max.sign, $working-precision)
         } else {
-                $max = numerical($orig-max, $working-precision);
+            $max = numerical($orig-max, $working-precision);
         }
 
         # Zero intervals should be handled. E.g. ('x', Inf, Inf)
 
         # Complex number cases
         if $real-flag && ($orig-min ~~ Complex:D || $orig-max ~~ Complex:D) {
-                $real-flag = False
+            $real-flag = False
         }
 
-        $bounds-case = do given ($orig-min.isa(Inf), $orig-max.isa(Inf)) {
+        $bounds-case = do given (($orig-min ~~ Inf | -Inf), ($orig-max ~~ Inf | -Inf) ) {
                 when $_.head && $_.tail { VT_INF_INF }
                 when !$_.head && $_.tail { VT_FIN_INF }
                 when $_.head && !$_.tail { VT_INF_FIN }
