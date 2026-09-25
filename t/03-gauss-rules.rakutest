@@ -1,7 +1,6 @@
 use v6.d;
 use Test;
 
-use lib <. lib>;
 use Math::NIntegrate;
 use Math::NIntegrate::Rule::GaussKronrod;
 
