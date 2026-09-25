@@ -1,0 +1,19 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+use Math::NIntegrate::NumericalFunction;
+
+say nintegrate({ $^x + $^y ** 2 }, ('x', 0, 1));
+
+# 1
+#subtest {
+    fails-like
+            { nintegrate({ $^x + $^y ** 2 }, ('x', 0, 1)) },
+            Any,
+            :message(/ 'Cannot evaluate' /),
+            '2D integrand over 1 range spec';
+
+#}, 'expected graceful failure';
+
+done-testing;

@@ -1,0 +1,21 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+
+# 1
+subtest {
+
+    is
+            (nintegrate({ log($^x) }, <x 1e-10 1>) - (-1)).abs ≤ 1e-7,
+            True,
+            'for <x 1e-10 1>';
+
+    is
+            (nintegrate({ log($^x) }, <x 0 1>) - (-1)).abs ≤ 1e-5,
+            True,
+            'for <x 0 1>';
+
+}, 'nintegrate({log($^x)}, <x 0 1>)';
+
+done-testing;

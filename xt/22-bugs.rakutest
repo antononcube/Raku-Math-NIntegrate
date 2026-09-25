@@ -1,0 +1,14 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+
+# 1
+subtest {
+    ok nintegrate({ $^x }, ['x', 10 ** -12, 1]), 'numeric range ok';
+    ok nintegrate({ $^x }, <x 1e-12 1>), 'strings range ok';
+    # Fixed
+    is nintegrate({ $^x }, <x 1e-12 1>) < 1, True, 'strings range result';
+}, 'allmorth was treated as Inf';
+
+done-testing;
