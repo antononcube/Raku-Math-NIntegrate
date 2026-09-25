@@ -1,0 +1,90 @@
+[
+  {
+    "WL": "NIntegrate[Exp[x], {x, 0, 1}]",
+    "Raku": "nintegrate({exp($^x)}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[If[Inequality[0, LessEqual, x, Less, 0.3], 0, 1], {x, 0, 1}]",
+    "Raku": "nintegrate({0 <= $^x < 0.3 ?? 0 !! 1}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[x^(1/2), {x, 0, 1}]",
+    "Raku": "nintegrate({$^x ** (1 / 2)}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[(23/25)*Cosh[x] - Cos[x], {x, -1, 1}]",
+    "Raku": "nintegrate({(23 / 25) * cosh($^x) - cos($^x)}, <x -1 1>)"
+  },
+  {
+    "WL": "NIntegrate[1./(x^4 + x^2 + 0.9), {x, -1, 1}]",
+    "Raku": "nintegrate({1e0 / ($^x ** 4 + $^x ** 2 + 0.9)}, <x -1 1>)"
+  },
+  {
+    "WL": "NIntegrate[x^(3/2), {x, 0, 1}]",
+    "Raku": "nintegrate({$^x ** (3 / 2)}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[x^(-2^(-1)), {x, 0, 1}]",
+    "Raku": "nintegrate({$^x ** -(2 ** -1)}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[1/(1 + x^4), {x, 0, 1}]",
+    "Raku": "nintegrate({1 / (1 + $^x ** 4)}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[2/(2 + Sin[10.*Pi*x]), {x, 0, 1}]",
+    "Raku": "nintegrate({2 / (2 + sin(10e0 * pi * $^x))}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[1/(1 + x), {x, 0, 1}]",
+    "Raku": "nintegrate({1 / (1 + $^x)}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[1/(1 + Exp[x]), {x, 0, 1}]",
+    "Raku": "nintegrate({1 / (1 + exp($^x))}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[x/(Exp[x] - 1), {x, 0, 1}]",
+    "Raku": "nintegrate({$^x / (exp($^x) - 1)}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[(Sin[100.]/Pi)*x, {x, 0.1, 1}]",
+    "Raku": "nintegrate({(sin(100e0) / pi) * $^x}, <x 0.1 1>)"
+  },
+  {
+    "WL": "NIntegrate[Sqrt[50]*Exp[-50.*Pi*x^2], {x, 0, 10}]",
+    "Raku": "nintegrate({sqrt(50) * exp(-50e0 * pi * $^x ** 2)}, <x 0 10>)"
+  },
+  {
+    "WL": "NIntegrate[25*Exp[-25*x], {x, 0, 10}]",
+    "Raku": "nintegrate({25 * exp(-25 * $^x)}, <x 0 10>)"
+  },
+  {
+    "WL": "NIntegrate[50/(Pi*(1 + 2500*x^2)), {x, 0, 10}]",
+    "Raku": "nintegrate({50 / (pi * (1 + 2500 * $^x ** 2))}, <x 0 10>)"
+  },
+  {
+    "WL": "NIntegrate[Sin[50.*Pi*x]^2/(50.*Pi*x)^2, {x, 0.01, 1}]",
+    "Raku": "nintegrate({sin(50e0 * pi * $^x) ** 2 / (50e0 * pi * $^x) ** 2}, <x 0.01 1>)"
+  },
+  {
+    "WL": "Integrate[Sin[50.*Pi*x]^2/(50.*Pi*x)^2, x] % /. {{x -> 1}, {x -> 0.01}}",
+    "Raku": "nintegrate({sin(50e0 * pi * $^x) ** 2 / (50e0 * pi * $^x) ** 2}, <x 0.01 1>)"
+  },
+  {
+    "WL": "NIntegrate[Cos[Cos[x] + 3*Sin[x] + 2*Cos[2*x] + 3*Cos[3*x] + 3*Sin[2*x]], {x, 0, Pi}]",
+    "Raku": "nintegrate({cos(cos($^x) + 3 * sin($^x) + 2 * cos(2 * $^x) + 3 * cos(3 * $^x) + 3 * sin(2 * $^x))}, <x 0 pi>)"
+  },
+  {
+    "WL": "NIntegrate[Log[x], {x, 0, 1}]",
+    "Raku": "nintegrate({log($^x)}, <x 0 1>)"
+  },
+  {
+    "WL": "NIntegrate[1/(x^2 + 1.005), {x, -1, 1}]",
+    "Raku": "nintegrate({1 / ($^x ** 2 + 1.005)}, <x -1 1>)"
+  },
+  {
+    "WL": "NIntegrate[Sech[10*(x - 0.2)]^2 + Sech[100*(x - 0.4)]^4 + Sech[1000*(x - 0.6)]^6, {x, 0, 1}]",
+    "Raku": "nintegrate({sech(10 * ($^x - 0.2)) ** 2 + sech(100 * ($^x - 0.4)) ** 4 + sech(1000 * ($^x - 0.6)) ** 6}, <x 0 1>)"
+  }
+]
