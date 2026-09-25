@@ -16,10 +16,13 @@ class Math::NIntegrate::Strategy {
     has Numeric $.integral-estimate;
 
     # Options
-    has Numeric $.singularity-depth;
     has UInt $.min-recursion;
     has UInt $.max-recursion;
     has $.max-points;
+
+    has Numeric $.singularity-depth;
+    has $.singularity-handler;
+
     has $.max-number-of-error-increases;
 
     # State
