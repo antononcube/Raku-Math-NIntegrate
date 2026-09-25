@@ -1,7 +1,8 @@
 use v6.d;
 
-use Math::NIntegrate::Strategy;
 use LeftistHeap;
+use Math::NIntegrate::Strategy;
+use Math::NIntegrate::VariableTransformer::IMT;
 
 class Math::NIntegrate::Strategy::GlobalAdaptive
         is Math::NIntegrate::Strategy {
@@ -63,40 +64,61 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
             #say ('after removing top region:', :$integral, :$error, :$step, region-count => $heap.elems);
 
-            # Application of singularity handler
+            # Application of singularity handler or region splitting
             if $topRegion.levels[$axis] == self.singularity-depth {
                 # Apply singularity handler
+                if self.singularity-handler ~~ Str:D && self.singularity-handler.lc eq 'imt' {
+                    $topRegion.add-variable-transformer('imt', :$axis)
+                }
+
+                # Reset split level
+                $topRegion.levels[$axis] = 0;
+
+                # Integrate
+                try $topRegion.apply-rule;
+                return %no-result if $!;
+
+                # Estimate sums
+                $error += $topRegion.error;
+                $integral += $topRegion.integral;
+
+                # Add the region with a new variable transformer to the heap
+                $heap.insert($topRegion);
+
+            } else {
+                # Split the region
+                my $newRegion = $topRegion.split(:$axis);
+
+                # Reverse the variable if needed for the new region
+                # TBD...
+
+                # Mark regions that are in the middle -- IMT should not be applied to them.
+                # TBD...
+
+                # Integrate
+                try $topRegion.apply-rule;
+                return %no-result if $!;
+
+                try $newRegion.apply-rule;
+                return %no-result if $!;
+
+                # Convergence monitoring
+                # TBD ...
+
+                # Estimate sums
+                $error += $topRegion.error + $newRegion.error;
+                $integral += $topRegion.integral + $newRegion.integral;
+
+                # Instead of compensated summation
+                # LeftistHeap has a traverse method which can be used to get error and integral estimates
+                # without making a new array of regions, only a new array of scalar values.
+                #$error = [|$heap.values.map(*.error), $topRegion.error, $newRegion.error].sort(*.abs).sum;
+                #$integral = [|$heap.values.map(*.integral), $topRegion.integral, $newRegion.integral].sort(*.abs).sum;
+
+                # Add the split regions to the heap
+                $heap.insert($topRegion);
+                $heap.insert($newRegion);
             }
-
-            # Split the region
-            my $newRegion = $topRegion.split(:$axis);
-
-            # Reverse the variable if needed for the new region
-            # TBD...
-
-            # Integrate
-            try $topRegion.apply-rule;
-            return %no-result if $!;
-
-            try $newRegion.apply-rule;
-            return %no-result if $!;
-
-            # Convergence monitoring
-            # TBD ...
-
-            # Estimate sums
-            $error += $topRegion.error + $newRegion.error;
-            $integral += $topRegion.integral + $newRegion.integral;
-
-            # Instead of compensated summation
-            # LeftistHeap has a traverse method which can be used to get error and integral estimates
-            # without making a new array of regions, only a new array of scalar values.
-            #$error = [|$heap.values.map(*.error), $topRegion.error, $newRegion.error].sort(*.abs).sum;
-            #$integral = [|$heap.values.map(*.integral), $topRegion.integral, $newRegion.integral].sort(*.abs).sum;
-
-            # Add the split regions to the heap
-            $heap.insert($topRegion);
-            $heap.insert($newRegion);
 
             # Integration monitor
             with &integration-monitor {
