@@ -297,18 +297,25 @@ class Math::NIntegrate::Region {
         given $vtID.lc {
             when 'imt' {
 
-                # Check that the last transformer in the Composite stack is IMT.
+                # Check if the last transformer in the Composite stack is IMT.
                 # If not make a new object and add it.
-                my $vt = Math::NIntegrate::VariableTransformer::IMT.new(
-                        :@min-original-bounds,
-                        :@max-original-bounds,
-                        :@min-transform-bounds,
-                        :@max-transform-bounds,
-                        |%args);
+                if $!variable-transformer.stack.tail ~~ Math::NIntegrate::VariableTransformer::IMT {
 
-                $vt.set-transform-axis($axis);
+                    $!variable-transformer.stack.tail.set-transform-axis($axis)
 
-                $!variable-transformer.add($vt)
+                } else {
+                    my $vt = Math::NIntegrate::VariableTransformer::IMT.new(
+                            :@min-original-bounds,
+                            :@max-original-bounds,
+                            :@min-transform-bounds,
+                            :@max-transform-bounds,
+                            |%args);
+
+                    $vt.set-transform-axis($axis);
+
+                    $!variable-transformer.add($vt)
+                }
+
             }
         }
     }
