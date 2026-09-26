@@ -5,9 +5,30 @@ use Math::NIntegrate::Rule::General;
 class Math::NIntegrate::Rule::MultiDimensional
         is Math::NIntegrate::Rule::General {
 
-#    method new(:generators!, :dim(:$dimension)!, :prec(:$working-precision) = Num) {
-#
-#    }
+    has $.generators;
+    has %.data;
+
+    submethod TWEAK(:$!generators, :$dimension!, :$working-precision = Num) {
+        # `dimension` is inherited from Rule::General, so assign it before
+        # creating dimension-dependent DCUHRE rule data.
+        self.dimension = $dimension;
+        given $!generators {
+            when $_ == 7 {
+                %!data = self.d07hre(self.dimension) unless %!data.elems;
+            }
+            default {
+                die "No multidimensional rule is available with $!generators generators.";
+            }
+        }
+    }
+
+    multi method new($dimension, :$generators = 7, :prec(:$working-precision) = Num) {
+        self.bless(:$generators, :$dimension, :$working-precision)
+    }
+
+    multi method new(:$generators = 7, :dim(:$dimension)!, :prec(:$working-precision) = Num) {
+        self.bless(:$generators, :$dimension, :$working-precision)
+    }
 
     #| Initialise the DCUHRE degree-seven fully symmetric rule.
     #|
@@ -19,7 +40,7 @@ class Math::NIntegrate::Rule::MultiDimensional
             UInt:D $dimension,
             UInt:D :$weight-length = 6
             --> Map:D
-    ) {
+                  ) {
         die 'D07HRE requires a positive dimension.' unless $dimension > 0;
         die 'D07HRE requires a weight length of 6.' unless $weight-length == 6;
 
@@ -123,5 +144,91 @@ class Math::NIntegrate::Rule::MultiDimensional
             :@error-coefficients,
             :@rule-points,
         };
+    }
+
+    #| Apply the selected fully symmetric rule to a region.
+    method integrate($region --> Math::NIntegrate::Rule::MultiDimensional:D) {
+        die 'The rule and region dimensions must match.'
+        unless $region.dimension == self.dimension;
+
+        my @weights = |%!data<weights>;
+        my @generator-columns = ^@weights[0].elems .map: -> $generator-index {
+            %!data<generators>».[$generator-index];
+        };
+        my $reference-volume = 2e0 ** self.dimension;
+        my $rule-scale = 1e0 / $reference-volume;
+        my @rule-values = 0e0 xx @weights.elems;
+
+        self.abscissas = [];
+
+        for @generator-columns.kv -> $generator-index, @generator {
+            my %seen;
+            my $symmetric-sum = 0e0;
+
+            # Generate all sign changes of each permutation.  A generator can
+            # contain zero or repeated coordinates, so points are de-duplicated.
+            for @generator.permutations -> @permutation {
+                for ^$reference-volume.Int -> $sign-mask {
+                    my @reference-point = @permutation.kv.map: -> $axis, $value {
+                        my $sign = $sign-mask +& (1 +< $axis) ?? -1e0 !! 1e0;
+                        $value == 0e0 ?? 0e0 !! $sign * $value;
+                    };
+                    my $key = @reference-point.join(',');
+                    next if %seen{$key}:exists;
+                    %seen{$key} = True;
+
+                    # Rules in this package use unit-cube abscissas; the
+                    # region maps them to its actual integration bounds.
+                    my @point = @reference-point.map({ (1e0 + $_) / 2e0 });
+                    self.abscissas.push(@point);
+                    my $value = $region.eval-integrand(@point);
+                    next unless $value ~~ Numeric:D
+                            && !($value.isNaN || $value ~~ Inf | -Inf);
+                    $symmetric-sum += $value;
+                }
+            }
+
+            for ^@weights.elems -> $rule-index {
+                @rule-values[$rule-index] += @weights[$rule-index][$generator-index]
+                        * $symmetric-sum;
+            }
+        }
+
+        self.integral = $rule-scale * @rule-values[0];
+
+        # Construct the three normalized combinations of successive null
+        # rules, as in DINHRE/DRLHRE, and apply the local error heuristic.
+        my @normalized-null-values;
+        for ^3 -> $null-index {
+            my $largest = 0e0;
+            for ^@generator-columns.elems -> $scale-index {
+                my $denominator = @weights[$null-index + 1][$scale-index];
+                my $scale = $denominator == 0e0
+                        ?? 100e0
+                        !! -@weights[$null-index + 2][$scale-index] / $denominator;
+                my $one-norm = [+] (^@generator-columns.elems).map: -> $generator-index {
+                    %!data<rule-points>[$generator-index]
+                            * (@weights[$null-index + 2][$generator-index]
+                            + $scale * @weights[$null-index + 1][$generator-index]).abs;
+                };
+                my $candidate = ($rule-scale
+                        * (@rule-values[$null-index + 2]
+                                + $scale * @rule-values[$null-index + 1])).abs
+                        * $reference-volume / $one-norm;
+                $largest = max($largest, $candidate);
+            }
+            @normalized-null-values.push($largest);
+        }
+
+        my @error-coefficients = |%!data<error-coefficients>;
+        self.error = @error-coefficients[0] * @normalized-null-values[0]
+                <= @normalized-null-values[1]
+                && @error-coefficients[1] * @normalized-null-values[1]
+                <= @normalized-null-values[2]
+                ?? @error-coefficients[2] * @normalized-null-values[0]
+                !! @error-coefficients[3] * @normalized-null-values.max;
+        self.largest-error-axis = 0;
+
+        return self;
     }
 }
