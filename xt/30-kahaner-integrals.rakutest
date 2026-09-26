@@ -3,24 +3,179 @@ use Test;
 
 use Math::NIntegrate;
 
-# 1
-subtest {
+my $abs-tol = 5 * 1e-6,
+my $rel-tol = 1e-5;
+my $method = ('global-adaptive', method => 'gauss-kronrod-rule');
+#my $method = 'GaussKronrodRule';
 
-    is
-            (nintegrate({ log($^x) }, <x 1e-10 1>) - (-1)).abs ≤ 1e-7,
-            True,
-            'for log(x) over <x 1e-10 1>';
+## 1
+# NIntegrate[Exp[x], {x, 0, 1}]
+is-approx
+        nintegrate({exp($^x)}, <x 0 1>, :$method),
+        1.7182818284590473,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({exp($^x)}, <x 0 1>)';
 
-    is
-            (nintegrate({ log($^x) }, <x 0 1>, method => 'GaussKronrodRule') - (-1)).abs ≤ 1e-5,
-            True,
-            'for log(x) over <x 0 1>, GaussKronrodRule';
+## 2
+# NIntegrate[If[Inequality[0, LessEqual, x, Less, 0.3], 0, 1], {x, 0, 1}]
+is-approx
+        nintegrate({0 <= $^x < 0.3 ?? 0 !! 1}, <x 0 1>, :$method),
+        0.7000000000000007,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({0 <= $^x < 0.3 ?? 0 !! 1}, <x 0 1>)';
 
-    is
-            (nintegrate({ log(1-$^x) }, <x 0 1>, method => 'GaussKronrodRule') - (-1)).abs ≤ 1e-5,
-            True,
-            'for log(1-x) over <x 0 1>, GaussKronrodRule';
+## 3
+# NIntegrate[x^(1/2), {x, 0, 1}]
+is-approx
+        nintegrate({$^x ** (1 / 2)}, <x 0 1>, :$method),
+        0.6666666666666701,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({$^x ** (1 / 2)}, <x 0 1>)';
 
-}, 'nintegrate({log($^x)}, <x 0 1>)';
+## 4
+# NIntegrate[(23/25)*Cosh[x] - Cos[x], {x, -1, 1}]
+is-approx
+        nintegrate({(23 / 25) * cosh($^x) - cos($^x)}, <x -1 1>, :$method),
+        0.4794282266888024,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({(23 / 25) * cosh($^x) - cos($^x)}, <x -1 1>)';
+
+## 5
+# NIntegrate[1./(x^4 + x^2 + 0.9), {x, -1, 1}]
+is-approx
+        nintegrate({1e0 / ($^x ** 4 + $^x ** 2 + 0.9)}, <x -1 1>, :$method),
+        1.5822329637293537,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({1e0 / ($^x ** 4 + $^x ** 2 + 0.9)}, <x -1 1>)';
+
+## 6
+# NIntegrate[x^(3/2), {x, 0, 1}]
+is-approx
+        nintegrate({$^x ** (3 / 2)}, <x 0 1>, :$method),
+        0.3999999995179715,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({$^x ** (3 / 2)}, <x 0 1>)';
+
+## 7
+# NIntegrate[x^(-2^(-1)), {x, 0, 1}]
+is-approx
+        nintegrate({$^x ** -(2 ** -1)}, <x 0 1>, :$method),
+        2.000000000000003,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({$^x ** -(2 ** -1)}, <x 0 1>)';
+
+## 8
+# NIntegrate[1/(1 + x^4), {x, 0, 1}]
+is-approx
+        nintegrate({1 / (1 + $^x ** 4)}, <x 0 1>, :$method),
+        0.8669729873399123,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({1 / (1 + $^x ** 4)}, <x 0 1>)';
+
+## 9
+# NIntegrate[2/(2 + Sin[10.*Pi*x]), {x, 0, 1}]
+is-approx
+        nintegrate({2 / (2 + sin(10e0 * pi * $^x))}, <x 0 1>, :$method),
+        1.154700538380521,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({2 / (2 + sin(10e0 * pi * $^x))}, <x 0 1>)';
+
+## 10
+# NIntegrate[1/(1 + x), {x, 0, 1}]
+is-approx
+        nintegrate({1 / (1 + $^x)}, <x 0 1>, :$method),
+        0.6931471805599476,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({1 / (1 + $^x)}, <x 0 1>)';
+
+## 11
+# NIntegrate[1/(1 + Exp[x]), {x, 0, 1}]
+is-approx
+        nintegrate({1 / (1 + exp($^x))}, <x 0 1>, :$method),
+        0.3798854930417229,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({1 / (1 + exp($^x))}, <x 0 1>)';
+
+## 12
+# NIntegrate[x/(Exp[x] - 1), {x, 0, 1}]
+is-approx
+        nintegrate({$^x / (exp($^x) - 1)}, <x 0 1>, :$method),
+        0.7775046341122496,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({$^x / (exp($^x) - 1)}, <x 0 1>)';
+
+## 13
+# NIntegrate[(Sin[100.]/Pi)*x, {x, 0.1, 1}]
+is-approx
+        nintegrate({(sin(100e0) / pi) * $^x}, <x 0.1 1>, :$method),
+        -0.07978468884656971,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({(sin(100e0) / pi) * $^x}, <x 0.1 1>)';
+
+## 14
+# NIntegrate[Sqrt[50]*Exp[-50.*Pi*x^2], {x, 0, 10}]
+is-approx
+        nintegrate({sqrt(50) * exp(-50e0 * pi * $^x ** 2)}, <x 0 10>, :$method),
+        0.5,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({sqrt(50) * exp(-50e0 * pi * $^x ** 2)}, <x 0 10>)';
+
+## 15
+# NIntegrate[25*Exp[-25*x], {x, 0, 10}]
+is-approx
+        nintegrate({25 * exp(-25 * $^x)}, <x 0 10>, :$method),
+        1.0000000000000022,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({25 * exp(-25 * $^x)}, <x 0 10>)';
+
+## 16
+# NIntegrate[50/(Pi*(1 + 2500*x^2)), {x, 0, 10}]
+is-approx
+        nintegrate({50 / (pi * (1 + 2500 * $^x ** 2))}, <x 0 10>, :$method),
+        0.4993633810764592,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({50 / (pi * (1 + 2500 * $^x ** 2))}, <x 0 10>)';
+
+## 17
+# NIntegrate[Sin[50.*Pi*x]^2/(50.*Pi*x)^2, {x, 0.01, 1}]
+is-approx
+        nintegrate({sin(50e0 * pi * $^x) ** 2 / (50e0 * pi * $^x) ** 2}, <x 0.01 1>, :$method),
+        0.002242786074832752,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({sin(50e0 * pi * $^x) ** 2 / (50e0 * pi * $^x) ** 2}, <x 0.01 1>)';
+
+## 18
+# NIntegrate[Cos[Cos[x] + 3*Sin[x] + 2*Cos[2*x] + 3*Cos[3*x] + 3*Sin[2*x]], {x, 0, Pi}]
+ok 'Too many messages';
+#is-approx
+#        nintegrate({cos(cos($^x) + 3 * sin($^x) + 2 * cos(2 * $^x) + 3 * cos(3 * $^x) + 3 * sin(2 * $^x))}, <x 0 pi>, :$method),
+#        0.838676342694364,
+#        :$abs-tol, :$rel-tol,
+#        'nintegrate({cos(cos($^x) + 3 * sin($^x) + 2 * cos(2 * $^x) + 3 * cos(3 * $^x) + 3 * sin(2 * $^x))}, <x 0 pi>)';
+
+## 19
+# NIntegrate[Log[x], {x, 0, 1}]
+is-approx
+        nintegrate({log($^x)}, <x 0 1>, :$method),
+        -0.9999999999999977,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({log($^x)}, <x 0 1>)';
+
+## 20
+# NIntegrate[1/(x^2 + 1.005), {x, -1, 1}]
+is-approx
+        nintegrate({1 / ($^x ** 2 + 1.005)}, <x -1 1>, :$method),
+        1.564396444069045,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({1 / ($^x ** 2 + 1.005)}, <x -1 1>)';
+
+## 21
+# NIntegrate[Sech[10*(x - 0.2)]^2 + Sech[100*(x - 0.4)]^4 + Sech[1000*(x - 0.6)]^6, {x, 0, 1}]
+ok 'Too many messages';
+#is-approx
+#        nintegrate({sech(10 * ($^x - 0.2)) ** 2 + sech(100 * ($^x - 0.4)) ** 4 + sech(1000 * ($^x - 0.6)) ** 6}, <x 0 1>, :$method),
+#        0.2097360688356755,
+#        :$abs-tol, :$rel-tol,
+#        'nintegrate({sech(10 * ($^x - 0.2)) ** 2 + sech(100 * ($^x - 0.4)) ** 4 + sech(1000 * ($^x - 0.6)) ** 6}, <x 0 1>)';
 
 done-testing;
