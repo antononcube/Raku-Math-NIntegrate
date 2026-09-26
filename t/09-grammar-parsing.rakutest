@@ -37,7 +37,8 @@ subtest {
             'gauss-kronrod-rule',
             'clenshaw-curtis-rule',
             'monte-carlo-rule',
-            'lobatto_kronrod_rule'
+            'lobatto_kronrod_rule',
+            'multidimensional-rule'
             ;
     for @specs.kv -> $i, $spec {
         ok $gr.parse($spec, rule => 'rule-symbol-known'), "failed rule name $i : ⎡$spec⎦";
@@ -53,6 +54,7 @@ subtest {
             '(GlobalAdaptive, method => ClenshawCurtisRule)',
             '(GlobalAdaptive, max-recursion => 10, singularity-depth => 4)',
             '(GlobalAdaptive, method => (TrapezoidalRule, points => 5))',
+            '(GlobalAdaptive, method => (MultiDimensionalRule, generators => 7))',
             '(GlobalAdaptive, method => (TrapezoidalRule, :10points))',
             '(GlobalAdaptive, method => (TrapezoidalRule, :10points), max-recursion => 20)',
             '(GlobalAdaptive, method => (TrapezoidalRule, :10points), max-recursion => 20, singularity-handler => IMT)',

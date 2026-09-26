@@ -29,6 +29,9 @@ subtest {
             '(local-adaptive, method => (trapezoidal-rule, points => 5))' =>
                     {method => {name => 'TrapezoidalRule', points => 5, type => 'rule'}, name => 'LocalAdaptive', type => 'strategy'},
 
+            '(local-adaptive, method => (multidimensional-rule, generators => 7))' =>
+                    {method => {name => 'MultidimensionalRule', generators => 7, type => 'rule'}, name => 'LocalAdaptive', type => 'strategy'},
+
             '(GlobalAdaptive, method => (TrapezoidalRule, :10points), max-recursion => 20, singularity-handler => IMT)' =>
                     {method => {name => 'TrapezoidalRule', points => 10, type => 'rule'}, name => 'GlobalAdaptive', type => 'strategy', singularity-handler => 'IMT', max-recursion => 20},
 
