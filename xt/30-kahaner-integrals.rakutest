@@ -9,12 +9,17 @@ subtest {
     is
             (nintegrate({ log($^x) }, <x 1e-10 1>) - (-1)).abs ≤ 1e-7,
             True,
-            'for <x 1e-10 1>';
+            'for log(x) over <x 1e-10 1>';
 
     is
-            (nintegrate({ log($^x) }, <x 0 1>) - (-1)).abs ≤ 1e-5,
+            (nintegrate({ log($^x) }, <x 0 1>, method => 'GaussKronrodRule') - (-1)).abs ≤ 1e-5,
             True,
-            'for <x 0 1>';
+            'for log(x) over <x 0 1>, GaussKronrodRule';
+
+    is
+            (nintegrate({ log(1-$^x) }, <x 0 1>, method => 'GaussKronrodRule') - (-1)).abs ≤ 1e-5,
+            True,
+            'for log(1-x) over <x 0 1>, GaussKronrodRule';
 
 }, 'nintegrate({log($^x)}, <x 0 1>)';
 
