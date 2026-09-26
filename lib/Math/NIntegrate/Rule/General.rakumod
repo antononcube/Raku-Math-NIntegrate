@@ -57,9 +57,14 @@ class Math::NIntegrate::Rule::General
         for ^@!abscissas.elems -> $i {
             my @point = @!abscissas[$i] ~~ Numeric:D ?? @!abscissas[$i] !! |@!abscissas[$i];
             my $value = $region.eval-integrand(@point);
-            @values.push($value);
-            $integralLocal += @!weights[$i] * $value;
-            $errorLocal += @!error-weights[$i] * $value;
+
+            # Ignoring non-numerical results
+            if $value ~~ Numeric:D && !($value.isNaN || $value ~~ Inf | -Inf) {
+                # Warnings for NaN and Inf should be given
+                @values.push($value);
+                $integralLocal += @!weights[$i] * $value;
+                $errorLocal += @!error-weights[$i] * $value;
+            }
         }
 
         $!integral = $integralLocal;
