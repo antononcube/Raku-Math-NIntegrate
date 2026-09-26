@@ -69,7 +69,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             if $topRegion.levels[$axis] == self.singularity-depth && $topRegion.range-end-cases[$axis] ne RE_NONE  {
                 # Apply singularity handler
                 if self.singularity-handler ~~ Str:D && self.singularity-handler.lc eq 'imt' {
-                    $topRegion.add-variable-transformer('imt', :$axis)
+                    $topRegion.add-variable-transformer('imt', :$axis, :$working-precision)
                 }
 
                 # Reset split level
@@ -91,10 +91,11 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
                 my $newRegion = $topRegion.split(:$axis);
 
                 # Reverse the variable if needed for the new region
-                # TBD...
+                $newRegion.add-variable-transformer('reverse', :$axis, :$working-precision)
+                if $newRegion.range-end-cases[$axis] eq RE_RIGHT;
 
-                # Mark regions that are in the middle -- IMT should not be applied to them.
-                # TBD...
+                # Not that during the region splitting the new region can marked as a "middle" region
+                # with the enum value RE_NONE and that prevents IMT not be applied to it.
 
                 # Integrate
                 try $topRegion.apply-rule;
