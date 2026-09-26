@@ -280,7 +280,7 @@ class Math::NIntegrate::Region {
             fail 'NOT_A_NUMERICAL_FUNCTION: non-numerical integrand value is obtained'
         }
 
-        # Should a check be made that $!variable-transformer.scales is not empty?
+        # Should a check be made that $!variable-transformer.jacobian-factors is not empty?
         # If $!variable-transformer.jacobian-factors is empty we get 1, because [*] |() == 1
         return do if $!variable-transformer {
             my $factor = [*] |$!variable-transformer.jacobian-factors;
@@ -315,7 +315,7 @@ class Math::NIntegrate::Region {
 
         my %args =
                 region => self,
-                working-precision => Rat
+                :$working-precision
                 ;
 
         given $vtID.lc {
@@ -346,7 +346,10 @@ class Math::NIntegrate::Region {
                 # This have a corresponding implementation with Math::NIntegrate::VariableTransformer::Reverse.
                 # That class is most of top-level use, not internally -- this internal handling is simple,
                 # but since it is not very bureaucratic it is probably not that good.
-                if !($!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D) {
+
+                # Cannot make this check because this would introduce a cyclic file dependency. Hence using name
+                #if !($!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D) {
+                without $!variable-transformer.^name ~~ / Composite / {
                     fail 'WRONG_TYPE: the region variable transformer is expected to be of type Math::NIntegrate::VariableTransformer::Composite.'
                 }
 
@@ -358,7 +361,7 @@ class Math::NIntegrate::Region {
                 $!variable-transformer.max-transform-bounds[$axis] = $tmp;
 
                 # Jacobian factor
-                $!variable-transformer.scales[$axis] *= -1
+                $!variable-transformer.jacobian-factors[$axis] *= -1
             }
         }
     }
