@@ -355,10 +355,10 @@ class Math::NIntegrate::Region {
 
                 my %bounds = $!variable-transformer.get-transform-bounds();
 
-                # Swap boundaries at $axis
-                my $tmp = $!variable-transformer.min-transform-bounds[$axis];
-                $!variable-transformer.min-transform-bounds[$axis] = $!variable-transformer.max-transform-bounds[$axis];
-                $!variable-transformer.max-transform-bounds[$axis] = $tmp;
+                # Swap boundaries at $axis for the last variable transformer of the Composite stack
+                my $tmp = $!variable-transformer.stack.tail.min-transform-bounds[$axis];
+                $!variable-transformer.stack.tail.min-transform-bounds[$axis] = $!variable-transformer.stack.tail.max-transform-bounds[$axis];
+                $!variable-transformer.stack.tail.max-transform-bounds[$axis] = $tmp;
 
                 # Jacobian factor
                 $!variable-transformer.jacobian-factors[$axis] *= -1
