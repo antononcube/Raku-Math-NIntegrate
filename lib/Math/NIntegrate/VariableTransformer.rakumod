@@ -6,7 +6,7 @@ class Math::NIntegrate::VariableTransformer {
     #| List of variable transformations for each dimension
     has @.transforms;
 
-    #| List of Jacobians for each dimension corresponding to the transformations
+    #| List of Jacobian values for each dimension corresponding to the transformations
     has @.jacobians;
 
     #| Original lower boundary;
@@ -28,8 +28,10 @@ class Math::NIntegrate::VariableTransformer {
     #| Working precision
     has $.working-precision = Num;
 
-    #| Scaling factors for each dimension; each scale should be either 1 or -1
-    has @.scales;
+    # Each jacobian factor should be either 1 or -1.
+    # They simplify the reverse of variables, which is fundamental for singularity handling with IMT rule.
+    #| Jacobian factors for each dimension
+    has @.jacobian-factors;
 
     # Contextual variable transformer (e.g. Composite)
     # Cannot be used -- Raku hangs when being set in TWEAK or a Builder method.
@@ -60,7 +62,7 @@ class Math::NIntegrate::VariableTransformer {
         @!min-transform-bounds = $clone ?? $from.min-transform-bounds>>.clone.Array !! $from.min-transform-bounds;
         @!max-transform-bounds = $clone ?? $from.max-transform-bounds>>.clone.Array !! $from.max-transform-bounds;
         $!working-precision = $from.working-precision;
-        @!scales = $clone ?? $from.scales>>.clone.Array !! $from.scales;
+        @!jacobian-factors = $clone ?? $from.jacobian-factors>>.clone.Array !! $from.jacobian-factors;
         $!region = $from.region;
             
         return self

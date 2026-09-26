@@ -36,7 +36,7 @@ class Math::NIntegrate::VariableTransformer::Infinity
                     self.max-transform-bounds[$i] = 1;
                     self.max-original-bounds[$i] = %parsed<max-inf-dir>;
 
-                    self.scales[$i] = %parsed<max-inf-dir>
+                    self.jacobian-factors[$i] = %parsed<max-inf-dir>
                 }
 
                 when VT_INF_FIN {
@@ -52,7 +52,7 @@ class Math::NIntegrate::VariableTransformer::Infinity
                     self.max-original-bounds[$i] = %parsed<min-inf-dir>;
                     self.min-original-bounds[$i] = %parsed<max>;
 
-                    self.scales[$i] = -1 * %parsed<min-inf-dir>
+                    self.jacobian-factors[$i] = -1 * %parsed<min-inf-dir>
                 }
 
                 when VT_INF_INF {
@@ -65,7 +65,7 @@ class Math::NIntegrate::VariableTransformer::Infinity
                     self.min-transform-bounds[$i] = 0;
                     self.max-transform-bounds[$i] = 1;
 
-                    self.scales[$i] = 1
+                    self.jacobian-factors[$i] = 1
                 }
 
                 when VT_FIN_FIN {
@@ -74,7 +74,7 @@ class Math::NIntegrate::VariableTransformer::Infinity
                     self.min-transform-bounds[$i] = %parsed<min>;
                     self.max-transform-bounds[$i] = %parsed<max>;
 
-                    self.scales[$i] = 1
+                    self.jacobian-factors[$i] = 1
                 }
 
                 default {
