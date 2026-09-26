@@ -281,10 +281,10 @@ class Math::NIntegrate::Region {
         }
 
         # Should a check be made that $!variable-transformer.scales is not empty?
-        # If $!variable-transformer.scales is empty we get 1, because [*] |() == 1
+        # If $!variable-transformer.jacobian-factors is empty we get 1, because [*] |() == 1
         return do if $!variable-transformer {
-            my $scale = [*] |$!variable-transformer.scales;
-            $value * $jacobian * $scale
+            my $factor = [*] |$!variable-transformer.jacobian-factors;
+            $value * $jacobian * $factor
         } else {
             $value * $jacobian
         }
@@ -340,6 +340,23 @@ class Math::NIntegrate::Region {
                     $!variable-transformer.add($vt)
                 }
 
+            }
+
+            when 'reverse' {
+                # This should have a corresponding implementation with Math::NIntegrate::VariableTransformer::Reverse
+                if !($!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D) {
+                    fail 'WRONG_TYPE: the region variable transformer is expected to be of type Math::NIntegrate::VariableTransformer::Composite.'
+                }
+
+                my %bounds = $!variable-transformer.get-transform-bounds();
+
+                # Swap boundaries at $axis
+                my $tmp = $!variable-transformer.min-transform-bounds[$axis];
+                $!variable-transformer.min-transform-bounds[$axis] = $!variable-transformer.max-transform-bounds[$axis];
+                $!variable-transformer.max-transform-bounds[$axis] = $tmp;
+
+                # Jacobian factor
+                $!variable-transformer.scales[$axis] *= -1
             }
         }
     }
