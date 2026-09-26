@@ -1,0 +1,32 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate::Rule::MultiDimensional;
+
+my $rule = Math::NIntegrate::Rule::MultiDimensional.new;
+my %data = $rule.d07hre(2);
+
+is %data<weights>.elems, 5, 'D07HRE returns the basic rule and four null rules';
+is %data<weights>[0].elems, 6, 'each rule has six generator weights';
+is %data<generators>.elems, 2, 'one generator coordinate row per dimension';
+is %data<rule-points>, [1e0, 4e0, 4e0, 4e0, 4e0, 4e0], 'two-dimensional orbit sizes';
+is %data<error-coefficients>, [5e0, 5e0, 1e0, 5e0, 0.5e0, 0.25e0], 'DCUHRE error coefficients';
+
+for ^5 -> $rule-index {
+    my $constant-moment = [+] (^6).map({
+        %data<rule-points>[$_] * %data<weights>[$rule-index][$_]
+    });
+    my $expected = $rule-index == 0 ?? 4e0 !! 0e0;
+    ok abs($constant-moment - $expected) < 1e-12,
+            "rule $rule-index has the expected constant moment";
+}
+
+ok abs(%data<generators>[0][5] - sqrt(0.4707e0)) < 1e-12,
+        'last generator uses sqrt(lambda0)';
+is %data<generators>[1][4], %data<generators>[0][4],
+        'the penultimate generator has two lambda1 coordinates';
+
+dies-ok { $rule.d07hre(0) }, 'zero dimension is rejected';
+dies-ok { $rule.d07hre(2, :weight-length(5)) }, 'a weight length other than six is rejected';
+
+done-testing;
