@@ -277,7 +277,9 @@ class Math::NIntegrate::Region {
         }
 
         if $! || $value !~~ Numeric:D {
-            fail 'NOT_A_NUMERICAL_FUNCTION: non-numerical integrand value is obtained'
+            fail 'NOT_A_NUMERICAL_FUNCTION: non-numerical integrand value is obtained.';
+            #die 'Non-numerical integrand value is obtained.'
+            return Whatever
         }
 
         # Should a check be made that $!variable-transformer.jacobian-factors is not empty?
@@ -313,9 +315,9 @@ class Math::NIntegrate::Region {
             fail 'WRONG_TYPE: the region variable transformer is expected to be of type Math::NIntegrate::VariableTransformer::Composite.'
         }
 
-        # These are options are for any variable transformer would use.
-        my @min-original-bounds = 0;
-        my @max-original-bounds = 1;
+        # These options are for any variable transformer would use.
+        my @min-original-bounds = 0 xx $!dimension;
+        my @max-original-bounds = 1 xx $!dimension;
         my @min-transform-bounds = 0 xx $!dimension;
         my @max-transform-bounds = 1 xx $!dimension;
 
