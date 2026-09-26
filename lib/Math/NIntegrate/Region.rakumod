@@ -343,7 +343,9 @@ class Math::NIntegrate::Region {
             }
 
             when 'reverse' {
-                # This should have a corresponding implementation with Math::NIntegrate::VariableTransformer::Reverse
+                # This have a corresponding implementation with Math::NIntegrate::VariableTransformer::Reverse.
+                # That class is most of top-level use, not internally -- this internal handling is simple,
+                # but since it is not very bureaucratic it is probably not that good.
                 if !($!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D) {
                     fail 'WRONG_TYPE: the region variable transformer is expected to be of type Math::NIntegrate::VariableTransformer::Composite.'
                 }
