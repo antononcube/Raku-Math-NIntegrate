@@ -11,4 +11,10 @@ subtest {
     is nintegrate({ $^x }, <x 1e-12 1>) < 1, True, 'strings range result';
 }, 'allmorth was treated as Inf';
 
+## 2
+subtest {
+    # Fixed
+    ok nintegrate(sub ($x, $y) { 1 / sqrt($x + $y) }, ('x', 0, 1), ('y', 0, 1), method => 'gauss-kronrod-rule')
+}, 'dimensions do not match in a variable transformer';
+
 done-testing;
