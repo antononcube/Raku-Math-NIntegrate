@@ -12,11 +12,11 @@ class Math::NIntegrate::VariableTransformer::IMT
         Math::NIntegrate::VariableTransformer::IMT.new(region => self.region).copy(self, :clone)
     }
 
-    method set-transform-axis($i) {
+    method set-transform-axis(UInt:D $i) {
         self.transforms[$i] = -> $point, $min, $max { self!singfin-fin-transform($point, $min, $max) }
     }
 
-    method drop-transform-axis($i) {
+    method drop-transform-axis(UInt:D $i) {
         self.transforms[$i] = WhateverCode
     }
 
@@ -68,5 +68,4 @@ class Math::NIntegrate::VariableTransformer::IMT
             return %res
         }
     }
-
 }
