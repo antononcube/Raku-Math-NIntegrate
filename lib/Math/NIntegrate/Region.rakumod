@@ -307,6 +307,12 @@ class Math::NIntegrate::Region {
     #--------------------------------------
     method add-variable-transformer(Str:D $vtID, Int:D :$axis!, :$working-precision = Num) {
 
+        # Cannot make this check because this would introduce a cyclic file dependency. Hence using class name matching.
+        #if !($!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D) {
+        without $!variable-transformer.^name ~~ / Composite / {
+            fail 'WRONG_TYPE: the region variable transformer is expected to be of type Math::NIntegrate::VariableTransformer::Composite.'
+        }
+
         # These are options are for any variable transformer would use.
         my @min-original-bounds = 0;
         my @max-original-bounds = 1;
@@ -346,12 +352,6 @@ class Math::NIntegrate::Region {
                 # This have a corresponding implementation with Math::NIntegrate::VariableTransformer::Reverse.
                 # That class is most of top-level use, not internally -- this internal handling is simple,
                 # but since it is not very bureaucratic it is probably not that good.
-
-                # Cannot make this check because this would introduce a cyclic file dependency. Hence using name
-                #if !($!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D) {
-                without $!variable-transformer.^name ~~ / Composite / {
-                    fail 'WRONG_TYPE: the region variable transformer is expected to be of type Math::NIntegrate::VariableTransformer::Composite.'
-                }
 
                 my %bounds = $!variable-transformer.get-transform-bounds();
 
