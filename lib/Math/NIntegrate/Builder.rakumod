@@ -129,8 +129,7 @@ class Math::NIntegrate::Builder {
             }
 
             when $_<name> eq 'GaussKronrodRule' {
-                die 'The Gauss-Kronrod rule is not implemented yet.'
-                # Math::NIntegrate::Rule::GaussKronrod.new(gauss-points => $_<gauss-points> // $_<points> // 5, :$working-precision);
+                Math::NIntegrate::Rule::GaussKronrod.new(points => $_<gauss-points> // $_<points> // 5, :$working-precision);
             }
 
             when $_<name> eq 'LobattoKronrodRule' {
@@ -284,7 +283,7 @@ class Math::NIntegrate::Builder {
         # Integration rule
         # At this point $method is normalized
         my $rule = self.make-rule(
-                method => $method<method> // Whatever,
+                method => ($method<type> // 'none') eq 'rule' ?? $method !! ($method<method> // Whatever),
                 dimension => %bounds<min>.elems,
                 :$working-precision);
 
