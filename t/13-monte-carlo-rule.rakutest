@@ -38,7 +38,8 @@ subtest {
     #say (:$exact, integral => $region.integral, error => $region.error);
 
     is abs($region.integral - $exact) / $exact ≤ 1e-1, True, 'expected integral estimate';
-    is $region.error.abs ≤ 1, True, 'expected error estimate';
+
+    is $region.error.abs / $exact ≤ 0.4, True, 'expected error estimate';
 
 }, 'Monte-Carlo integration in a region';
 
