@@ -17,6 +17,8 @@ use Math::NIntegrate::Rule;
 use Math::NIntegrate::Rule::Cartesian;
 use Math::NIntegrate::Rule::ClenshawCurtis;
 use Math::NIntegrate::Rule::GaussKronrod;
+use Math::NIntegrate::Rule::MultiDimensional;
+use Math::NIntegrate::Rule::NewtonCotes;
 use Math::NIntegrate::Rule::Trapezoidal;
 
 class Math::NIntegrate::Builder {
@@ -112,12 +114,18 @@ class Math::NIntegrate::Builder {
             when $_.isa(Whatever) || $_.isa(WhateverCode) {
                 return $dimension == 1
                         ?? self.make-rule(method => %default-spec, :$dimension, :$working-precision)
-                        !! self.make-rule(method => {type => 'rule', name => 'CartesianRule', method => %default-spec}, :$dimension, :$working-precision)
+                        !! self.make-rule(method => {type => 'rule', name => 'MultiDimensionalRule', generators => 7, :$dimension}, :$dimension, :$working-precision)
+                        #!! self.make-rule(method => {type => 'rule', name => 'CartesianRule', method => %default-spec}, :$dimension, :$working-precision)
             }
 
             when $dimension > 1 &&
-                    $_<name> ∈ <ClenshawCurtisRule GaussKronrodRule LobattoKronrodRule TrapezoidalRule>  {
+                    $_<name> ∈ <ClenshawCurtisRule GaussKronrodRule LobattoKronrodRule NewtonCotesRule TrapezoidalRule>  {
                 self.make-rule(:$dimension, method => {name => 'CartesianRule', type => 'rule', :$method}, :$working-precision)
+            }
+
+            when $_<name> eq 'MultiDimensionalRule' {
+                die 'MultiDimensionalRule works with dimensions heigher than 1.' unless $dimension > 1;
+                Math::NIntegrate::Rule::MultiDimensional.new(generators => $_<generators> // $_<points> // 7, :$dimension, :$working-precision);
             }
 
             when $_<name> eq 'TrapezoidalRule' {
