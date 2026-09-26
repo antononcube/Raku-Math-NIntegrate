@@ -62,6 +62,7 @@ grammar Math::NIntegrate::Processing::Grammar {
         | <trapezoidal-rule>
         | <gauss-kronrod-rule>  | <lobatto-kronrod-rule>
         | <clenshaw-curtis-rule>  | <monte-carlo-rule>
+        | <multidimensional-rule>
         | <cartesian-rule>
     }
 
@@ -78,7 +79,7 @@ grammar Math::NIntegrate::Processing::Grammar {
         | <no-singularity-handler>
     }
 
-    token numeric-option-symbol { <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> }
+    token numeric-option-symbol { <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> | <generators> }
 
     regex numeric-option-spec {
         | <numeric-option-symbol> \s* <.arrow> \s* <number>
@@ -152,6 +153,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     token method {:i method }
     token min-recursion { MinRecursion | min <[\-_]> recursion }
     token points {:i points }
+    token generators {:i generators }
     token singularity-depth { SingularityDepth | singularity <[\-_]> depth }
     token singularity-handler { SingularityHandler | singularity <[\-_]> handler }
     token symbolic-processing { SymbolicProcessing | symbolic <[\-_]> processing }
@@ -176,6 +178,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     token lobatto-kronrod-rule { LobattoKronrodRule | lobatto <[_\-]> kronrod <[_\-]> rule }
     token monte-carlo-rule { MonteCarloRule | monte <[_\-]> carlo <[_\-]> rule }
     token trapezoidal-rule { TrapezoidalRule | trapezoidal <[_\-]> rule }
+    token multidimensional-rule { Multi [d|D] imensionalRule | multidimensional <[_\-]> rule }
 
     # Singularity handler names
     token imt {:i imt | iri <[\-_]> moriguti <[\-_]> takesawa }

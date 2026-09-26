@@ -12,6 +12,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 symbolicpiecewisesubdivision => 'SymbolicPiecewiseSubdivision', evenoddsubdivision => 'EvenOddSubdivision',
                 trapezoidalrule => 'TrapezoidalRule', gausskronrodrule => 'GaussKronrodRule', lobattokronrodrule => 'LobattoKronrodRule',
                 clenshawcurtisrule => 'ClenshawCurtisRule', montecarlorule => 'MonteCarloRule', cartesianrule => 'CartesianRule',
+                multidimensionalrule => 'MultidimensionalRule',
                 maxpoints => 'max-points', maxrecursion => 'max-recursion', minrecursion => 'min-recursion',
                 singularitydepth => 'singularity-depth', singularityhandler => 'singularity-handler',
                 symbolicprocessing => 'symbolic-processing', nosingularityhandler => 'None',
