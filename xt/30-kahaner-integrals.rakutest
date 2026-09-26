@@ -146,12 +146,12 @@ is-approx
 
 ## 18
 # NIntegrate[Cos[Cos[x] + 3*Sin[x] + 2*Cos[2*x] + 3*Cos[3*x] + 3*Sin[2*x]], {x, 0, Pi}]
-ok 'Too many messages';
-#is-approx
-#        nintegrate({cos(cos($^x) + 3 * sin($^x) + 2 * cos(2 * $^x) + 3 * cos(3 * $^x) + 3 * sin(2 * $^x))}, <x 0 pi>, :$method),
-#        0.838676342694364,
-#        :$abs-tol, :$rel-tol,
-#        'nintegrate({cos(cos($^x) + 3 * sin($^x) + 2 * cos(2 * $^x) + 3 * cos(3 * $^x) + 3 * sin(2 * $^x))}, <x 0 pi>)';
+# Does not work with <x 0 pi> or <x 0 π> -- this spec has to be used ['x', 0, π]
+is-approx
+        nintegrate({cos(cos($^x) + 3 * sin($^x) + 2 * cos(2 * $^x) + 3 * cos(3 * $^x) + 3 * sin(2 * $^x))},  ['x', 0, π], :$method),
+        0.838676342694364,
+        :$abs-tol, :$rel-tol,
+        'nintegrate({cos(cos($^x) + 3 * sin($^x) + 2 * cos(2 * $^x) + 3 * cos(3 * $^x) + 3 * sin(2 * $^x))}, <x 0 pi>)';
 
 ## 19
 # NIntegrate[Log[x], {x, 0, 1}]
