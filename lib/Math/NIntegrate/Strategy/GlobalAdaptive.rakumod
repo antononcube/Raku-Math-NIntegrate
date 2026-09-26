@@ -3,6 +3,7 @@ use v6.d;
 use LeftistHeap;
 use Math::NIntegrate::Strategy;
 use Math::NIntegrate::VariableTransformer::IMT;
+use Math::NIntegrate::Codes;
 
 class Math::NIntegrate::Strategy::GlobalAdaptive
         is Math::NIntegrate::Strategy {
@@ -65,7 +66,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             #say ('after removing top region:', :$integral, :$error, :$step, region-count => $heap.elems);
 
             # Application of singularity handler or region splitting
-            if $topRegion.levels[$axis] == self.singularity-depth {
+            if $topRegion.levels[$axis] == self.singularity-depth && $topRegion.range-end-cases[$axis] ne RE_NONE  {
                 # Apply singularity handler
                 if self.singularity-handler ~~ Str:D && self.singularity-handler.lc eq 'imt' {
                     $topRegion.add-variable-transformer('imt', :$axis)
