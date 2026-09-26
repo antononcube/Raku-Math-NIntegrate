@@ -6,6 +6,7 @@ use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::Affine;
 use Math::NIntegrate::VariableTransformer::Infinity;
 use Math::NIntegrate::VariableTransformer::IMT;
+use Math::NIntegrate::VariableTransformer::Reverse;
 use Math::NIntegrate::Region;
 
 plan *;
@@ -109,7 +110,7 @@ subtest {
             :@max-original-bounds,
             :@min-transform-bounds,
             :@max-transform-bounds,
-            |%args), 'Infinity object creation is ok';
+            |%args), 'IMT object creation is ok';
 
     my $vt = Math::NIntegrate::VariableTransformer::IMT.new(
             :@min-original-bounds,
@@ -125,9 +126,50 @@ subtest {
     is $vt.working-precision ~~ Rat, True, 'expected working precision';
 
     is
-            0 ≤ $vt.transform(point => [0.1], jacobian => 1)<point>.head ≤ 2 * 1e-4,
+            0 ≤ $vt.transform(point => [0.1, 0.5], jacobian => 1)<point>.head ≤ 2 * 1e-4,
             True,
             'expected transform values';
 }, 'IMT';
+
+## 5
+#subtest {
+    my $region = Math::NIntegrate::Region.new(min => [-2,30], max => [5,10], dimension => 2);
+
+    my @min-original-bounds = $region.min;
+    my @max-original-bounds =  $region.max;
+    my @min-transform-bounds = $region.min;
+    my @max-transform-bounds = $region.max;
+
+    my %args =
+            region => $region,
+            working-precision => Rat
+            ;
+
+    ok Math::NIntegrate::VariableTransformer::Reverse.new(
+            :@min-original-bounds,
+            :@max-original-bounds,
+            :@min-transform-bounds,
+            :@max-transform-bounds,
+            |%args), 'Reverse object creation is ok';
+
+    my $vt = Math::NIntegrate::VariableTransformer::Reverse.new(
+            :@min-original-bounds,
+            :@max-original-bounds,
+            :@min-transform-bounds,
+            :@max-transform-bounds,
+            |%args);
+
+    $vt.set-transform-axis(0);
+    $vt.set-transform-axis(1);
+
+    isa-ok $vt.transform(point => [0.1, 15], jacobian => 1), Map:D, 'method .transform returns Map:D';
+
+    is $vt.working-precision ~~ Rat, True, 'expected working precision';
+
+    is
+            $vt.transform(point => [0.1, 15], jacobian => 1)<point>,
+            [2.9, 25],
+            'expected transform values';
+#}, 'Reverse';
 
 done-testing;
