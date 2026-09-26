@@ -145,6 +145,10 @@ class Math::NIntegrate::Builder {
                 # Math::NIntegrate::Rule::LobattoKronrod.new(gauss-points => $_<gauss-points> // $_<points> // 5, :$working-precision);
             }
 
+            when $_<name> eq 'NewtonCotesRule' {
+                Math::NIntegrate::Rule::NewtonCotesRule.new(points => $_<gauss-points> // $_<points> // 5, :$working-precision);
+            }
+
             when $_<name> eq 'CartesianRule' {
                 my @components = ($_<method> ~~ Map:D ?? [$_<method>,] !! $_<method>).map({ self.make-rule(:1dimension, method => $_, :$working-precision) });
                 Math::NIntegrate::Rule::Cartesian.new(:@components, :$dimension);
