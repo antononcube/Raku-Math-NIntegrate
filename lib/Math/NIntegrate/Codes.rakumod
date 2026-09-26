@@ -6,6 +6,9 @@ unit module Math::NIntegrate::Codes;
 enum RangeBoundsCases is export
 <VT_FIN_FIN VT_FIN_INF VT_INF_FIN VT_INF_INF>;
 
+#| RegionBoundaryTypes
+enum RangeEndCases is export
+<RE_BOTH RE_LEFT RE_RIGHT RE_ANY RE_NONE>;
 
 #| Error codes
 enum Errors is export <

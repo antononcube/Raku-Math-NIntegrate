@@ -5,6 +5,7 @@ use Math::NIntegrate::NumericalFunction;
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::IMT;
 use Math::NIntegrate::Utilities;
+use Math::NIntegrate::Codes;
 
 class Math::NIntegrate::Region {
 
@@ -19,6 +20,7 @@ class Math::NIntegrate::Region {
     #   [[0,0,0], [1, {1-$^a},{1-$^a-$^b}]]
 
     has Bool:D $.has-functional-bounds = False;
+    has RangeEndCases @.range-end-cases;
 
     # Lists of interval/simplex bounds
     has @.min;
@@ -95,6 +97,7 @@ class Math::NIntegrate::Region {
         without $!axis {
             $!axis = 0
         }
+        @!range-end-cases = RE_BOTH xx $!dimension;
     }
 
     method copy(
@@ -198,6 +201,27 @@ class Math::NIntegrate::Region {
         # Special treatment of reuse-values
         # TBD...
         # Full blown Rule class has to be implemented first.
+
+        # Range end cases
+        # These are used to decide should the singularity handlers IMT and DoubleExponent be applied or not
+        given @!range-end-cases[$axis] {
+            when RE_BOTH {
+                @!range-end-cases[$axis] = RE_LEFT;
+                $new-obj.range-end-cases[$axis] = RE_RIGHT
+            }
+            when RE_LEFT {
+                @!range-end-cases[$axis] = RE_LEFT;
+                $new-obj.range-end-cases[$axis] = RE_NONE
+            }
+            when RE_RIGHT {
+                @!range-end-cases[$axis] = RE_NONE;
+                $new-obj.range-end-cases[$axis] = RE_RIGHT
+            }
+            default {
+                @!range-end-cases[$axis] = RE_NONE;
+                $new-obj.range-end-cases[$axis] = RE_NONE
+            }
+        }
 
         # Which of these results is most useful?
         # return {left => self, right => $new-obj}
