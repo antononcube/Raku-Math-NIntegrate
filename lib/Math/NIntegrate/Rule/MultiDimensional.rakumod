@@ -201,9 +201,6 @@ class Math::NIntegrate::Rule::MultiDimensional
 
         my @error-coefficients = 5, 5, 1, 5, 0.5, 0.25;
 
-        # Make the generator points to be in [-1/2, 1/2]^dim
-        # @generators = @generators.map({ $_ <<*>> 0.5 });
-
         return {
             :@weights,
             :@generators,
@@ -392,9 +389,6 @@ class Math::NIntegrate::Rule::MultiDimensional
 
         my @error-coefficients = 5, 5, 1, 5, 0.5, 0.25;
 
-        # Make the generator points to be in [-1/2, 1/2]^dim
-        # @generators = @generators.map({ $_ <<*>> 0.5 });
-
         return {
             :@weights,
             :@generators,
@@ -407,37 +401,205 @@ class Math::NIntegrate::Rule::MultiDimensional
     # Integration helpers
     #======================================================
 
-    sub distinct-permutations(@generators) {
-        # Generate all distinct permutations of the generators array @g
-    }
+    #| Generate the distinct points in the fully symmetric orbit of a
+    #| non-negative generator.
+    sub distinct-permutations(@generators --> Array:D) {
+        my @result;
 
-    method defshr(@generators is copy, $region, $offset = 0) {
-        my Numeric:D $fulsms;
-        my $funvls;
+        sub visit(@remaining, @prefix) {
+            unless @remaining.elems {
+                my @nonzero-axes = ^@prefix.elems
+                        .grep({ @prefix[$_] != 0 });
 
-        my @distict = distinct-permutations(@generators);
+                # A zero coordinate has only one distinct sign.
+                for ^(1 +< @nonzero-axes.elems) -> $sign-mask {
+                    my @point = @prefix.Array;
+                    for @nonzero-axes.kv -> $bit, $axis {
+                        @point[$axis] = -@point[$axis]
+                        if $sign-mask +& (1 +< $bit);
+                    }
+                    @result.push(@point);
+                }
+                return;
+            }
 
-        for @distict -> @g {
-            my @point = @g <<+>> $offset;
-            $funvls = $region.eval-integrand(@point);
-            $fulsms += $funvls
+            # Selecting each distinct remaining value once generates the
+            # multiset permutations without first producing duplicates.
+            my @used-values;
+            for @remaining.kv -> $index, $value {
+                next if @used-values.first(* == $value, :k).defined;
+                @used-values.push($value);
+
+                my @rest = @remaining.Array;
+                @rest.splice($index, 1);
+                visit(@rest, [|@prefix, $value]);
+            }
         }
 
-        return {:$fulsms, :$funvls};
+        visit(@generators.Array, []);
+        return @result;
     }
 
-    method derlhr(
-            $region,
-                  ) {
-        my UInt:D $wtlent = @!rule-points.elems,
-        # Correspondences with the original DERLHR signature
-        # my @G = self.abscissas;
-        # my @W = self.weights;
-        # my @ERRCOF = self.error-weights;
-        # my @SCALES = @!scales;
-        # my @NORMS = @!morms;
+    #| Compute the fully symmetric sum for one generator orbit.
+    method defshr(@generators is copy, $region, Numeric:D :$offset = 0) {
+        die 'DEFSHR generator dimension does not match the rule dimension.'
+        unless @generators.elems == self.dimension;
+        die 'DEFSHR generators must be non-negative and non-increasing.'
+        unless [&&] @generators.map(* >= 0)
+                && [&&] (1 ..^ self.dimension).map({
+                    @generators[$_ - 1] >= @generators[$_]
+                });
 
-        ...
+        my Numeric $fulsms = 0e0;
+        my Numeric $funvls = 0e0;
+
+        for distinct-permutations(@generators) -> @g {
+            my @point = @g.map(* + $offset);
+            $funvls = $region.eval-integrand(@point);
+            die 'DEFSHR obtained a non-numeric integrand value.'
+            unless $funvls ~~ Numeric:D;
+            $fulsms += $funvls;
+        }
+
+        return { :$fulsms, :$funvls };
+    }
+
+    #| Compute a DCUHRE basic rule, its error estimate, and its split axis.
+    method derlhr($region --> Map:D) {
+        die 'The rule and region dimensions must match.'
+        unless $region.dimension == self.dimension;
+
+        my UInt:D $wtleng = @!rule-points.elems;
+
+        # Correspondences with the original DERLHR signature.
+        my @g = self.abscissas;
+        my @w = self.weights;
+        my @errcof = self.error-weights;
+        my @scales = @!scales;
+        my @norms = @!norms;
+
+        die 'DERLHR rule data has inconsistent dimensions.'
+        unless @g.elems == self.dimension
+                && [&&] @g.map(*.elems == $wtleng)
+                        && @w.elems >= 5
+                        && [&&] @w.map(*.elems == $wtleng)
+                                && @errcof.elems >= 4
+                                && @scales.elems >= 3
+                                && @norms.elems >= 3;
+
+        # Region evaluates points on the unit cube. Stored DCUHRE generators
+        # are for [-1, 1], hence CENTER = HWIDTH = 1/2 on every axis.
+        my Numeric:D $center-coordinate = 0.5e0;
+        my Numeric:D $half-width = 0.5e0;
+        my Numeric:D $region-volume = $half-width ** self.dimension;
+        my @center = $center-coordinate xx self.dimension;
+        my @x = @center.Array;
+
+        my UInt:D $division-axis = 0;
+        my Numeric $center-value = $region.eval-integrand(@x);
+        die 'DERLHR obtained a non-numeric integrand value at the center.'
+        unless $center-value ~~ Numeric:D;
+
+        my Numeric $basval = @w[0][0] * $center-value;
+        my @null = 0e0 xx 8;
+        for ^4 -> $null-rule {
+            @null[$null-rule] = @w[$null-rule + 1][0] * $center-value;
+        }
+
+        my Numeric $difference-maximum = 0e0;
+        my @diff = 0e0 xx self.dimension;
+        my @order = ^self.dimension;
+        my Numeric:D $ratio = (@g[0][2] / @g[0][1]) ** 2;
+
+        # Compute fourth differences and accumulate generator columns 1 and 2.
+        for ^self.dimension -> $axis {
+            @x = @center.Array;
+            @x[$axis] = $center-coordinate - $half-width * @g[0][1];
+            my Numeric $near-minus = $region.eval-integrand(@x);
+            @x[$axis] = $center-coordinate + $half-width * @g[0][1];
+            my Numeric $near-plus = $region.eval-integrand(@x);
+            @x[$axis] = $center-coordinate - $half-width * @g[0][2];
+            my Numeric $far-minus = $region.eval-integrand(@x);
+            @x[$axis] = $center-coordinate + $half-width * @g[0][2];
+            my Numeric $far-plus = $region.eval-integrand(@x);
+
+            die 'DERLHR obtained a non-numeric axial integrand value.'
+            unless ($near-minus, $near-plus, $far-minus, $far-plus).all
+                    ~~ Numeric:D;
+
+            my Numeric:D $near-sum = $near-minus + $near-plus;
+            my Numeric:D $far-sum = $far-minus + $far-plus;
+            my Numeric:D $fourth-difference =
+                    (2e0 * (1e0 - $ratio) * $center-value - $far-sum + $ratio * $near-sum).abs;
+            my Numeric $difference-sum = 0e0;
+
+            # Match DERLHR's roundoff guard.
+            $difference-sum += $fourth-difference
+            if $center-value.abs + $fourth-difference / 4e0 > $center-value.abs;
+
+            for ^4 -> $null-rule {
+                @null[$null-rule] += @w[$null-rule + 1][1] * $near-sum
+                        + @w[$null-rule + 1][2] * $far-sum;
+            }
+            $basval += @w[0][1] * $near-sum + @w[0][2] * $far-sum;
+
+            if $difference-sum > $difference-maximum {
+                $difference-maximum = $difference-sum;
+                $division-axis = $axis;
+            }
+            @diff[$axis] = $difference-sum;
+        }
+
+        # Finish the basic and null rules using fully symmetric sums.
+        for 3 ..^ $wtleng -> $generator-index {
+            my @generator = @g.map({
+                $_[$generator-index] * $half-width
+            });
+            my %sums = self.defshr(
+                    @generator,
+                    $region,
+                    offset => $center-coordinate);
+
+            for ^4 -> $null-rule {
+                @null[$null-rule] +=
+                        @w[$null-rule + 1][$generator-index] * %sums<fulsms>;
+            }
+            $basval += @w[0][$generator-index] * %sums<fulsms>;
+        }
+
+        # Find the greatest normalized estimate in each plane spanned by two
+        # successive null rules.
+        for ^3 -> $null-rule {
+            my Numeric $search = 0e0;
+            for ^$wtleng -> $generator-index {
+                $search = max(
+                        $search,
+                        (@null[$null-rule + 1]
+                                + @scales[$null-rule][$generator-index]
+                                * @null[$null-rule]).abs
+                                * @norms[$null-rule][$generator-index]);
+            }
+            @null[$null-rule] = $search;
+        }
+
+        my Numeric $rgnerr =
+                @errcof[0] * @null[0] <= @null[1]
+                        && @errcof[1] * @null[1] <= @null[2]
+                ?? @errcof[2] * @null[0]
+                !! @errcof[3] * max(@null[0], @null[1], @null[2]);
+
+        $basval *= $region-volume;
+        $rgnerr *= $region-volume;
+        my Numeric:D $greate = $rgnerr;
+
+        return {
+            :$basval,
+            :$rgnerr,
+            direct => $division-axis,
+            :$greate,
+            :@diff,
+            :@order,
+        };
     }
 
     #======================================================
@@ -446,9 +608,10 @@ class Math::NIntegrate::Rule::MultiDimensional
 
     #| Apply the selected fully symmetric rule to a region.
     method integrate($region --> Math::NIntegrate::Rule::MultiDimensional:D) {
-        die 'The rule and region dimensions must match.'
-        unless $region.dimension == self.dimension;
-
+        my %result = self.derlhr($region);
+        self.integral = %result<basval>;
+        self.error = %result<rgnerr>;
+        self.largest-error-axis = %result<direct>;
 
         return self;
     }
