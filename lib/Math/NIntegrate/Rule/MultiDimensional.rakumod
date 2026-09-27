@@ -201,6 +201,9 @@ class Math::NIntegrate::Rule::MultiDimensional
 
         my @error-coefficients = 5, 5, 1, 5, 0.5, 0.25;
 
+        # Store offsets whose fully symmetric orbits lie in [-1/2, 1/2]^dim.
+        @generators = @generators.map({ $_ <<*>> 0.5 });
+
         return {
             :@weights,
             :@generators,
@@ -389,6 +392,9 @@ class Math::NIntegrate::Rule::MultiDimensional
 
         my @error-coefficients = 5, 5, 1, 5, 0.5, 0.25;
 
+        # Store offsets whose fully symmetric orbits lie in [-1/2, 1/2]^dim.
+        @generators = @generators.map({ $_ <<*>> 0.5 });
+
         return {
             :@weights,
             :@generators,
@@ -488,10 +494,9 @@ class Math::NIntegrate::Rule::MultiDimensional
                                 && @norms.elems >= 3;
 
         # Region evaluates points on the unit cube. Stored DCUHRE generators
-        # are for [-1, 1], hence CENTER = HWIDTH = 1/2 on every axis.
+        # are already offsets in [-1/2, 1/2] from the unit-cube center.
         my Numeric:D $center-coordinate = 0.5e0;
-        my Numeric:D $half-width = 0.5e0;
-        my Numeric:D $region-volume = $half-width ** self.dimension;
+        my Numeric:D $region-volume = 0.5e0 ** self.dimension;
         my @center = $center-coordinate xx self.dimension;
         my @x = @center.Array;
 
@@ -514,28 +519,29 @@ class Math::NIntegrate::Rule::MultiDimensional
         # Compute fourth differences and accumulate generator columns 1 and 2.
         for ^self.dimension -> $axis {
             @x = @center.Array;
-            @x[$axis] = $center-coordinate - $half-width * @g[0][1];
+            @x[$axis] = $center-coordinate - @g[0][1];
             my Numeric $near-minus = $region.eval-integrand(@x);
-            @x[$axis] = $center-coordinate + $half-width * @g[0][1];
+            @x[$axis] = $center-coordinate + @g[0][1];
             my Numeric $near-plus = $region.eval-integrand(@x);
-            @x[$axis] = $center-coordinate - $half-width * @g[0][2];
+            @x[$axis] = $center-coordinate - @g[0][2];
             my Numeric $far-minus = $region.eval-integrand(@x);
-            @x[$axis] = $center-coordinate + $half-width * @g[0][2];
+            @x[$axis] = $center-coordinate + @g[0][2];
             my Numeric $far-plus = $region.eval-integrand(@x);
 
             die 'DERLHR obtained a non-numeric axial integrand value.'
-            unless ($near-minus, $near-plus, $far-minus, $far-plus).all
-                    ~~ Numeric:D;
+            unless ($near-minus, $near-plus, $far-minus, $far-plus).all ~~ Numeric:D;
 
             my Numeric:D $near-sum = $near-minus + $near-plus;
             my Numeric:D $far-sum = $far-minus + $far-plus;
             my Numeric:D $fourth-difference =
-                    (2e0 * (1e0 - $ratio) * $center-value - $far-sum + $ratio * $near-sum).abs;
+                    (2e0 * (1e0 - $ratio) * $center-value
+                            - $far-sum + $ratio * $near-sum).abs;
             my Numeric $difference-sum = 0e0;
 
             # Match DERLHR's roundoff guard.
             $difference-sum += $fourth-difference
-            if $center-value.abs + $fourth-difference / 4e0 > $center-value.abs;
+            if $center-value.abs + $fourth-difference / 4e0
+                    > $center-value.abs;
 
             for ^4 -> $null-rule {
                 @null[$null-rule] += @w[$null-rule + 1][1] * $near-sum
@@ -552,9 +558,7 @@ class Math::NIntegrate::Rule::MultiDimensional
 
         # Finish the basic and null rules using fully symmetric sums.
         for 3 ..^ $wtleng -> $generator-index {
-            my @generator = @g.map({
-                $_[$generator-index] * $half-width
-            });
+            my @generator = @g.map(*.[$generator-index]);
             my %sums = self.defshr(
                     @generator,
                     $region,
