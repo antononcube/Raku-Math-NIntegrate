@@ -64,11 +64,11 @@ class Math::NIntegrate::Rule::MultiDimensional
         }
     }
 
-    multi method new($dimension, :$generators = 7, :prec(:$working-precision) = Num) {
+    multi method new($dimension, :$generators = 9, :prec(:$working-precision) = Num) {
         self.bless(:$generators, :$dimension, :$working-precision)
     }
 
-    multi method new(:$generators = 7, :dim(:$dimension)!, :prec(:$working-precision) = Num) {
+    multi method new(:$generators = 9, :dim(:$dimension)!, :prec(:$working-precision) = Num) {
         self.bless(:$generators, :$dimension, :$working-precision)
     }
 
@@ -457,6 +457,7 @@ class Math::NIntegrate::Rule::MultiDimensional
                 });
 
         my Numeric $fulsms = 0e0;
+        my Numeric $fulabs = 0e0;
         my Numeric $funvls = 0e0;
 
         for distinct-permutations(@generators) -> @g {
@@ -465,13 +466,19 @@ class Math::NIntegrate::Rule::MultiDimensional
             die 'DEFSHR obtained a non-numeric integrand value.'
             unless $funvls ~~ Numeric:D;
             $fulsms += $funvls;
+            $fulabs += $funvls.abs;
         }
 
-        return { :$fulsms, :$funvls };
+        return { :$fulsms, :$fulabs, :$funvls };
     }
 
     #| Compute a DCUHRE basic rule, its error estimate, and its split axis.
-    method derlhr($region --> Map:D) {
+    #| The optional roundoff guard suppresses null estimates which contain no
+    #| signal above floating-point accumulation error.
+    method derlhr(
+            $region,
+            Bool:D :$roundoff-guard = False
+            --> Map:D) {
         die 'The rule and region dimensions must match.'
         unless $region.dimension == self.dimension;
 
@@ -506,6 +513,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         unless $center-value ~~ Numeric:D;
 
         my Numeric $basval = @w[0][0] * $center-value;
+        my Numeric $absolute-rule-sum = (@w[0][0] * $center-value).abs;
         my @null = 0e0 xx 8;
         for ^4 -> $null-rule {
             @null[$null-rule] = @w[$null-rule + 1][0] * $center-value;
@@ -529,7 +537,8 @@ class Math::NIntegrate::Rule::MultiDimensional
             my Numeric $far-plus = $region.eval-integrand(@x);
 
             die 'DERLHR obtained a non-numeric axial integrand value.'
-            unless ($near-minus, $near-plus, $far-minus, $far-plus).all ~~ Numeric:D;
+            unless ($near-minus, $near-plus, $far-minus, $far-plus).all
+                    ~~ Numeric:D;
 
             my Numeric:D $near-sum = $near-minus + $near-plus;
             my Numeric:D $far-sum = $far-minus + $far-plus;
@@ -548,6 +557,10 @@ class Math::NIntegrate::Rule::MultiDimensional
                         + @w[$null-rule + 1][2] * $far-sum;
             }
             $basval += @w[0][1] * $near-sum + @w[0][2] * $far-sum;
+            $absolute-rule-sum += @w[0][1].abs
+                    * ($near-minus.abs + $near-plus.abs)
+                    + @w[0][2].abs
+                    * ($far-minus.abs + $far-plus.abs);
 
             if $difference-sum > $difference-maximum {
                 $difference-maximum = $difference-sum;
@@ -569,6 +582,7 @@ class Math::NIntegrate::Rule::MultiDimensional
                         @w[$null-rule + 1][$generator-index] * %sums<fulsms>;
             }
             $basval += @w[0][$generator-index] * %sums<fulsms>;
+            $absolute-rule-sum += @w[0][$generator-index].abs * %sums<fulabs>;
         }
 
         # Find the greatest normalized estimate in each plane spanned by two
@@ -586,11 +600,23 @@ class Math::NIntegrate::Rule::MultiDimensional
             @null[$null-rule] = $search;
         }
 
+        my Numeric $roundoff-threshold = 0e0;
+        if $roundoff-guard {
+            $roundoff-threshold = 50e0 * $MACHINE_EPSILON * max($absolute-rule-sum, $basval.abs, $center-value.abs);
+
+            for ^3 -> $null-rule {
+                @null[$null-rule] = 0e0
+                if @null[$null-rule] <= $roundoff-threshold;
+            }
+        }
+
         my Numeric $rgnerr =
-                @errcof[0] * @null[0] <= @null[1]
-                        && @errcof[1] * @null[1] <= @null[2]
+                @errcof[0] * @null[0] <= @null[1] && @errcof[1] * @null[1] <= @null[2]
                 ?? @errcof[2] * @null[0]
                 !! @errcof[3] * max(@null[0], @null[1], @null[2]);
+
+        $rgnerr = max($rgnerr, $roundoff-threshold)
+        if $roundoff-guard;
 
         $basval *= $region-volume;
         $rgnerr *= $region-volume;
@@ -611,8 +637,11 @@ class Math::NIntegrate::Rule::MultiDimensional
     #======================================================
 
     #| Apply the selected fully symmetric rule to a region.
-    method integrate($region --> Math::NIntegrate::Rule::MultiDimensional:D) {
-        my %result = self.derlhr($region);
+    method integrate(
+            $region,
+            Bool:D :$roundoff-guard = False
+            --> Math::NIntegrate::Rule::MultiDimensional:D) {
+        my %result = self.derlhr($region, :$roundoff-guard);
         self.integral = %result<basval>;
         self.error = %result<rgnerr>;
         self.largest-error-axis = %result<direct>;
