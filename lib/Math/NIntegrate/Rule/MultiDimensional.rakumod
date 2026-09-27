@@ -22,24 +22,26 @@ class Math::NIntegrate::Rule::MultiDimensional
 
         my %data = do given $!generators {
             when $_ == 7 {
-                self.d07hre(self.dimension) unless %!data.elems;
+                self.d07hre(self.dimension) unless self.abscissas.elems;
             }
             when $_ == 9 {
-                self.d09hre(self.dimension) unless %!data.elems;
+                self.d09hre(self.dimension) unless self.abscissas.elems;
             }
             default {
                 die "No multidimensional rule is available with $!generators generators.";
             }
         }
-        self.abscissas = %data<generators>;
-        self.weights = %data<weights>;
-        self.error-weights = %data<error-weights>;
-        @!rule-points = %data<rule-points>;
+
+        self.abscissas = |%data<generators>;
+        self.weights = |%data<weights>;
+        self.error-weights = |%data<error-coefficients>;
+        @!rule-points = |%data<rule-points>;
 
         # Fill-in the scales and norms -- see DEINHR
+        my $wtLength = self.rule-points.elems;
+        my @we = 0 xx 14;
         for ^3 -> $k {
-            for ^$!generators -> $i {
-                my @we;
+            for ^$wtLength -> $i {
 
                 if !is-zero(self.weights[$k + 1][$i]) {
                     @!scales[$k][$i] = - self.weights[$k + 2][$i] / self.weights[$k + 1][$i]
@@ -47,13 +49,13 @@ class Math::NIntegrate::Rule::MultiDimensional
                     @!scales[$k][$i] = 100
                 }
 
-                for ^$!generators -> $j {
-                    @we[$j] = self.weights[$k + 2][$j] + @!scales[$k][$i] * @!scales[$k + 1][$j]
+                for ^$wtLength -> $j {
+                    @we[$j] = self.weights[$k + 2][$j] + @!scales[$k][$i] * self.weights[$k + 1][$j]
                 }
 
                 @!norms[$k][$i] = 0;
 
-                for ^$!generators -> $j {
+                for ^$wtLength -> $j {
                     @!norms[$k][$i] += @!rule-points[$j] * @we[$j].abs
                 }
 
@@ -111,7 +113,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         my @generators = (^$dimension).map({ [0 xx $weight-length] }).Array;
         my @rule-points = (2 * $dimension) xx $weight-length;
 
-        my Num $two-to-dimension = 2 ** $dimension;
+        my $two-to-dimension = 2 ** $dimension;
         @rule-points[$weight-length - 1] = $two-to-dimension;
         @rule-points[$weight-length - 2] = 2 * $dimension * ($dimension - 1);
         @rule-points[0] = 1;
@@ -200,7 +202,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         my @error-coefficients = 5, 5, 1, 5, 0.5, 0.25;
 
         # Make the generator points to be in [-1/2, 1/2]^dim
-        @generators = @generators.map({ $_ <<*>> 0.5 });
+        # @generators = @generators.map({ $_ <<*>> 0.5 });
 
         return {
             :@weights,
@@ -391,7 +393,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         my @error-coefficients = 5, 5, 1, 5, 0.5, 0.25;
 
         # Make the generator points to be in [-1/2, 1/2]^dim
-        @generators = @generators.map({ $_ <<*>> 0.5 });
+        # @generators = @generators.map({ $_ <<*>> 0.5 });
 
         return {
             :@weights,
