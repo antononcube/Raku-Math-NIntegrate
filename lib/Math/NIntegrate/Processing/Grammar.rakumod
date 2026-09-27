@@ -4,14 +4,14 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     rule TOP { <strategy-spec> | <rule-spec> }
 
-    token symbol { <[\w \- _]>+ }
+    token symbol { <.quote>? <[\w \- _]>+ <.quote>? }
 
     token number { \d+ }
 
     # Conditional parsing with a very weak predicate.
     # This is used in order to prevent <top-level-strategy> parsing known rules.
     # There should be a separate rule for parsing <top-level-rule> only within a strategy spec.
-    rule top-level-strategy { (<symbol>) <!{ $0.Str ~~ / [ 'Rule' | '-rule' ] $/ }>}
+    rule top-level-strategy { (<symbol>) <!{ $0.Str ~~ / [ 'Rule' | '-rule' ] <["']>? $/ }>}
 
     rule top-level-rule { <symbol> }
 
@@ -72,7 +72,7 @@ grammar Math::NIntegrate::Processing::Grammar {
         || <top-level-rule>
     }
 
-    rule singularity-handler-symbol {
+    token singularity-handler-symbol {
         | <imt>
         | <double-exponential>
         | <duffy-coordinates>
@@ -89,8 +89,8 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     regex singularity-handler-option {
-        | <singularity-handler> \s* <.arrow> \s* <singularity-handler-symbol>
-        | ':' <singularity-handler> <.lb> \s* <singularity-handler-symbol> \s* <.rb>
+        | <singularity-handler> \s* <.arrow> \s* <.quote>? <singularity-handler-symbol> <.quote>?
+        | ':' <singularity-handler> <.lb> \s* <.quote>? <singularity-handler-symbol> <.quote>? \s* <.rb>
         | '"' <singularity-handler> '"' \s* ':' \s* <singularity-handler-symbol>
     }
 
@@ -146,6 +146,9 @@ grammar Math::NIntegrate::Processing::Grammar {
     
     # Separator
     token sep { ',' }
+
+    # Quote
+    token quote { <["']> }
 
     # Option names
     token max-points { MaxPoints | max <[\-_]> points }
