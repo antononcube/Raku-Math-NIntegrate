@@ -2,6 +2,9 @@ use v6.d;
 use Test;
 
 use Math::NIntegrate;
+use Math::NIntegrate::Processing::Grammar;
+
+plan *;
 
 # 1
 subtest {
@@ -16,5 +19,27 @@ subtest {
     # Fixed
     ok nintegrate(sub ($x, $y) { 1 / sqrt($x + $y) }, ('x', 0, 1), ('y', 0, 1), method => 'gauss-kronrod-rule')
 }, 'dimensions do not match in a variable transformer';
+
+## 3
+subtest {
+    ok nintegrate(sub ($x, $y) { 1 / sqrt($x + $y) }, ('x', 0, 1), ('y', 0, 1), method => ('global-adaptive', singularity-handler => 'none', max-recursion => 3));
+    ok nintegrate(sub ($x, $y) { 1 / sqrt($x + $y) }, ('x', 0, 1), ('y', 0, 1), method => ('global-adaptive', singularity-handler => "none", max-recursion => 3));
+}, 'dimensions do not match in a variable transformer';
+
+
+# 4
+subtest {
+    # Fixed
+    my $gr = Math::NIntegrate::Processing::Grammar.new;
+
+    ok $gr.subparse("singularity-handler => 'none'", rule => 'singularity-handler-option'), 'singularity-handler-option, gist';
+
+    ok $gr.subparse(':singularity-handler("none")', rule => 'singularity-handler-option'), 'singularity-handler-option, raku';
+
+    my $spec = 'method => (global-adaptive, singularity-handler => "none")';
+
+    ok $gr.parse($spec, rule => 'method-option'), "failed method spec : ⎡$spec⎦";
+
+}, 'singularity handler parsing';
 
 done-testing;
