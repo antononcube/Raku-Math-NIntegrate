@@ -407,9 +407,38 @@ class Math::NIntegrate::Rule::MultiDimensional
     # Integration helpers
     #======================================================
 
-    method defshr() {!!!}
+    sub distinct-permutations(@generators) {
+        # Generate all distinct permutations of the generators array @g
+    }
 
-    method derlhr() {!!!}
+    method defshr(@generators is copy, $region, $offset = 0) {
+        my Numeric:D $fulsms;
+        my $funvls;
+
+        my @distict = distinct-permutations(@generators);
+
+        for @distict -> @g {
+            my @point = @g <<+>> $offset;
+            $funvls = $region.eval-integrand(@point);
+            $fulsms += $funvls
+        }
+
+        return {:$fulsms, :$funvls};
+    }
+
+    method derlhr(
+            $region,
+                  ) {
+        my UInt:D $wtlent = @!rule-points.elems,
+        # Correspondences with the original DERLHR signature
+        # my @G = self.abscissas;
+        # my @W = self.weights;
+        # my @ERRCOF = self.error-weights;
+        # my @SCALES = @!scales;
+        # my @NORMS = @!morms;
+
+        ...
+    }
 
     #======================================================
     # Integration
