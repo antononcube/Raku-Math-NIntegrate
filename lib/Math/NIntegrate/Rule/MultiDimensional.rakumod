@@ -8,6 +8,10 @@ class Math::NIntegrate::Rule::MultiDimensional
     has $.generators;
     has %.data;
 
+    #======================================================
+    # Creators
+    #======================================================
+
     submethod TWEAK(:$!generators, :$dimension!, :$working-precision = Num) {
         # `dimension` is inherited from Rule::General, so assign it before
         # creating dimension-dependent DCUHRE rule data.
@@ -29,6 +33,26 @@ class Math::NIntegrate::Rule::MultiDimensional
     multi method new(:$generators = 7, :dim(:$dimension)!, :prec(:$working-precision) = Num) {
         self.bless(:$generators, :$dimension, :$working-precision)
     }
+
+    #| Copy from object
+    method copy(Math::NIntegrate::Rule::MultiDimensional:D $from,  Bool:D :deep(:deep-copy(:$clone)) = False) {
+        # Delegate to parent class
+        self.Math::NIntegrate::Rule::General::copy($from, :$clone);
+
+        $!generators = $from.generators;
+        # The data does not mutate, so, cloning it is not needed
+        %!data = $clone ?? $from.data !! $from.data.clone;
+
+        return self
+    }
+
+    method clone(-->Math::NIntegrate::Rule::MultiDimensional) {
+        Math::NIntegrate::Rule::MultiDimensional.new(dimension => $.dimension).copy(self, :clone)
+    }
+
+    #======================================================
+    # Data methods
+    #======================================================
 
     #| Initialise the DCUHRE degree-seven fully symmetric rule.
     #|
@@ -146,6 +170,10 @@ class Math::NIntegrate::Rule::MultiDimensional
         };
     }
 
+    #======================================================
+    # Integration
+    #======================================================
+
     #| Apply the selected fully symmetric rule to a region.
     method integrate($region --> Math::NIntegrate::Rule::MultiDimensional:D) {
         die 'The rule and region dimensions must match.'
@@ -158,6 +186,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         my $reference-volume = 2e0 ** self.dimension;
         my $rule-scale = 1e0 / $reference-volume;
         my @rule-values = 0e0 xx @weights.elems;
+        my %values-by-point;
 
         self.abscissas = [];
 
@@ -184,6 +213,7 @@ class Math::NIntegrate::Rule::MultiDimensional
                     my $value = $region.eval-integrand(@point);
                     next unless $value ~~ Numeric:D
                             && !($value.isNaN || $value ~~ Inf | -Inf);
+                    %values-by-point{$key} = $value;
                     $symmetric-sum += $value;
                 }
             }
@@ -195,6 +225,38 @@ class Math::NIntegrate::Rule::MultiDimensional
         }
 
         self.integral = $rule-scale * @rule-values[0];
+
+        # DERLHR chooses DIRECT from fourth differences evaluated along each
+        # coordinate axis.  The required points are already part of the
+        # symmetric sums for generators 2 and 3, so retain those evaluations
+        # instead of evaluating the integrand again.
+        my $ratio = (@generator-columns[2][0] / @generator-columns[1][0]) ** 2;
+        my @center = 0e0 xx self.dimension;
+        my $center-value = %values-by-point{@center.join(',')} // 0e0;
+        my $greatest-difference = 0e0;
+        my $division-axis = 0;
+        for ^self.dimension -> $axis {
+            my sub axis-value(Real:D $generator, Real:D $sign --> Numeric:D) {
+                my @reference-point = 0e0 xx self.dimension;
+                @reference-point[$axis] = $sign * $generator;
+                %values-by-point{@reference-point.join(',')} // 0e0
+            }
+
+            my $near-sum = axis-value(@generator-columns[1][0], -1e0)
+                    + axis-value(@generator-columns[1][0], 1e0);
+            my $far-sum = axis-value(@generator-columns[2][0], -1e0)
+                    + axis-value(@generator-columns[2][0], 1e0);
+            my $fourth-difference = (2e0 * (1e0 - $ratio) * $center-value
+                    - $far-sum + $ratio * $near-sum).abs;
+
+            # Match DERLHR's round-off guard before accumulating a difference.
+            next unless $center-value.abs + $fourth-difference / 4e0
+                    > $center-value.abs;
+            if $fourth-difference > $greatest-difference {
+                $greatest-difference = $fourth-difference;
+                $division-axis = $axis;
+            }
+        }
 
         # Construct the three normalized combinations of successive null
         # rules, as in DINHRE/DRLHRE, and apply the local error heuristic.
@@ -211,10 +273,12 @@ class Math::NIntegrate::Rule::MultiDimensional
                             * (@weights[$null-index + 2][$generator-index]
                             + $scale * @weights[$null-index + 1][$generator-index]).abs;
                 };
-                my $candidate = ($rule-scale
-                        * (@rule-values[$null-index + 2]
-                                + $scale * @rule-values[$null-index + 1])).abs
-                        * $reference-volume / $one-norm;
+                my $candidate = $one-norm == 0e0
+                        ?? 0e0
+                        !! ($rule-scale
+                                * (@rule-values[$null-index + 2]
+                                        + $scale * @rule-values[$null-index + 1])).abs
+                                * $reference-volume / $one-norm;
                 $largest = max($largest, $candidate);
             }
             @normalized-null-values.push($largest);
@@ -227,7 +291,7 @@ class Math::NIntegrate::Rule::MultiDimensional
                 <= @normalized-null-values[2]
                 ?? @error-coefficients[2] * @normalized-null-values[0]
                 !! @error-coefficients[3] * @normalized-null-values.max;
-        self.largest-error-axis = 0;
+        self.largest-error-axis = $division-axis;
 
         return self;
     }
