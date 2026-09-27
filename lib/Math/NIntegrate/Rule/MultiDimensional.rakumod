@@ -1,21 +1,26 @@
 use v6.d;
 
 use Math::NIntegrate::Rule::General;
+use Math::NIntegrate::Utilities;
 
 class Math::NIntegrate::Rule::MultiDimensional
         is Math::NIntegrate::Rule::General {
 
     has $.generators;
     has %.data;
+    has @.rule-points;
+    has @.scales;
+    has @.norms;
 
     #======================================================
     # Creators
     #======================================================
 
     submethod TWEAK(:$!generators, :$dimension!, :$working-precision = Num) {
-        # `dimension` is inherited from Rule::General, so assign it before
+        # The dimension attribute is inherited from Rule::General, so assign it before
         # creating dimension-dependent DCUHRE rule data.
         self.dimension = $dimension;
+
         given $!generators {
             when $_ == 7 {
                 %!data = self.d07hre(self.dimension) unless %!data.elems;
@@ -25,6 +30,35 @@ class Math::NIntegrate::Rule::MultiDimensional
             }
             default {
                 die "No multidimensional rule is available with $!generators generators.";
+            }
+        }
+        self.abscissas = %!data<generators>;
+        self.weights = %!data<weights>;
+        self.error-weights = %!data<error-weights>;
+        @!rule-points = %!data<rule-points>;
+
+        # Fill-in the scales and norms -- see DEINHR
+        for ^3 -> $k {
+            for ^$!generators -> $i {
+                my @we;
+
+                if !is-zero(self.weights[$k + 1][$i]) {
+                    @!scales[$k][$i] = - self.weights[$k + 2][$i] / self.weights[$k + 1][$i]
+                } else {
+                    @!scales[$k][$i] = 100
+                }
+
+                for ^$!generators -> $j {
+                    @we[$j] = self.weights[$k + 2][$j] + @!scales[$k][$i] * @!scales[$k + 1][$j]
+                }
+
+                @!norms[$k][$i] = 0;
+
+                for ^$!generators -> $j {
+                    @!norms[$k][$i] += @!rule-points[$j] * @we[$j].abs
+                }
+
+                @!norms[$k][$i] = 2 ** self.dimension / @!norms[$k][$i]
             }
         }
     }
