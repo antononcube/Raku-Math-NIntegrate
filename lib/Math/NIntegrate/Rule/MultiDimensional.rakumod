@@ -65,33 +65,31 @@ class Math::NIntegrate::Rule::MultiDimensional
     #| embedded null rules. `rule-points` gives each generator orbit's size.
     method d07hre(
             UInt:D $dimension,
-            UInt:D :$weight-length = 6
             --> Map:D
                   ) {
-        die 'D07HRE requires a positive dimension.' unless $dimension > 0;
-        die 'D07HRE requires a weight length of 6.' unless $weight-length == 6;
+        die 'D07HRE requires a positive dimension.' unless $dimension > 1;
 
-        my @weights = (^5).map({ [0e0 xx $weight-length] }).Array;
-        my @generators = (^$dimension).map({ [0e0 xx $weight-length] }).Array;
-        my @rule-points = (2e0 * $dimension) xx $weight-length;
+        my UInt:D $weight-length = 6;
 
-        my Num $two-to-dimension = 2e0 ** $dimension;
+        my @weights = (^5).map({ [0 xx $weight-length] }).Array;
+        my @generators = (^$dimension).map({ [0 xx $weight-length] }).Array;
+        my @rule-points = (2 * $dimension) xx $weight-length;
+
+        my Num $two-to-dimension = 2 ** $dimension;
         @rule-points[$weight-length - 1] = $two-to-dimension;
-        @rule-points[$weight-length - 2] = 2e0 * $dimension * ($dimension - 1);
-        @rule-points[0] = 1e0;
+        @rule-points[$weight-length - 2] = 2 * $dimension * ($dimension - 1);
+        @rule-points[0] = 1;
 
         # Squared generator parameters.
         my Num $lambda0 = 0.4707e0;
         my Num $lambda-p = 0.5625e0;
-        my Num $lambda1 = 4e0 / (15e0 - 5e0 / $lambda0);
-        my Num $ratio = (1e0 - $lambda1 / $lambda0) / 27e0;
-        my Num $lambda2 = (5e0 - 7e0 * $lambda1 - 35e0 * $ratio)
-                / (7e0 - 35e0 * $lambda1 / 3e0 - 35e0 * $ratio / $lambda0);
+        my Num $lambda1 = 4 / (15 - 5 / $lambda0);
+        my Num $ratio = (1 - $lambda1 / $lambda0) / 27;
+        my Num $lambda2 = (5 - 7 * $lambda1 - 35 * $ratio) / (7 - 35 * $lambda1 / 3 - 35 * $ratio / $lambda0);
 
         # Degree-seven rule weights.
         @weights[0][5] = 1e0 / (3e0 * $lambda0) ** 3 / $two-to-dimension;
-        @weights[0][4] = (1e0 - 5e0 * $lambda0 / 3e0)
-                / (60e0 * ($lambda1 - $lambda0) * $lambda1 ** 2);
+        @weights[0][4] = (1e0 - 5e0 * $lambda0 / 3e0) / (60e0 * ($lambda1 - $lambda0) * $lambda1 ** 2);
         @weights[0][2] = (1e0 - 5e0 * $lambda2 / 3e0
                 - 5e0 * $two-to-dimension * @weights[0][5] * $lambda0 * ($lambda0 - $lambda2))
                 / (10e0 * $lambda1 * ($lambda1 - $lambda2))
@@ -144,7 +142,7 @@ class Math::NIntegrate::Rule::MultiDimensional
             @generators[$axis][5] = $lambda0;
         }
         @generators[0][4] = $lambda1;
-        @generators[1][4] = $lambda1 if $dimension > 1;
+        @generators[1][4] = $lambda1;
         @generators[0][1] = $lambda2;
         @generators[0][2] = $lambda1;
         @generators[0][3] = $lambda-p;
@@ -163,7 +161,10 @@ class Math::NIntegrate::Rule::MultiDimensional
             @weights[0][0] -= @rule-points[$generator] * @weights[0][$generator];
         }
 
-        my @error-coefficients = 5e0, 5e0, 1e0, 5e0, 0.5e0, 0.25e0;
+        my @error-coefficients = 5, 5, 1, 5, 0.5, 0.25;
+
+        # Make the generator points to be in [-1/2, 1/2]^dim
+        @generators = @generators.map({ $_ <<*>> 0.5 });
 
         return {
             :@weights,
@@ -179,11 +180,12 @@ class Math::NIntegrate::Rule::MultiDimensional
     #| is the integration rule and rules one through four are null rules.
     method d09hre(
             UInt:D $dimension,
-            UInt:D :$weight-length = 9
             --> Map:D
                   ) {
         die 'D09HRE requires a positive dimension.' unless $dimension > 0;
-        die 'D09HRE requires a weight length of 9.' unless $weight-length == 9;
+
+        my UInt:D $weight-length = 9;
+
 
         my @weights = (^5).map({ [0e0 xx $weight-length] }).Array;
         my @generators = (^$dimension).map({ [0e0 xx $weight-length] }).Array;
@@ -350,7 +352,10 @@ class Math::NIntegrate::Rule::MultiDimensional
             @weights[0][0] -= @rule-points[$generator] * @weights[0][$generator];
         }
 
-        my @error-coefficients = 5e0, 5e0, 1e0, 5e0, 0.5e0, 0.25e0;
+        my @error-coefficients = 5, 5, 1, 5, 0.5, 0.25;
+
+        # Make the generator points to be in [-1/2, 1/2]^dim
+        @generators = @generators.map({ $_ <<*>> 0.5 });
 
         return {
             :@weights,
@@ -359,6 +364,14 @@ class Math::NIntegrate::Rule::MultiDimensional
             :@rule-points,
         };
     }
+
+    #======================================================
+    # Integration helpers
+    #======================================================
+
+    method defshr() {!!!}
+
+    method derlhr() {!!!}
 
     #======================================================
     # Integration
@@ -373,7 +386,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         my @generator-columns = ^@weights[0].elems .map: -> $generator-index {
             %!data<generators>».[$generator-index];
         };
-        my $reference-volume = 2e0 ** self.dimension;
+        my $reference-volume = 1; #2e0 ** self.dimension;
         my $rule-scale = 1e0 / $reference-volume;
         my @rule-values = 0e0 xx @weights.elems;
         my %values-by-point;
@@ -475,10 +488,9 @@ class Math::NIntegrate::Rule::MultiDimensional
         }
 
         my @error-coefficients = |%!data<error-coefficients>;
-        my $rgnerr = @error-coefficients[0] * @null-rule-estimates[0]
-                <= @null-rule-estimates[1]
-                && @error-coefficients[1] * @null-rule-estimates[1]
-                <= @null-rule-estimates[2]
+        my $rgnerr =
+                @error-coefficients[0] * @null-rule-estimates[0] <= @null-rule-estimates[1] &&
+                        @error-coefficients[1] * @null-rule-estimates[1] <= @null-rule-estimates[2]
                 ?? @error-coefficients[2] * @null-rule-estimates[0]
                 !! @error-coefficients[3] * @null-rule-estimates.max;
 
