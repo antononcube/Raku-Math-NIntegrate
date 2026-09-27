@@ -37,7 +37,7 @@ subtest {
 
 }, 'D07HRE creation';
 
-#subtest {
+subtest {
     # The exact integral of a + b^2 on [0, 1]^2 is 5/6.
     # Integrand
     sub f($x, $y) { $x + $y ** 2 }
@@ -59,6 +59,21 @@ subtest {
             'the two-dimensional degree-seven rule evaluates 21 unique points';
     ok $rule.error > 0e0 && !($rule.error.isNaN || $rule.error ~~ Inf | -Inf),
             'the degree-one null rule produces a finite local error estimate';
-#}, 'D07HRE ad hoc integration';
+}, 'D07HRE ad hoc integration';
+
+subtest {
+    sub f($x, $y) { $y ** 4 }
+
+    my $rule = Math::NIntegrate::Rule::MultiDimensional.new(:2dimension);
+    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f);
+    my $region = Math::NIntegrate::Builder.make-region(
+            $numerical-function, [0, 0], [1, 1], :$rule);
+
+    $rule.integrate($region);
+    # say ( integral => $rule.integral, error => $rule.integral);
+
+    is $rule.largest-error-axis, 1,
+            'the fourth-difference DIRECT axis is zero-based and selects y';
+}, 'DERLHR fourth-difference split axis';
 
 done-testing;
