@@ -50,7 +50,7 @@ class Math::NIntegrate::Rule::MultiDimensional
     }
 
     method clone(-->Math::NIntegrate::Rule::MultiDimensional) {
-        Math::NIntegrate::Rule::MultiDimensional.new(dimension => $.dimension).copy(self, :clone)
+        Math::NIntegrate::Rule::MultiDimensional.new(dimension => $.dimension, generators => $!generators).copy(self, :clone)
     }
 
     #======================================================
