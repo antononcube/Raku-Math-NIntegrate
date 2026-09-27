@@ -114,8 +114,8 @@ class Math::NIntegrate::Builder {
             when $_.isa(Whatever) || $_.isa(WhateverCode) {
                 return $dimension == 1
                         ?? self.make-rule(method => %default-spec, :$dimension, :$working-precision)
-                        !! self.make-rule(method => {type => 'rule', name => 'MultiDimensionalRule', generators => 7, :$dimension}, :$dimension, :$working-precision)
-                        #!! self.make-rule(method => {type => 'rule', name => 'CartesianRule', method => %default-spec}, :$dimension, :$working-precision)
+                        !! self.make-rule(method => {type => 'rule', name => 'CartesianRule', method => %default-spec}, :$dimension, :$working-precision)
+                        #!! self.make-rule(method => {type => 'rule', name => 'MultiDimensionalRule', generators => 7, :$dimension}, :$dimension, :$working-precision)
             }
 
             when $dimension > 1 &&
