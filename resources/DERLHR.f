@@ -92,22 +92,6 @@ C          Pointer array: DIFF(ORDER(I)) < DIFF(ORDER(I-1)), for
 C          I=2,3,...,-DIRECT. Used only in connection with the
 C          singular region.
 C
-C***REFERENCES
-C
-C   A.C.Genz and A.A.Malik, An adaptive algorithm for numerical
-C   integration over an N-dimensional rectangular region,
-C   J.Comp.Appl.Math., 6:295-302, 1980.
-C
-C   T.O.Espelid, Integration Rules, Null Rules and Error
-C   Estimation, Reports in Informatics 33, Dept. of Informatics,
-C   Univ. of Bergen, 1988.
-C
-C   T.O.Espelid and A.Genz, DECUHR: An Algorithm for Automatic
-C   Integration of Singular Functions over a Hyperrectangular Region.
-C   Numerical Algorithms 8(1994), PP. 201-220.
-C
-C***ROUTINES CALLED: DEFSHR, FUNSUB
-C
 C***END PROLOGUE DERLHR
 C
 C   Global variables.
