@@ -95,6 +95,8 @@ subtest {
             'method => GlobalAdaptive',
             'method => ( GlobalAdaptive )',
             'method => (GlobalAdaptive, method => (TrapezoidalRule, points => 5))',
+            'method => (global-adaptive, singularity-handler => none)',
+            'method => (global-adaptive, singularity-handler => "none")',
             'method => (GlobalAdaptive, method => (CartesianRule, method => (TrapezoidalRule, :10points), max-recursion => 20))',
             # Note that nested Cartesian rule is parsed
             'method => (GlobalAdaptive, method => (CartesianRule, method => (CartesianRule, method => (TrapezoidalRule, :10points))), max-recursion => 20)',
