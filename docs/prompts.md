@@ -39,3 +39,28 @@ Implement the method `make-weights` for the class `Math::NIntegrate::Rule::Gauss
 - The argument `points` is for the "seed" Gauss points, the total number of points is `2 * points + 1`
 - I.e. there are `points + 1` Kronrod extension points
 ```
+
+----
+
+## Fully symmetric multidimensional rules
+
+### Preliminary
+
+```text
+I want to implement fully symmetric integration rules in the class file
+
+"lib/Math/NIntegrate/Rule/MultiDimensional.rakumod". Before starting doing anything please answer these questions:
+
+- Are you familiar with multidimensional fully symmetric rules?
+  - Based on orbits, null rules, etc.
+- Do you know which rules I refer to if I say "DCUHRE rules with generators 7 and 9"?
+```
+
+```text
+Ok, reprogram to Raku the FORTRAN code in the file "./resources/D07HRE.f". Make a separate method for it named "d07hre".
+```
+
+
+```text
+Ok, reprogram to Raku the FORTRAN code in the file "./resources/D09HRE.f". Make a separate method for it named "d09hre".
+```
