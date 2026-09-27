@@ -7,7 +7,6 @@ class Math::NIntegrate::Rule::MultiDimensional
         is Math::NIntegrate::Rule::General {
 
     has $.generators;
-    has %.data;
     has @.rule-points;
     has @.scales;
     has @.norms;
@@ -21,21 +20,21 @@ class Math::NIntegrate::Rule::MultiDimensional
         # creating dimension-dependent DCUHRE rule data.
         self.dimension = $dimension;
 
-        given $!generators {
+        my %data = do given $!generators {
             when $_ == 7 {
-                %!data = self.d07hre(self.dimension) unless %!data.elems;
+                self.d07hre(self.dimension) unless %!data.elems;
             }
             when $_ == 9 {
-                %!data = self.d09hre(self.dimension) unless %!data.elems;
+                self.d09hre(self.dimension) unless %!data.elems;
             }
             default {
                 die "No multidimensional rule is available with $!generators generators.";
             }
         }
-        self.abscissas = %!data<generators>;
-        self.weights = %!data<weights>;
-        self.error-weights = %!data<error-weights>;
-        @!rule-points = %!data<rule-points>;
+        self.abscissas = %data<generators>;
+        self.weights = %data<weights>;
+        self.error-weights = %data<error-weights>;
+        @!rule-points = %data<rule-points>;
 
         # Fill-in the scales and norms -- see DEINHR
         for ^3 -> $k {
@@ -77,8 +76,11 @@ class Math::NIntegrate::Rule::MultiDimensional
         self.Math::NIntegrate::Rule::General::copy($from, :$clone);
 
         $!generators = $from.generators;
-        # The data does not mutate, so, cloning it is not needed
-        %!data = $clone ?? $from.data !! $from.data.clone;
+        # The rule data does not mutate, hence, cloning it is not needed.
+        # But it is small enough, so, doing for consistency.
+        @!rule-points = $clone ?? $from.rule-points !! $from.rule-points.clone;
+        @!scales = $clone ?? $from.scales !! $from.scales.clone;
+        @!norms = $clone ?? $from.norms !! $from.norms.clone;
 
         return self
     }
@@ -416,124 +418,6 @@ class Math::NIntegrate::Rule::MultiDimensional
         die 'The rule and region dimensions must match.'
         unless $region.dimension == self.dimension;
 
-        my @weights = |%!data<weights>;
-        my @generator-columns = ^@weights[0].elems .map: -> $generator-index {
-            %!data<generators>».[$generator-index];
-        };
-        my $reference-volume = 1; #2e0 ** self.dimension;
-        my $rule-scale = 1e0 / $reference-volume;
-        my @rule-values = 0e0 xx @weights.elems;
-        my %values-by-point;
-
-        self.abscissas = [];
-
-        for @generator-columns.kv -> $generator-index, @generator {
-            my %seen;
-            my $symmetric-sum = 0e0;
-
-            # Generate all sign changes of each permutation.  A generator can
-            # contain zero or repeated coordinates, so points are de-duplicated.
-            for @generator.permutations -> @permutation {
-                for ^$reference-volume.Int -> $sign-mask {
-                    my @reference-point = @permutation.kv.map: -> $axis, $value {
-                        my $sign = $sign-mask +& (1 +< $axis) ?? -1e0 !! 1e0;
-                        $value == 0e0 ?? 0e0 !! $sign * $value;
-                    };
-                    my $key = @reference-point.join(',');
-                    next if %seen{$key}:exists;
-                    %seen{$key} = True;
-
-                    # Rules in this package use unit-cube abscissas; the
-                    # region maps them to its actual integration bounds.
-                    my @point = @reference-point.map({ (1e0 + $_) / 2e0 });
-                    self.abscissas.push(@point);
-                    my $value = $region.eval-integrand(@point);
-                    next unless $value ~~ Numeric:D
-                            && !($value.isNaN || $value ~~ Inf | -Inf);
-                    %values-by-point{$key} = $value;
-                    $symmetric-sum += $value;
-                }
-            }
-
-            for ^@weights.elems -> $rule-index {
-                @rule-values[$rule-index] += @weights[$rule-index][$generator-index]
-                        * $symmetric-sum;
-            }
-        }
-
-        self.integral = $rule-scale * @rule-values[0];
-
-        # DERLHR chooses DIRECT from fourth differences evaluated along each
-        # coordinate axis.  The required points are already part of the
-        # symmetric sums for generators 2 and 3, so retain those evaluations
-        # instead of evaluating the integrand again.
-        my $ratio = (@generator-columns[2][0] / @generator-columns[1][0]) ** 2;
-        my @center = 0e0 xx self.dimension;
-        my $center-value = %values-by-point{@center.join(',')} // 0e0;
-        my $greatest-difference = 0e0;
-        my $division-axis = 0;
-        for ^self.dimension -> $axis {
-            my sub axis-value(Real:D $generator, Real:D $sign --> Numeric:D) {
-                my @reference-point = 0e0 xx self.dimension;
-                @reference-point[$axis] = $sign * $generator;
-                %values-by-point{@reference-point.join(',')} // 0e0
-            }
-
-            my $near-sum = axis-value(@generator-columns[1][0], -1e0)
-                    + axis-value(@generator-columns[1][0], 1e0);
-            my $far-sum = axis-value(@generator-columns[2][0], -1e0)
-                    + axis-value(@generator-columns[2][0], 1e0);
-            my $fourth-difference = (2e0 * (1e0 - $ratio) * $center-value
-                    - $far-sum + $ratio * $near-sum).abs;
-
-            # Match DERLHR's round-off guard before accumulating a difference.
-            next unless $center-value.abs + $fourth-difference / 4e0
-                    > $center-value.abs;
-            if $fourth-difference > $greatest-difference {
-                $greatest-difference = $fourth-difference;
-                $division-axis = $axis;
-            }
-        }
-
-        # Construct the three normalized combinations of successive null
-        # rules.  These are NULL(1..3) in DERLHR, before its RGNERR
-        # heuristic and multiplication by RGNVOL.
-        my @null-rule-estimates;
-        for ^3 -> $null-index {
-            my $largest = 0e0;
-            for ^@generator-columns.elems -> $scale-index {
-                my $denominator = @weights[$null-index + 1][$scale-index];
-                my $scale = $denominator == 0e0
-                        ?? 100e0
-                        !! -@weights[$null-index + 2][$scale-index] / $denominator;
-                my $one-norm = [+] (^@generator-columns.elems).map: -> $generator-index {
-                    %!data<rule-points>[$generator-index]
-                            * (@weights[$null-index + 2][$generator-index]
-                            + $scale * @weights[$null-index + 1][$generator-index]).abs;
-                };
-                my $candidate = $one-norm == 0e0
-                        ?? 0e0
-                        !! (@rule-values[$null-index + 2]
-                                + $scale * @rule-values[$null-index + 1]).abs
-                                * $reference-volume / $one-norm;
-                $largest = max($largest, $candidate);
-            }
-            @null-rule-estimates.push($largest);
-        }
-
-        my @error-coefficients = |%!data<error-coefficients>;
-        my $rgnerr =
-                @error-coefficients[0] * @null-rule-estimates[0] <= @null-rule-estimates[1] &&
-                        @error-coefficients[1] * @null-rule-estimates[1] <= @null-rule-estimates[2]
-                ?? @error-coefficients[2] * @null-rule-estimates[0]
-                !! @error-coefficients[3] * @null-rule-estimates.max;
-
-        # Rule values are formed on [-1, 1]^d but region points are supplied
-        # on [0, 1]^d, so this is DERLHR's final RGNVOL multiplication.
-        # For the package's scalar integrand, GREATE = RGNERR.
-        my $greate = $rule-scale * $rgnerr;
-        self.error = $greate;
-        self.largest-error-axis = $division-axis;
 
         return self;
     }
