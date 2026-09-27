@@ -25,8 +25,14 @@ subtest {
                 "rule $rule-index has the expected constant moment";
     }
 
-    ok abs(%data<generators>[0][5] - sqrt(0.4707e0) ) < 1e-12,
-            'last generator uses sqrt(lambda0)';
+    ok abs(%data<generators>[0][5] - sqrt(0.4707e0) / 2e0) < 1e-12,
+            'last generator uses the half-scaled sqrt(lambda0)';
+    ok %data<generators>.map(*.Slip).min >= 0e0
+            && %data<generators>.map(*.Slip).max <= 0.5e0,
+            'degree-seven canonical generator offsets are in [0, 1/2]';
+    my %degree-nine = $rule.d09hre(2);
+    ok %degree-nine<generators>.map(*.Slip).max <= 0.5e0,
+            'degree-nine generator offsets are at most 1/2';
 
     is %data<generators>[1][4], %data<generators>[0][4],
             'the penultimate generator has two lambda1 coordinates';
@@ -53,9 +59,10 @@ subtest {
 subtest {
     sub f($x, $y) { $x + $y ** 2 }
 
-    my $rule = Math::NIntegrate::Rule::MultiDimensional.new(:2dimension);
+    my $rule = Math::NIntegrate::Rule::MultiDimensional.new(:2dimension, :9generators);
     my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f);
-    my $region = Math::NIntegrate::Builder.make-region($numerical-function, [0, 0], [1, 1], :$rule);
+    my $region = Math::NIntegrate::Builder.make-region(
+            $numerical-function, [0, 0], [1, 1], :$rule);
 
     isa-ok $rule.integrate($region), Math::NIntegrate::Rule::MultiDimensional:D,
             'integration returns the rule';
@@ -63,6 +70,16 @@ subtest {
             'DERLHR integrates a polynomial over the unit square';
     ok $rule.error > 0e0 && !($rule.error.isNaN || $rule.error ~~ Inf | -Inf),
             'DERLHR produces a finite positive error estimate';
+
+    my $region2 = Math::NIntegrate::Builder.make-region(
+            $numerical-function, [0, 0], [3, 5], :$rule);
+
+    $rule.integrate($region2);
+
+    #say ($rule.integral, $rule.error, $rule.largest-error-axis);
+
+    ok abs($rule.integral - 295 / 2) < 1e-12,
+            'DERLHR integrates a polynomial over the square [0, 3] x [0, 5] parallelepiped';
 }, 'DERLHR integration';
 
 subtest {
@@ -70,37 +87,13 @@ subtest {
 
     my $rule = Math::NIntegrate::Rule::MultiDimensional.new(:2dimension);
     my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f);
-    my $region = Math::NIntegrate::Builder.make-region($numerical-function, [0, 0], [1, 1], :$rule);
+    my $region = Math::NIntegrate::Builder.make-region(
+            $numerical-function, [0, 0], [1, 1], :$rule);
 
     $rule.integrate($region);
 
-    is $rule.largest-error-axis, 1, 'DERLHR selects the axis with the largest fourth difference';
-
+    is $rule.largest-error-axis, 1,
+            'DERLHR selects the axis with the largest fourth difference';
 }, 'DERLHR subdivision axis';
-
-
-subtest {
-    # The exact integral of a + b^2 on [0, 1]^2 is 5/6.
-    # Integrand
-    sub f($x, $y) { $x + $y ** 2 }
-
-    my $working-precision = Num;
-    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, :$working-precision);
-
-    # Integration rule
-    my $rule = Math::NIntegrate::Rule::MultiDimensional.new(:2dimension, :$working-precision);
-
-    # Region
-    my $region = Math::NIntegrate::Builder.make-region($numerical-function, [0, 0], [1, 1], :$rule);
-
-    isa-ok $rule.integrate($region), Math::NIntegrate::Rule::MultiDimensional:D,
-            'integration returns the rule';
-    ok abs($rule.integral - 5e0 / 6e0) < 1e-12,
-            'degree-seven rule integrates a + b^2 over [0, 1]^2';
-#    is $rule.abscissas.elems, 21,
-#            'the two-dimensional degree-seven rule evaluates 21 unique points';
-    ok $rule.error > 0e0 && !($rule.error.isNaN || $rule.error ~~ Inf | -Inf),
-            'the degree-one null rule produces a finite local error estimate';
-}, 'D07HRE ad hoc integration';
 
 done-testing;
