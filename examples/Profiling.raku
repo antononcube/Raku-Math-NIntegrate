@@ -20,14 +20,15 @@ my $n = 10;
 my $precision-goal = 6;
 my $min-recursion = 0;
 my $max-recursion = 20;
+my &f = { 1 / ($^x + $^y).sqrt };
 
 my $tStart1 = now;
 my %res1;
 for ^$n {
     %res1 = nintegrate(
-            { 1 / ($^x + $^y).sqrt },
+            &f,
             <x 0 1>, <y 0 1>,
-            method => ('global-adaptive', method => ('gauss-kronrod-rule', points => 5)),
+            method => ('global-adaptive', method => ('gauss-kronrod-rule', points => 5), singularity-depth => Inf),
             :$max-recursion,
             :$precision-goal):pairs;
 }
@@ -40,7 +41,7 @@ my $tStart2 = now;
 my %res2;
 for ^$n {
     %res2 = nintegrate(
-            { 1 / ($^x + $^y).sqrt },
+            &f,
             <x 0 1>, <y 0 1>,
             method => ('global-adaptive', singularity-depth => Inf),
             :$max-recursion,
