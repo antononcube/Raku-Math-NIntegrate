@@ -175,11 +175,12 @@ class Math::NIntegrate::Region {
         # Region mid-point to split over
         # This not an operational mid-point -- it is an "info".
         # See the variable transformer split below.
-        my $mid = (@!min[$axis] + @!max[$axis]) / 2 + $dithering * (@!max[$axis] - @!min[$axis]);
+        # Special care is needed for functional boundaries.
+        my $mid-info = (@!min[$axis] + @!max[$axis]) / 2 + $dithering * (@!max[$axis] - @!min[$axis]);
         # Should this precision setting be before or after the computation of the mid point?
-        $mid = numerical($mid, self.get-working-precision);
-        self.max[$axis] = $mid;
-        $new-obj.min[$axis] = $mid;
+        $mid-info = numerical($mid-info, self.get-working-precision);
+        self.max[$axis] = $mid-info;
+        $new-obj.min[$axis] = $mid-info;
 
         # Change the boundaries of the transformation object.
         # This is needed in order to map the integration rule abscissas to into the transformed half-ranges.
@@ -190,7 +191,7 @@ class Math::NIntegrate::Region {
         my $min = %bounds<min>[$axis];
         my $max = %bounds<max>[$axis];
 
-        $mid = ($min + $max) / 2 + $dithering * ($max - $min);
+        my $mid = ($min + $max) / 2 + $dithering * ($max - $min);
 
         $mid = numerical($mid, self.get-working-precision);
         $!variable-transformer.set-max-transform-bound($axis, $mid);
