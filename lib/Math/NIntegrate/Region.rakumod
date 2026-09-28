@@ -110,6 +110,7 @@ class Math::NIntegrate::Region {
         @!fmax = $clone ?? $from.fmax.clone !! $from.fmax;
         @!abscissas = $clone ?? $from.abscissas.clone !! $from.abscissas;
         @!values = $clone ?? $from.values.clone !! $from.values;
+        $!axis = $from.axis;
         $!integral = $from.integral;
         $!error = $from.error;
         @!levels = $clone ?? $from.levels.clone !! $from.levels;
@@ -117,6 +118,7 @@ class Math::NIntegrate::Region {
         $!no-error-decrease-count = $from.no-error-decrease-count;
         $!type = $from.type;
         @!reuse-values = $clone ?? $from.reuse-values.clone !! $from.reuse-values;
+        @!range-end-cases = $clone ?? $from.range-end-cases.clone !! $from.range-end-cases;
 
         # This is somewhat redundant
         $!dimension = $from.dimension;
@@ -301,6 +303,7 @@ class Math::NIntegrate::Region {
         $!rule.integrate(self);
         $!integral = $!rule.integral;
         $!error = $!rule.error;
+        $!axis = $!rule.largest-error-axis;
         return self
     }
 
@@ -363,6 +366,11 @@ class Math::NIntegrate::Region {
                 $!variable-transformer.stack.tail.max-transform-bounds[$axis] = $tmp;
 
                 # Jacobian factor
+                if $!variable-transformer.jacobian-factors.elems == 0 {
+                    # This somewhat too weak -- setting the factors here.
+                    # But on the other hand it is the only place where it is set.
+                    $!variable-transformer.jacobian-factors = 1 xx $!dimension
+                }
                 $!variable-transformer.jacobian-factors[$axis] *= -1
             }
         }
