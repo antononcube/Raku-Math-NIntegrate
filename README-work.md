@@ -1,11 +1,39 @@
 # Math::NIntegrate
 
+[![MacOS](https://github.com/antononcube/Raku-Math-NIntegrate/actions/workflows/macos.yml/badge.svg)](https://github.com/antononcube/Raku-Math-NIntegrate/actions/workflows/macos.yml)
+[![Linux](https://github.com/antononcube/Raku-Math-NIntegrate/actions/workflows/linux.yml/badge.svg)](https://github.com/antononcube/Raku-Math-NIntegrate/actions/workflows/linux.yml)
+[![Win64](https://github.com/antononcube/Raku-Math-NIntegrate/actions/workflows/windows.yml/badge.svg)](https://github.com/antononcube/Raku-Math-NIntegrate/actions/workflows/windows.yml)
+[![License: Artistic-2.0](https://img.shields.io/badge/License-Artistic%202.0-0298c3.svg)](https://opensource.org/licenses/Artistic-2.0)
+[![https://raku.land/zef:antononcube/Math::NIntegrate](https://raku.land/zef:antononcube/Math::NIntegrate/badges/version)](https://raku.land/zef:antononcube/Math::NIntegrate)
+[![https://raku.land/zef:antononcube/Math::NIntegrate](https://raku.land/zef:antononcube/Math::NIntegrate/badges/downloads)](https://raku.land/zef:antononcube/Math::NIntegrate)
+
 ## Introduction
 
 This repository has the Raku code of a library for numerical integration.
 The design and architecture of library's main function, `NIntegrate`, resembles that of 
-[Mathematica's `NIntegrate`](https://reference.wolfram.com/language/ref/NIntegrate.html),
+[Wolfram Language `NIntegrate`](https://reference.wolfram.com/language/ref/NIntegrate.html),
 [WRI1, WRI2].
+
+
+----
+
+## Installation
+
+From Zef ecosystem:
+
+```
+zef install Math::NIntegrate
+```
+
+From GitHub:
+
+```
+zef install https://github.com/antononcube/Raku-Math-NIntegrate.git
+```
+
+----
+
+## Motivation
 
 While working for 
 [Wolfram Research Inc.](https://en.wikipedia.org/wiki/Wolfram_Research),
@@ -21,7 +49,7 @@ The Raku programming language has some built-in features that give the ability t
 
 - Do symbolic computations
 
-These are also programming language features on which Mathematica's `NIntegrate` is based upon.
+These are also programming language features on which Wolfram Language's `NIntegrate` is based upon.
 
 Hence, it seems natural to think that an implementation of a powerful numerical integration
 framework in Raku that has unique features is achievable, worthy, and rewarding.
@@ -156,3 +184,4 @@ Anton Antonov,
 Anton Antonov   
 Windermere, Florida, USA  
 2021-04-05
+2026-09-28
