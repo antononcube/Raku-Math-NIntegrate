@@ -27,7 +27,7 @@ for ^$n {
     %res1 = nintegrate(
             { 1 / ($^x + $^y).sqrt },
             <x 0 1>, <y 0 1>,
-            method => ('global-adaptive', method => ('gauss-kronrod-rule', points => 8)),
+            method => ('global-adaptive', method => ('gauss-kronrod-rule', points => 5)),
             :$max-recursion,
             :$precision-goal):pairs;
 }
