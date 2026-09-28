@@ -406,11 +406,22 @@ class Math::NIntegrate::Rule::MultiDimensional
     #======================================================
     # Integration helpers
     #======================================================
+    # The memoization did not produce noticeable time changes for the 2D integral
+    # nintegrate({ 1 / ($^x + $^y).sqrt }, <x 0 1>, <y 0 1>)
+    # has %!permutations;
 
     #| Generate the distinct points in the fully symmetric orbit of a
     #| non-negative generator.
     sub distinct-permutations(@generators --> Array:D) {
         my @result;
+
+        # Memoization
+        # my $key = @generators.join('::');
+        #if %!permutations{$key}:exists {
+        #    #say "retrieved for $key";
+        #    my @res = |%!permutations{$key};
+        #    return @res;
+        #}
 
         sub visit(@remaining, @prefix) {
             unless @remaining.elems {
@@ -443,6 +454,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         }
 
         visit(@generators.Array, []);
+        #%!permutations{$key} = @result;
         return @result;
     }
 
