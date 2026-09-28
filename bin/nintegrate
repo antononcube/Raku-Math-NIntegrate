@@ -1,0 +1,36 @@
+#!/usr/bin/env raku
+use v6.d;
+
+use Math::NIntegrate;
+
+#| Compute numerical integral estimate.
+sub MAIN(
+        *@args,
+        *%args
+         ) {
+    my $integrand;
+    my @ranges;
+    try {
+        use MONKEY-SEE-NO-EVAL;
+        $integrand = EVAL '$integrand = ' ~ @args.head;
+        @ranges = EVAL '@ranges = ' ~ (@args.elems > 2 ?? @args.tail(*-1).join(', ') !! "[{@args[1]}],");
+    }
+
+    if $integrand !~~ Callable:D {
+        die 'Cannot evaluate the integrand specification to a callable.'
+    }
+
+    if @ranges !~~ Positional:D {
+        die 'Cannot evaluate the ranges specification into a list.'
+    }
+
+    # Attempt integration
+    try {
+        my @argsLocal = $integrand, |@ranges;
+        say nintegrate(|@argsLocal, |%args)
+    }
+
+    if $! {
+        die 'Cannot process the numerical integration specification.'
+    }
+}
