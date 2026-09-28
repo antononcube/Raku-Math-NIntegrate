@@ -66,15 +66,15 @@ sub parse-range-boundaries($orig-min,
         if $orig-min ~~ Inf | -Inf {
             $min = numerical($orig-min, $working-precision);
             $min-inf-dir = numerical($orig-min.sign, $working-precision)
-        } else {;
-            $min = numerical($orig-min, $working-precision);
+        } else {
+            $min = $orig-min ~~ Callable:D ?? $orig-min !! numerical($orig-min, $working-precision);
         }
 
         if $orig-max ~~ Inf | -Inf {
             $max = numerical($orig-max, $working-precision);
             $max-inf-dir = numerical($orig-max.sign, $working-precision)
         } else {
-            $max = numerical($orig-max, $working-precision);
+            $max = $orig-max ~~ Callable:D ?? $orig-max !! numerical($orig-max, $working-precision);
         }
 
         # Zero intervals should be handled. E.g. ('x', Inf, Inf)
