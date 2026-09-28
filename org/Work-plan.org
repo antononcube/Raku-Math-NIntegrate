@@ -50,10 +50,17 @@
 - [X] Creation
 - [X] Fill-in components if they are less than the dimension
 - [X] Pre-compute rule data 
-- [X] Integration
+- [X] Simple integration
+  - Using the general rule integration method.
+  - Simple and elegant, but does not allow the determination of largest-error axis
+- [X] Integration with error calculation for each axis
+  - In order to determine the largest-error axis.
 *** TODO MultiDimensional rule [%]
-- [ ] Genz-Malik
-- [ ] DCUHRE
+- [C] Genz-Malik
+  - Low priority, maybe, at some point to be implemented
+- [X] DCUHRE
+  - [X] D07HRE
+  - [X] D09HRE
 *** TODO Multi-panel rule
 *** TODO Monte Carlo rule
 - [X] Using a fine point generator
