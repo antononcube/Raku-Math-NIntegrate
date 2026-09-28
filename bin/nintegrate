@@ -47,7 +47,7 @@ sub MAIN(
 }
 
 sub USAGE() {
-    say "Usage: {$*PROGRAM-NAME} INTEGRAND RANGE-SPEC ... [OPTIONS]\n\n"
+    say "Usage: nintegrate INTEGRAND RANGE-SPEC ... [OPTIONS]\n\n"
             ~ q:to/USAGE/;
 The first positional argument is Raku code describing the integrand.
 
