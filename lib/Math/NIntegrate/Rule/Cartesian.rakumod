@@ -108,7 +108,13 @@ class Math::NIntegrate::Rule::Cartesian
 
         self.abscissas = cross(|@!components.map(*.abscissas));
         self.weights = cross(|@!components.map(*.weights)).map({ [*] |$_ });
-        self.error-weights = cross(|@!components.map(*.error-weights)).map({ [*] |$_ });
+
+        # Make error weights for each dimension
+        self.error-weights = (^self.dimension).map({
+            my @w = @!components.map(*.weights);
+            @w[$_] = @!components[$_].error-weights;
+            cross(|@w.List).map({ [*] |$_ }).List
+        });
 
         return self
     }
@@ -121,7 +127,28 @@ class Math::NIntegrate::Rule::Cartesian
 
         self.make-rule-data();
 
-        self.Math::NIntegrate::Rule::General::integrate($region);
+        # Simple and elegant, but cannot be used to derive the axis with largest error
+        # self.Math::NIntegrate::Rule::General::integrate($region);
+
+        my @values;
+
+        for ^self.abscissas.elems -> $i {
+            my @point = |self.abscissas[$i];
+            my $value = $region.eval-integrand(@point);
+
+            # Ignoring non-numerical results
+            if $value ~~ Numeric:D && !($value.isNaN || $value ~~ Inf | -Inf) {
+                # Warnings for NaN and Inf should be given
+                @values.push($value);
+            }
+        }
+
+        my $integralLocal = sum(@values <<*>> self.weights);
+        my @errors = self.error-weights.map({ sum(@values <<*>> $_) });
+
+        self.integral = $integralLocal;
+        self.error = @errors.head;
+        self.largest-error-axis = @errors>>.abs.max(:k).head;
 
         return self;
     }
