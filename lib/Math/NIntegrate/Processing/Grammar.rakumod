@@ -6,7 +6,7 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     token symbol { <.quote>? <[\w \- _]>+ <.quote>? }
 
-    token number { \d+ }
+    token number { \d+ | <[-+]>? Inf }
 
     # Conditional parsing with a very weak predicate.
     # This is used in order to prevent <top-level-strategy> parsing known rules.
