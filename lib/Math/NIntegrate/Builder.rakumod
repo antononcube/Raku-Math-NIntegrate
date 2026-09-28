@@ -107,7 +107,7 @@ class Math::NIntegrate::Builder {
         }
 
         # Default 1D rule
-        my %default-spec = type => 'rule', name => 'ClenshawCurtisRule', points => 5;
+        my %default-spec = type => 'rule', name => 'GaussKronrodRule', points => 5;
 
         # Create rule by spec
         my $rule = do given $method {
