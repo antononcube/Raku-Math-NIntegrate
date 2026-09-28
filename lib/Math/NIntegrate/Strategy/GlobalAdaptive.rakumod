@@ -63,7 +63,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             $integral -= $topRegion.integral;
             my $axis = $topRegion.axis;
 
-            #say ('after removing top region:', :$integral, :$error, :$step, region-count => $heap.elems);
+            #say ('after removing top region:', :$integral, :$error, :$axis, :$step, region-count => $heap.elems);
 
             # Application of singularity handler or region splitting
             if $topRegion.levels[$axis] == self.singularity-depth && $topRegion.range-end-cases[$axis] ne RE_NONE  {
