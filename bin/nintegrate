@@ -3,11 +3,22 @@ use v6.d;
 
 use Math::NIntegrate;
 
+my %*SUB-MAIN-OPTS = :named-anywhere;
+
 #| Compute numerical integral estimate.
 sub MAIN(
         *@args,
         *%args
          ) {
+
+    my $help = %args<help>:exists;
+    %args<help>:delete;
+
+    if $help || @args.elems < 2 {
+        USAGE();
+        exit($help ?? 0 !! 1);
+    }
+
     my $integrand;
     my @ranges;
     try {
@@ -33,4 +44,33 @@ sub MAIN(
     if $! {
         die 'Cannot process the numerical integration specification.'
     }
+}
+
+sub USAGE() {
+    say "Usage: {$*PROGRAM-NAME} INTEGRAND RANGE-SPEC ... [OPTIONS]\n\n"
+            ~ q:to/USAGE/;
+The first positional argument is Raku code describing the integrand.
+
+The remaining positional arguments are Raku code range specifications.
+
+Examples of integrands:
+  '{$^x ** 2}'
+  'sub ($x, $y) { $x + $y }'
+
+Examples of range specifications:
+  '<x 0 1>'
+  '["x", -2, 20]'
+
+Named options are passed to Math::NIntegrate, including:
+  --precision-goal=VALUE
+  --method=VALUE
+  --max-recursion=VALUE
+  --OPTION=VALUE
+
+Examples:
+  program '{$^x ** 2}' '<x 0 1>' --precision-goal=10
+  program 'sub ($x, $y) { $x + $y }' '["x", 0, 1]' '["y", 0, 2]' --method=adaptive
+
+Use --help to display this message.
+USAGE
 }
