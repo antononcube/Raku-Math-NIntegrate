@@ -131,6 +131,52 @@ integrate 1/x^2 over the range [1,2] with a local adaptive strategy and precisio
 
 ------
 
+## CLI
+
+The package provides a Command Line Interface (CLI) script. Here is its usage message:
+
+```shell
+nintegrate --help
+```
+```
+# Usage: nintegrate INTEGRAND RANGE-SPEC ... [OPTIONS]
+# 
+# The first positional argument is Raku code describing the integrand.
+# 
+# The remaining positional arguments are Raku code range specifications.
+# 
+# Examples of integrands:
+#   '{$^x ** 2}'
+#   'sub ($x, $y) { $x + $y }'
+# 
+# Examples of range specifications:
+#   '<x 0 1>'
+#   '["x", -2, 20]'
+# 
+# Named options are passed to Math::NIntegrate, including:
+#   --precision-goal=VALUE
+#   --method=VALUE
+#   --max-recursion=VALUE
+#   --OPTION=VALUE
+# 
+# Examples:
+#   program '{$^x ** 2}' '<x 0 1>' --precision-goal=10
+#   program 'sub ($x, $y) { $x + $y }' '["x", 0, 1]' '["y", 0, 2]' --method=adaptive
+# 
+# Use --help to display this message.
+```
+
+Here is an example invocation:
+
+```shell
+nintegrate '{$^x + $^y}' '<x 0 1>' '<y 0 10>' --pairs
+```
+```
+# {error => 2.6808687534823764e-14, integral => 54.99999999999999, region-count => 1}
+```
+
+------
+
 ## References
 
 [WRI1]

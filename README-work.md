@@ -116,6 +116,22 @@ integrate 1/x^2 over the range [1,2] with a local adaptive strategy and precisio
 
 ------
 
+## CLI
+
+The package provides a Command Line Interface (CLI) script. Here is its usage message:
+
+```shell
+nintegrate --help
+```
+
+Here is an example invocation:
+
+```shell
+nintegrate '{$^x + $^y}' '<x 0 1>' '<y 0 10>' --pairs
+```
+
+------
+
 ## References
 
 [WRI1]
