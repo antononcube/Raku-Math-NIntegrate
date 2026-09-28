@@ -46,11 +46,11 @@ subtest {
 
     $rule.make-rule-data();
     #say 'integral estimate : ', ($rule.abscissas.map({ &f(|$_) }) <<*>> $rule.weights).sum;
-    #say '   error estimate : ', ($rule.abscissas.map({ &f(|$_) }) <<*>> $rule.error-weights).sum;
+    #say '   error estimate : ', ($rule.abscissas.map({ &f(|$_) }) <<*>> $rule.error-weights.head).sum;
 
     is abs(($rule.abscissas.map({ &f(|$_) }) <<*>> $rule.weights).sum - 5/6) < 10e-9, True, 'integral estimate';
 
-    is ($rule.abscissas.map({ &f(|$_) }) <<*>> $rule.error-weights).sum.abs < 10e-5, True, 'error estimate';
+    is ($rule.abscissas.map({ &f(|$_) }) <<*>> $rule.error-weights.head).sum.abs < 10e-5, True, 'error estimate';
 
 }, 'integral estimates';
 
