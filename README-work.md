@@ -70,26 +70,17 @@ use Math::NIntegrate;
 
 nintegrate( -> $x { 1/sqrt($x) }, ['x', 0, 2] );
 ```
-```
-# 2.8284271225533
-```
 
 With the adverb "pairs" the result shows the integral and error estimates together with the number of subregions used:
 
 ```raku
 nintegrate( -> $x { 1 / $x ** 2 }, <x 1 2>, working-precision => Rat ):pairs;
 ```
-```
-# {error => 1.7652322865675113e-07, integral => 0.5000000000000238, region-count => 1}
-```
 
 Compute a two-dimensional integral:
 
 ```raku
 nintegrate( -> $x, $y { $x + $y² }, <x 0 2>, <y 0 12>);
-```
-```
-# 1176
 ```
 
 Adaptive Monte-Carlo integration (not implemented yet):
@@ -110,17 +101,11 @@ on a one-dimensional [Gauss-Kronrod rule](https://en.wikipedia.org/wiki/Gauss–
 ```raku
 nintegrate( { 1 / ($^x + $^y).sqrt }, <x 0 1>, <y 0 1>, method => ('global-adaptive', method => ('gauss-kronrod-rule', points => 5))):pairs
 ```
-```
-# {error => 9.483115939647426e-07, integral => 1.1045693394722014, region-count => 16}
-```
 
 Compare with the Wolfram Language results:
 
 ```shell
 wolframscript -code 'Through[{Integrate, N@*Integrate, NIntegrate}[1/Sqrt[x+y], {x, 0, 1}, {y, 0, 1}]]'
-```
-```
-# {(8*(-1 + Sqrt[2]))/3, 1.104569499661587, 1.1045695042415091}
 ```
 
 Utilization through a DSL specification (not implemented yet):
