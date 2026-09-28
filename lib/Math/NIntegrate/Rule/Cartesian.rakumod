@@ -144,11 +144,11 @@ class Math::NIntegrate::Rule::Cartesian
         }
 
         my $integralLocal = sum(@values <<*>> self.weights);
-        my @errors = self.error-weights.map({ sum(@values <<*>> $_) });
+        my @errors = self.error-weights.map({ sum(@values <<*>> $_).abs });
 
         self.integral = $integralLocal;
         self.error = @errors.head;
-        self.largest-error-axis = @errors>>.abs.max(:k).head;
+        self.largest-error-axis = @errors.max(:k).head;
 
         return self;
     }
