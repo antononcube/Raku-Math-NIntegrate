@@ -13,7 +13,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     # There should be a separate rule for parsing <top-level-rule> only within a strategy spec.
     rule top-level-strategy { (<symbol>) <!{ $0.Str ~~ / [ 'Rule' | '-rule' | 'Rescaling' | '-rescaling' ] <["']>? $/ }>}
 
-    rule top-level-rule { <symbol> }
+    rule top-level-rule { (<symbol>) <!{ $0.Str ~~ / [ 'Rescaling' | '-rescaling' ] <["']>? $/ }>}
 
     rule option-value { <symbol> | <number> }
 
@@ -54,8 +54,13 @@ grammar Math::NIntegrate::Processing::Grammar {
         || <top-level-strategy>
     }
 
-    rule strategy-decorator-symbol {
+    rule strategy-decorator-known {
         <unit-cube-rescaling> | <symbolic-piecewise-subdivision> | <even-odd-subdivision>
+    }
+
+    rule strategy-decorator-symbol {
+        || '"' ~ '"' <strategy-decorator-known>
+        || <strategy-decorator-known>
     }
 
     rule rule-symbol-known {
