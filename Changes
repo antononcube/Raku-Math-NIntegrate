@@ -1,0 +1,12 @@
+Changes of the Raku package "Math::NIntegrate".
+
+0.0.1 2026-09-28
+    - First version with:
+        - GlobalAdaptive integration strategy
+            - Can be given an integration monitor routine as an argument
+        - The integration rules:
+            - Cartesian, ClenshawCurtis, GaussKronrod, MonteCarlo, MultiDimensional, NewtonCotes, Trapezoidal
+        - Singularity handler by Iri, Moriguti, & Takesawa ("IMT rule")
+        - Comprehensive integrator spec parsing and interpretation
+        - Kahaner integrator tests
+        - CLI script
