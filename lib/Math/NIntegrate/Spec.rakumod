@@ -86,7 +86,7 @@ class Math::NIntegrate::Spec {
         # Some other normalizations might be implemented later.
 
         # This is the normalized variant of $method and has to be supported at some point.
-        # %( name => 'GlobalAdaptive', method => %( name => 'ClenshawCurtisRule', points => 6 ) )
+        # %( name => 'GlobalAdaptive', method => %( name => 'GaussKronrodRule', points => 6 ) )
 
         $method = do given $method {
             when $_.isa(WhateverCode) || $_.isa(Whatever) { 'GlobalAdaptive' }
@@ -95,7 +95,7 @@ class Math::NIntegrate::Spec {
         }
 
         my $gr = Math::NIntegrate::Processing::Grammar.new;
-        my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new;
+        my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new(:full-spec);
 
         my %method-spec;
         try {
