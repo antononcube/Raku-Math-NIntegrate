@@ -16,13 +16,17 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 maxpoints => 'max-points', maxrecursion => 'max-recursion', minrecursion => 'min-recursion',
                 singularitydepth => 'singularity-depth', singularityhandler => 'singularity-handler',
                 symbolicprocessing => 'symbolic-processing', nosingularityhandler => 'None',
-                duffycoordinates => 'DuffyCoordinates', imt => 'IMT', irimorigutitakesawa => 'IMT';
+                duffycoordinates => 'DuffyCoordinates', imt => 'IMT', irimorigutitakesawa => 'IMT',
+                unitcuberescaling => 'UnitCubeRescaling'
+                ;
 
         return %names{$compact} // $name.trim
     }
 
     method !merge-options(%spec is copy, $/ --> Hash:D) {
-        for flat $<method-option>, $<numeric-option-spec>, $<singularity-handler-option>, $<cartesian-rule-method>, $<method-rule-spec>, $<option> -> $option {
+        for flat $<method-option>, $<numeric-option-spec>, $<singularity-handler-option>,
+                $<cartesian-rule-method>, $<method-rule-spec>, $<method-strategy-spec>, $<option>
+        -> $option {
             next unless $option.defined;
             my $pair = $option.made;
             %spec{$pair.key} = $pair.value;
@@ -34,8 +38,8 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
         make { name => self!canonical-name($/.Str), type => 'strategy' };
     }
 
-    method decorator-strategy-symbol($/) {
-        make { name => self!canonical-name($/.Str), type => 'strategy' };
+    method strategy-decorator-symbol($/) {
+        make { name => self!canonical-name($/.Str), type => 'decorator' };
     }
 
     method rule-symbol($/) {
@@ -43,7 +47,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
     }
 
     method method-symbol($/) {
-        make $<strategy-symbol> ?? $<strategy-symbol>.made !! $<decorator-strategy-symbol> ?? $<decorator-strategy-symbol>.made !! $<rule-symbol>.made;
+        make $<strategy-symbol> ?? $<strategy-symbol>.made !! $<strategy-decorator-symbol> ?? $<strategy-decorator-symbol>.made !! $<rule-symbol>.made;
     }
 
     method numeric-option-spec($/) {
@@ -100,6 +104,15 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
 
     method method-rule-spec($/) {
         make 'method' => $<rule-spec>.made;
+    }
+
+    method method-strategy-spec($/) {
+        make 'method' => $<strategy-spec>.made;
+    }
+
+    method strategy-decorator-spec($/) {
+        my %spec = $<strategy-decorator-symbol>.made.Hash;
+        make self!merge-options(%spec, $/);
     }
 
     method TOP($/) {

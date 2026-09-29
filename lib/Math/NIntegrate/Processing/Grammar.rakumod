@@ -2,7 +2,7 @@ use v6.d;
 
 grammar Math::NIntegrate::Processing::Grammar {
 
-    rule TOP { <strategy-spec> | <rule-spec> }
+    rule TOP { <strategy-decorator-spec> | <strategy-spec> | <rule-spec> }
 
     token symbol { <.quote>? <[\w \- _]>+ <.quote>? }
 
@@ -11,7 +11,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     # Conditional parsing with a very weak predicate.
     # This is used in order to prevent <top-level-strategy> parsing known rules.
     # There should be a separate rule for parsing <top-level-rule> only within a strategy spec.
-    rule top-level-strategy { (<symbol>) <!{ $0.Str ~~ / [ 'Rule' | '-rule' ] <["']>? $/ }>}
+    rule top-level-strategy { (<symbol>) <!{ $0.Str ~~ / [ 'Rule' | '-rule' | 'Rescaling' | '-rescaling' ] <["']>? $/ }>}
 
     rule top-level-rule { <symbol> }
 
@@ -39,7 +39,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     rule method-symbol {
-        <strategy-symbol> | <decorator-strategy-symbol> | <rule-symbol>
+        <strategy-symbol> | <strategy-decorator-symbol> | <rule-symbol>
     }
 
     rule strategy-symbol-known {
@@ -54,8 +54,8 @@ grammar Math::NIntegrate::Processing::Grammar {
         || <top-level-strategy>
     }
 
-    rule decorator-strategy-symbol {
-        <symbolic-piecewise-subdivision> | <even-odd-subdivision>
+    rule strategy-decorator-symbol {
+        <unit-cube-rescaling> | <symbolic-piecewise-subdivision> | <even-odd-subdivision>
     }
 
     rule rule-symbol-known {
@@ -131,10 +131,22 @@ grammar Math::NIntegrate::Processing::Grammar {
         || <rule-component-spec>
     }
 
+    # Method rule spec has to be separate -- a (leaf) strategy cannot have another strategy as method.
     regex method-rule-spec {
         | <method> \s* <.arrow> \s* <rule-spec>
         | ':' <method> <.lb> \s* <rule-spec> \s* <.rb>
         | '"' <method> '"' \s* ':' \s* <rule-spec>
+    }
+
+    regex method-strategy-spec {
+        | <method> \s* <.arrow> \s* <strategy-spec>
+        | ':' <method> <.lb> \s* <strategy-spec> || <rule-spec> \s* <.rb>
+        | '"' <method> '"' \s* ':' \s* <strategy-spec>
+    }
+
+    rule strategy-decorator-spec {
+        || <strategy-decorator-symbol>
+        || <.lb> <strategy-decorator-symbol> [ <.sep> [ <method-strategy-spec> | <method-rule-spec> | <numeric-option-spec> ]* % <.sep> ]? <.rb>
     }
 
     # Brackets
@@ -173,6 +185,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     # Integration preprocessor names
     token even-odd-subdivision { EvenOddSubdivision | even <[_\-]> odd <[_\-]> subdivision }
     token symbolic-piecewise-subdivision { SymbolicPiecewiseSubdivision | symbolic <[_\-]> piecewise <[_\-]> subdivision }
+    token unit-cube-rescaling { UnitCubeRescaling | unit <[_\-]> cube <[_\-]> rescaling }
 
     # Integration rule names
     token cartesian-rule { CartesianRule | cartesian <[_\-]> rule }
