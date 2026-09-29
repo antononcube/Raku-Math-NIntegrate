@@ -101,5 +101,36 @@ subtest {
 
 }, 'Strategy decorator method spec';
 
+# 4
+subtest {
+    my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new(:full-spec);
+
+    my @specs =
+            'UnitCubeRescaling' =>
+                    %(name => 'UnitCubeRescaling', type => 'decorator', method => $actions.get-default<method>),
+
+            '( clenshaw-curtis-rule )' =>
+                    {
+                        my %res = $actions.get-default;
+                        %res<method><method> = %(name => 'ClenshawCurtisRule', type => 'rule');
+                        %res
+                    }(),
+
+            '(GlobalAdaptive, singularity-depth => 2)' =>
+                    {
+                        my %res = $actions.get-default;
+                        %res<method> = %(name => 'GlobalAdaptive', singularity-depth => 2, type => 'strategy', method => %res<method><method>);
+                        %res
+                    }()
+            ;
+
+    for @specs.kv -> $i, $p {
+        is-deeply
+                $gr.parse($p.key, rule => 'TOP', :$actions).made,
+                $p.value,
+                "failed full spec $i, ⎡{$p.key}⎦";
+    }
+
+}, 'Full method spec';
 
 done-testing;
