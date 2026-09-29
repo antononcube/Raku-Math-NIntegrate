@@ -1,0 +1,18 @@
+
+- Reading the section "MultidimensionalRule" from the advanced documentation.
+- Finding the articles by Espelid, Genz.
+- Finding the corresponding FORTRAN 77 code.
+- Programming D07HRE and D09HRE to Raku by AI-agent Codex using "GPT-5.6-Terra".
+- Programming `method integrate` and disliking the implementation.
+  - Using Codex tests and making 2D test on my own.
+  - That implementation did not figure out the computation of the largest-error axis.
+- Reading the code and coming with related code outline / pseudocode.
+- Raku implementation of the pseudocode by Codex with "GPT-6.0-Sol".
+- Testing with region integration worked.
+- But with "GlobalAdaptive" the results were not good.
+  - One reason is that the 7-generator rule (D07HRE) is not that robust.
+    - So switched to 9-generator rule by default.
+  - Another reason is that the largest-error axis was not passed/assigned after the rule application computation.
+- Currently, works very well.
+- Tested both numerically and visually.
+  - Used a lot the singular integral `nintegrate({1 / ($^x + $y).sqrt}, <x 0 1>, <y 0 1>)` 
