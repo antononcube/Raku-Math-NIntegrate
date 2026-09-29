@@ -2,6 +2,18 @@ use v6.d;
 
 class Math::NIntegrate::Processing::Actions::MethodSpec {
 
+    has %!default =
+            name => 'None',
+            type => 'decorator',
+            method => {name => 'GlobalAdaptive', type => 'strategy',
+                       method => {name => 'GaussKronrodRule', type => 'rule'}};
+
+    has Bool:D $.full-spec is rw = False;
+
+    method get-default() {
+       return %!default.deepmap: *.clone;
+    }
+
     method !canonical-name(Str:D $name --> Str:D) {
         my $compact = $name.trim.subst(/<[-_\s]>/, '', :g).subst(/ ^ <["\']> | <["\']> $/, :g).lc;
 
@@ -73,6 +85,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
 
     method strategy-spec($/) {
         my %spec = $<strategy-symbol>.made.Hash;
+        if $!full-spec { %spec = %spec , {method => %!default<method><method>} }
         make self!merge-options(%spec, $/);
     }
 
@@ -112,10 +125,25 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
 
     method strategy-decorator-spec($/) {
         my %spec = $<strategy-decorator-symbol>.made.Hash;
+        if $!full-spec { %spec = %spec , {method => %!default<method>} }
         make self!merge-options(%spec, $/);
     }
 
     method TOP($/) {
-        make $/.values.head.made;
+        my %parsed = $/.values.head.made;
+
+        if $!full-spec {
+            my %res = self.get-default;
+            if %parsed<type> eq 'rule' {
+                %res<method><method> = %parsed
+            } elsif %parsed<type> eq 'strategy' {
+                %res<method> = %parsed
+            } else {
+                %res = %parsed
+            }
+            make %res
+        } else {
+            make %parsed
+        }
     }
 }
