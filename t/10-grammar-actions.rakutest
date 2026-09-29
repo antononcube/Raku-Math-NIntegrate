@@ -77,4 +77,29 @@ subtest {
 
 }, 'Rule only method spec';
 
+
+# 3
+subtest {
+    my @specs =
+            'UnitCubeRescaling' =>
+                    {name => 'UnitCubeRescaling', type => 'decorator'},
+
+            '( unit-cube-rescaling )' =>
+                    {name => 'UnitCubeRescaling', type => 'decorator'},
+
+            '(UnitCubeRescaling, method => (GlobalAdaptive, singularity-depth => 2))' =>
+                    {name => 'UnitCubeRescaling', type => 'decorator',
+                      method => {name => 'GlobalAdaptive', singularity-depth => 2, type => 'strategy'}},
+            ;
+
+    for @specs.kv -> $i, $p {
+        is-deeply
+                $gr.parse($p.key, rule => 'TOP', :$actions).made,
+                $p.value,
+                "failed strategy decorator spec $i, ⎡{$p.key}⎦";
+    }
+
+}, 'Strategy decorator method spec';
+
+
 done-testing;

@@ -147,4 +147,19 @@ subtest {
 
 }, '.raku forms';
 
+# 8
+subtest {
+    my @specs =
+            'UnitCubeRescaling',
+            '( UnitCubeRescaling )',
+            '(UnitCubeRescaling, method => ClenshawCurtisRule)',
+            '(UnitCubeRescaling, method => GlobalAdaptive)',
+            '(UnitCubeRescaling, method => (GlobalAdaptive, max-recursion => 10, singularity-depth => 4))'
+            ;
+    for @specs.kv -> $i, $spec {
+        ok $gr.parse($spec, rule => 'strategy-decorator-spec'), "failed UnitCubeRescaling spec $i : ⎡$spec⎦";
+    }
+
+}, 'Strategy decorator specs';
+
 done-testing;
