@@ -138,6 +138,12 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 %res<method><method> = %parsed
             } elsif %parsed<type> eq 'strategy' {
                 %res<method> = %parsed
+            } elsif %parsed<type> eq 'decorator' && %parsed<method><type> eq 'rule' {
+                # There should be a more elegant way of doing this. I.e. via the class methods.
+                my %s = %res<method>;
+                %s<method> = %parsed<method>;
+                %res = %parsed;
+                %res<method> = %s;
             } else {
                 %res = %parsed
             }
