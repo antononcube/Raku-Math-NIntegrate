@@ -36,3 +36,24 @@ for how the decision to develop "Math::NIntegrate" was made.
   - Some numerical integration articles have corresponding Fortran code text files available on Web
 - Grammar actions
   - For a well written grammar with tests simple interpreters are easy to generate via LLMs / AI-agents
+
+----
+
+## Concrete steps
+
+Here are the macro/bird view steps:
+
+- Read the WL `NIntegrate` function page and browse `NIntegrate`'s advanced documentation.
+- Program the integration rules class hierarchy and program a few rules (Gauss-Kronrod and Clenshaw-Curtis).
+- Come up with Region-Rule-VariableTransformer design.
+- Program region splitting and test it.
+- Implement the Builder class in order to simplify the tests.
+- Program Cartesian Rule in order to verify that regions can handle nD integration.
+- Read / review the WL implementations of GlobalAdpative and implement it in Raku.
+- Program the method option grammar and parser.
+  - Come up with a comprehensive set of tests.
+- Implement in the Builder class methods for making integration strategies and rules.
+- Test GlobalAaptive with Cartesian rule.
+- Find, program, and use the 1D "good integrator" tests by Kahaner.
+- Implement fully symmetric integration rules.
+- Hook-up and test the MultiDimensional integration rule
