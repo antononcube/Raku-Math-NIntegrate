@@ -121,7 +121,18 @@ subtest {
                         my %res = $actions.get-default;
                         %res<method> = %(name => 'GlobalAdaptive', singularity-depth => 2, type => 'strategy', method => %res<method><method>);
                         %res
-                    }()
+                    }(),
+
+            '(UnitCubeRescaling, method => MultiDimensionalRule)' =>
+                    {
+                        my %res = $actions.get-default;
+                        %res<method><method> = { name => 'MultiDimensionalRule', type => 'rule'};
+                        %res = %(name => 'UnitCubeRescaling',
+                                 type => 'decorator',
+                                 method => %res<method>
+                        );
+                        %res
+                    }(),
             ;
 
     for @specs.kv -> $i, $p {
