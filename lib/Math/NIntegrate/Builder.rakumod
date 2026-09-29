@@ -11,6 +11,7 @@ use Math::NIntegrate::VariableTransformer::Composite;
 # Strategies
 use Math::NIntegrate::Strategy;
 use Math::NIntegrate::Strategy::GlobalAdaptive;
+use Math::NIntegrate::Strategy::UnitCubeRescaling;
 
 # Rules
 use Math::NIntegrate::Rule;
@@ -269,6 +270,28 @@ class Math::NIntegrate::Builder {
     }
 
     #------------------------------------------------------
+    #| Make an integration strategy decorator object according to method-spec and (leaf) strategy.
+    method make-strategy-decorator(
+            :$method = Whatever,
+            Math::NIntegrate::Strategy:D :$strategy) {
+
+        return $strategy if $method.isa(Whatever);
+
+        # Create strategy decorator by spec
+        my $decorated = do given $method {
+            when $_<name> eq 'UnitCubeRescaling' {
+                Math::NIntegrate::Strategy::UnitCubeRescaling.new(component => $strategy)
+            }
+
+            default {
+                die "Unknown integration strategy: $_<name>."
+            }
+        }
+
+        return $decorated
+    }
+
+    #------------------------------------------------------
     #| Full integrator creation
     method make-integrator(
             Math::NIntegrate::NumericalFunction :$integrand!,
@@ -293,9 +316,9 @@ class Math::NIntegrate::Builder {
         });
 
         # Integration rule
-        # At this point $method is normalized
+        # At this point $method is normalized with :full-spec
         my $rule = self.make-rule(
-                method => ($method<type> // 'none') eq 'rule' ?? $method !! ($method<method> // Whatever),
+                method => $method<method><method> // Whatever,
                 dimension => %bounds<min>.elems,
                 :$working-precision);
 
@@ -309,12 +332,21 @@ class Math::NIntegrate::Builder {
 
         # Make the strategy
         $!strategy = self.make-strategy(
-                method => $method<type> eq 'strategy' ?? $method !! Whatever,
+                method => $method<method> // Whatever,
                 dimension => %ranges.elems,
                 |%args);
 
         # Attach regions to strategies
         $!strategy.regions = |@regions;
+
+        # Make the decorator
+        die 'INCORRECT_ARGUMENTS: the method option is expected to hae a strategy decorator.'
+        unless $method<type> eq 'decorator';
+
+        if $method<name> ne 'None' {
+            # Make the strategy decorator
+            $!strategy = self.make-strategy-decorator(:$method, :$!strategy);
+        }
 
         return $!strategy
     }
