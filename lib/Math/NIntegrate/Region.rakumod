@@ -156,6 +156,14 @@ class Math::NIntegrate::Region {
         $!numerical-function ?? $!numerical-function.working-precision !! Whatever
     }
 
+    #| Volume of the region
+    method volume() {
+        my %bounds = $!variable-transformer.get-transform-bounds();
+        my @lengths = |$!variable-transformer.length-calc-md(%bounds<min>, %bounds<max>)<length>;
+        my $volume = [*] |@lengths;
+        return numerical($volume, $!variable-transformer.working-precision)
+    }
+
     #--------------------------------------
     # Split
     #--------------------------------------

@@ -74,6 +74,8 @@ subtest {
             [5, 12],
             :$rule);
 
+    my $volume = 5 * 12;
+    is $region.volume, $volume, 'expected region volume';
 
     my @divisions = 2, 3;
 
@@ -97,6 +99,8 @@ subtest {
             @regions.map({ .variable-transformer.get-transform-bounds<max>[1] }).sort,
             [4, 4, 8, 8, 12, 12],
             'expected max boundaries';
+
+    is ([+] |@regions>>.volume), $volume, 'expected volume';
 
 }, 'Region division';
 
