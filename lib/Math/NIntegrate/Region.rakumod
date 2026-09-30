@@ -250,7 +250,31 @@ class Math::NIntegrate::Region {
 
     #| Partition the region with a given array of partition points.
     method partition(@points --> Array) {
-        die 'The region method paritition is not implemented yet.'
+
+        # Change the boundaries of the transformation object.
+        without $!variable-transformer {
+            fail 'MISSING_OBJECT: no variable transformer in region spliting.'
+        }
+
+        # Should we check if the points are within region's ranges?
+        my %bounds = $!variable-transformer.get-transform-bounds();
+        # For each axis for partition pairs
+        my @range-pairs = do for ^self.dimension -> $axis {
+            my $min = %bounds<min>[$axis];
+            my $max = %bounds<max>[$axis];
+            [$min, |@points.map(*[$axis]), $max].squish(with => {($^x - $^y).abs ≤ 2 * $MACHINE_EPSILON}).rotor(2 => -1);
+        }
+
+        @range-pairs = @range-pairs.elems > 1 ?? cross(|@range-pairs) !! |@range-pairs.head.map({ [$_,] });
+        # Cartesian product of the range pairs per axis
+        my @regions = @range-pairs.map({
+            my $obj = self.clone;
+            $_.map(*.head).kv.map(-> $axis, $b { $obj.variable-transformer.set-min-transform-bound($axis, $b) });
+            $_.map(*.tail).kv.map(-> $axis, $b { $obj.variable-transformer.set-max-transform-bound($axis, $b) });
+            $obj
+        });
+
+        return @regions
     }
 
     #--------------------------------------
@@ -381,7 +405,6 @@ class Math::NIntegrate::Region {
     # Future private methods
     #--------------------------------------
 
-    method partition(@nodex) {!!!}
     method duffy-transform() {!!!}
     method reverse-variable(Int:D $var-index) {!!!}
 
