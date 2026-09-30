@@ -236,9 +236,46 @@ class Math::NIntegrate::Region {
     # Divide
     #--------------------------------------
 
-    #| Divide the region with a given array of number of divisions for each dimension
-    method divide(@divisions --> Array) {
-        die 'The region method divide is not implemented yet.'
+    #| Divide the region with a given array of number of divisions for each dimension.
+    method divide(@divisions where @divisions.all ~~ UInt:D --> Array) {
+
+        die 'The number of divisions is expected equal the region dimension.'
+        unless @divisions.elems == self.dimension;
+
+        die 'INCORRECT_ARGUMENTS: Each element of the divisions argument is expected to be an integer greater than 0.'
+        unless @divisions.min ≥ 1;
+
+        # Change the boundaries of the transformation object.
+        without $!variable-transformer {
+            fail 'MISSING_OBJECT: no variable transformer in region spliting.'
+        }
+
+        my $working-precision = self.variable-transformer.working-precision;
+
+        my %bounds = $!variable-transformer.get-transform-bounds();
+
+        # For each axis for partition pairs
+        my @range-pairs = do for ^self.dimension -> $axis {
+            my $min = %bounds<min>[$axis];
+            my $max = %bounds<max>[$axis];
+            my $h = numerical($max - $min, $working-precision) / @divisions[$axis];
+
+            ($min, $min + $h ... $max).map({ numerical($_, $working-precision) }).rotor(2 => -1);
+        }
+
+        # Same code as in method partition.
+        @range-pairs = @range-pairs.elems > 1 ?? |cross(|@range-pairs>>.Array) !! |@range-pairs.head.map({ [$_,] });
+
+        # Cartesian product of the range pairs per axis
+        my @regions = @range-pairs.map({
+            my $obj = self.clone;
+            $obj.levels = |self.levels.map(* + 1);
+            $_.map(*.head).kv.map(-> $axis, $b { $obj.variable-transformer.set-min-transform-bound($axis, $b) });
+            $_.map(*.tail).kv.map(-> $axis, $b { $obj.variable-transformer.set-max-transform-bound($axis, $b) });
+            $obj
+        });
+
+        return @regions
     }
 
     #--------------------------------------
@@ -247,6 +284,9 @@ class Math::NIntegrate::Region {
 
     # The argument points are, likely, integration rule abscissas.
     # This method facilitates reuse of integral computations, by strategies, like, LocalAdaptive.
+    # This means that partitioning over points (integration rule nodes) makes sense for 1D regions.
+    # For nD regions (n > 1) the partitioning makes sense for Cartesian rules.
+    # In order this method to "make sense" it the integration values reuse have to be implemented.
 
     #| Partition the region with a given array of partition points.
     method partition(@points --> Array) {
@@ -258,6 +298,7 @@ class Math::NIntegrate::Region {
 
         # Should we check if the points are within region's ranges?
         my %bounds = $!variable-transformer.get-transform-bounds();
+
         # For each axis for partition pairs
         my @range-pairs = do for ^self.dimension -> $axis {
             my $min = %bounds<min>[$axis];
@@ -266,9 +307,12 @@ class Math::NIntegrate::Region {
         }
 
         @range-pairs = @range-pairs.elems > 1 ?? cross(|@range-pairs) !! |@range-pairs.head.map({ [$_,] });
+
         # Cartesian product of the range pairs per axis
         my @regions = @range-pairs.map({
             my $obj = self.clone;
+            # Should the level of the new regions be increased?
+            # $obj.levels = |self.levels.map(* + 1);
             $_.map(*.head).kv.map(-> $axis, $b { $obj.variable-transformer.set-min-transform-bound($axis, $b) });
             $_.map(*.tail).kv.map(-> $axis, $b { $obj.variable-transformer.set-max-transform-bound($axis, $b) });
             $obj
