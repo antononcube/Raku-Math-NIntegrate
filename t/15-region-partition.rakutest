@@ -1,0 +1,60 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate::NumericalFunction;
+use Math::NIntegrate::Rule::Trapezoidal;
+use Math::NIntegrate::Region;
+use Math::NIntegrate::Builder;
+
+plan *;
+
+## 1
+subtest {
+
+    # Integrand
+    sub f($x) { $x.sqrt }
+    my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Rat);
+
+    # Integration rule
+    my $rule = Math::NIntegrate::Rule::Trapezoidal.new(3);
+
+    # Region
+    my $region = Math::NIntegrate::Builder.make-region(
+            $numerical-function,
+            [0, ],
+            [5, ],
+            :$rule);
+
+    # Integrate
+    $region.rule.integrate($region);
+
+    # Partition points (which $region.partition computes)
+    my @new-bounds = $region.rule.abscissas.map({ $region.variable-transformer.transform(point => [$_,], jacobian => 1)<point>.head });
+    @new-bounds = [
+        $region.variable-transformer.get-transform-bounds<min>.head,
+        |@new-bounds,
+        $region.variable-transformer.get-transform-bounds<max>.head
+    ].unique.sort;
+
+    # Partition tests
+    isa-ok $region.clone.partition(@new-bounds), Positional:D, 'region partition call ok';
+
+    # Split original region
+    my @regions = $region.partition(@new-bounds);
+
+    is @regions.all ~~ Math::NIntegrate::Region:D, True, 'a list of region objects';
+
+    # Boundaries after the partition
+    is
+            @regions.map({ .variable-transformer.get-transform-bounds<min>[0] }).unique.sort,
+            @new-bounds.head(*-1),
+            'expected min boundaries';
+
+    is
+            @regions.map({ .variable-transformer.get-transform-bounds<max>[0] }).unique.sort,
+            @new-bounds.tail(*-1),
+            'expected max boundaries';
+
+}, 'Region partition ';
+
+done-testing;
