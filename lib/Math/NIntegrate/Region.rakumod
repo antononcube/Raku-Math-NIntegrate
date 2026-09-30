@@ -249,7 +249,7 @@ class Math::NIntegrate::Region {
     # This method facilitates reuse of integral computations, by strategies, like, LocalAdaptive.
 
     #| Partition the region with a given array of partition points.
-    method parition(@points --> Array) {
+    method partition(@points --> Array) {
         die 'The region method paritition is not implemented yet.'
     }
 
