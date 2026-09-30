@@ -89,6 +89,13 @@
 *** TODO Double Exponent
 - [ ] Constant ranges
 - [ ] Functional ranges
+*** TODO Reverse (class)
+- [X] Constant ranges
+- [ ] Functional ranges
+*** TODO Reverse (ad hoc)
+- [X] Constant ranges
+- [ ] Functional ranges?
+  - It is just a swap of range/boundary values, but have to be tested.
 ** TODO Integration Strategies [0%] [0/8]
 *** TODO Global Adaptive [60%] [3/5]
 - [X] Initial regions by min-recursion
@@ -111,6 +118,17 @@
 *** TODO Monte Carlo
 *** TODO Adaptive Monte Carlo
 *** TODO Importance Sampling
+** DONE Integration Strategy Decorators
+*** DONE Facilitation
+- [X] Grammar parsing
+- [X] Interpreter
+  - Programmed "full method spec" interpretation
+- [X] Refactor ~Math::NIntegrate::Spec~ to use the full method spec
+- [X] Implement decorator builder method in ~Math::NIntegrate::Builder~
+*** TODO UnitCubeRescaling
+- [ ] The simplest way is to use textual functional boundaries and produces callables with RakuAST
+- [ ] Using closures?
+- [ ] Using function composition?
 ** DONE Builder [100%] [6/6]
 - [X] Numerical function (for the integrand) making
 - [X] Composite variable transformer
@@ -150,6 +168,8 @@
 - [X] Grammar parsing
   - [X] Simple grammar method specs
   - [X] Method-spec interpretation
+  - [X] Interpretation to a full-method spec
+    - Has decorator, strategy, and rule
 - [-] Top-level ~nintegrate~
   - [X] Easy integrals
   - [ ] Graceful failure
