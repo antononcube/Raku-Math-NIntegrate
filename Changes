@@ -1,6 +1,6 @@
 Changes of the Raku package "Math::NIntegrate".
 
-0.0.2 2026-09-30
+0.0.2 2026-10-01
     - Implemented LocalAdaptive integration strategy
       - Related region division implementation and grammar/interpreter extensions
 
