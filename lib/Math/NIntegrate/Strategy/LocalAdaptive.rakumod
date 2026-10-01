@@ -54,7 +54,6 @@ class Math::NIntegrate::Strategy::LocalAdaptive
             $reference-estimate = [+] self.regions>>.volume;
         }
 
-
         # Integration monitor
         with &integration-monitor {
             try &integration-monitor(self.regions);
@@ -94,11 +93,17 @@ class Math::NIntegrate::Strategy::LocalAdaptive
         # Hence, check the middle points.
         # TBD...
 
+        # The region is either post-integration from method algorithm,
+        # or it is clone of an integrated region obtained by Region::divide.
+        # Hance it has a largest error axis.
+        # In both cases, the levels for all axes should be the same.
         my $axis = $region.axis;
         if $region.levels[$axis] == self.singularity-depth && $region.range-end-cases[$axis] ne RE_NONE {
             # Apply singularity handler
             if self.singularity-handler ~~ Str:D && self.singularity-handler.lc eq 'imt' {
-                $region.add-variable-transformer('imt', :$axis, :$working-precision)
+                $region.add-variable-transformer('imt', :$axis, :$working-precision);
+                # Prevent another application of a singularity handler on that axis
+                $region.range-end-cases[$axis] = RE_NONE
             }
 
             # Reset split level
@@ -113,18 +118,19 @@ class Math::NIntegrate::Strategy::LocalAdaptive
         my $integral = $region.integral;
         $axis = $region.axis;
 
-        my Bool:D $done-max-recursion = $region.levels.max ≥ self.max-recursion;
-
-        # Warning the max recursion was reached
-        if $done-max-recursion {
-            note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$region.numerical-function.last-argument-values}.";
-            return {:$integral, :$error, region-count => 1}
-        }
-
         if is-zero(numerical($reference-estimate + $error, Num) - $reference-estimate) {
             # Cannot see the error
             return {:$integral, :$error, region-count => 1}
         } else {
+
+            my Bool:D $done-max-recursion = $region.levels.max ≥ self.max-recursion;
+
+            # Warning the max recursion was reached
+            if $done-max-recursion {
+                note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$region.numerical-function.last-argument-values}.";
+                return {:$integral, :$error, region-count => 1}
+            }
+
             # If $!partitioning = Whatever the region should partitioned
             # in order to reuse the integrand values, if the integration rule is closed.
 
@@ -154,7 +160,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
             # Recursive computation
             my %result = integral => 0, error => 0, region-count => 0;
 
-            # Using a for loop in order facilitate early bailout
+            # Using a for loop in order to facilitate early bailout
             for @regions -> $region {
                 my %recRes = self.recursive-step(
                         :$region,
