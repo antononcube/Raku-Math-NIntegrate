@@ -94,9 +94,17 @@ class Math::NIntegrate::Strategy::LocalAdaptive
             :&integration-monitor = WhateverCode,
             -->Map:D) {
 
-        # It might happen that the precision is exhausted.
+        # It might happen that the numbers at the given precision are exhausted.
         # Hence, check the middle points.
-        # TBD...
+        # (Obviously, can happen for Num, but not for Rat and FatRat.)
+        my %bounds = $region.variable-transformer.get-transform-bounds;
+        my %length-record = $region.variable-transformer.length-calc-md(%bounds<min>, %bounds<max>, True);
+        for ^%length-record<min>.elems -> $axis {
+            if is-zero(%length-record<min>[$axis] - %length-record<middle>[$axis]) {
+                # Should empty regions be counted?
+                return {integral => 0, error => 0, region-count => 0}
+            }
+        }
 
         # The region is either post-integration from method algorithm,
         # or it is clone of an integrated region obtained by Region::divide.
