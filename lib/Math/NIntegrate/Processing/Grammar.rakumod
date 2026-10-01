@@ -84,7 +84,9 @@ grammar Math::NIntegrate::Processing::Grammar {
         | <no-singularity-handler>
     }
 
-    token numeric-option-symbol { <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> | <generators> }
+    token numeric-option-symbol {
+        <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> | <generators> | <partitioning>
+    }
 
     regex numeric-option-spec {
         | <numeric-option-symbol> \s* <.arrow> \s* <number>
@@ -177,6 +179,8 @@ grammar Math::NIntegrate::Processing::Grammar {
     token singularity-depth { SingularityDepth | singularity <[\-_]> depth }
     token singularity-handler { SingularityHandler | singularity <[\-_]> handler }
     token symbolic-processing { SymbolicProcessing | symbolic <[\-_]> processing }
+    token partitioning {:i partitioning }
+    token initial-estimate-relaxation { InitialEstimateRelaxation | initial <[\-_]> estimate <[\-_]> relaxation }
 
     # Integration strategy names
     token adaptive-monte-carlo { AdaptiveMonteCarlo | adaptive <[_\-]> monte <[_\-]> carlo }
