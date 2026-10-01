@@ -69,6 +69,7 @@ grammar Math::NIntegrate::Processing::Grammar {
         | <clenshaw-curtis-rule>  | <monte-carlo-rule>
         | <multidimensional-rule>
         | <cartesian-rule>
+        | <whatever>
     }
 
     rule rule-symbol {
@@ -82,6 +83,7 @@ grammar Math::NIntegrate::Processing::Grammar {
         | <double-exponential>
         | <duffy-coordinates>
         | <no-singularity-handler>
+        | <whatever>
     }
 
     token numeric-option-symbol {
@@ -181,6 +183,10 @@ grammar Math::NIntegrate::Processing::Grammar {
     token symbolic-processing { SymbolicProcessing | symbolic <[\-_]> processing }
     token partitioning {:i partitioning }
     token initial-estimate-relaxation { InitialEstimateRelaxation | initial <[\-_]> estimate <[\-_]> relaxation }
+
+    # Automatic and Whatever
+    token whatever { Whatever | WhateverCode }
+    token automatic {:i 'automatic' }
 
     # Integration strategy names
     token adaptive-monte-carlo { AdaptiveMonteCarlo | adaptive <[_\-]> monte <[_\-]> carlo }

@@ -2,11 +2,13 @@ use v6.d;
 
 class Math::NIntegrate::Processing::Actions::MethodSpec {
 
+    # Instead of having a dimension attribute using Whatever for the rule.
+    # Then Builder's method make-rule() can apply its own default.
     has %!default =
             name => 'None',
             type => 'decorator',
             method => {name => 'GlobalAdaptive', type => 'strategy',
-                       method => {name => 'GaussKronrodRule', type => 'rule'}};
+                       method => {name => Whatever, type => 'rule'}};
 
     has Bool:D $.full-spec is rw = False;
 
@@ -30,7 +32,8 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 symbolicprocessing => 'symbolic-processing', nosingularityhandler => 'None',
                 partitioning => 'Partitioning', initialestimaterelaxation => 'InitialSstimateRelaxation',
                 duffycoordinates => 'DuffyCoordinates', imt => 'IMT', irimorigutitakesawa => 'IMT',
-                unitcuberescaling => 'UnitCubeRescaling'
+                unitcuberescaling => 'UnitCubeRescaling',
+                whatever => Whatever
                 ;
 
         return %names{$compact} // $name.trim
