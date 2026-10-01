@@ -60,8 +60,13 @@ class Math::NIntegrate::Strategy::LocalAdaptive
             warn 'Cannot apply integration monitor.' if $!
         }
 
+        # We have to drop the original regions in order to accumulate the leaf regions.
+        # Otherwise self.regions.push($region) in method recursive-step is going to hang.
+        my @regions = |self.regions;
+        self.regions = Empty;
+
         # Recursive computation
-        my @rec-res = self.regions.map({
+        my @rec-res = @regions.map({
             self.recursive-step(
                     region => $_,
                     :$reference-estimate,
@@ -120,6 +125,10 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
         if is-zero(numerical($reference-estimate + $error, Num) - $reference-estimate) {
             # Cannot see the error
+
+            # Register
+            self.regions.push($region);
+
             return {:$integral, :$error, region-count => 1}
         } else {
 
