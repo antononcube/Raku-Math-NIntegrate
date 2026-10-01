@@ -21,7 +21,7 @@ subtest {
 
     is-deeply $spec.ranges.keys.sort, <x y>, 'expected processed ranges keys';
 
-    is-deeply $spec.ranges<y><interval-points>, (0, 1, 2), 'expected interval points';
+    is-deeply $spec.ranges<y><inner-points>, (0, 1, 2), 'expected interval points';
 
 }, 'list ranges';
 
