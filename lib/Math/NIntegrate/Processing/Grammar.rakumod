@@ -64,9 +64,9 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     rule rule-symbol-known {
-        | <trapezoidal-rule>
-        | <gauss-kronrod-rule>  | <lobatto-kronrod-rule>
-        | <clenshaw-curtis-rule>  | <monte-carlo-rule>
+        | <trapezoidal-rule> | <newton-cotes-rule>
+        | <gauss-kronrod-rule> | <lobatto-kronrod-rule>
+        | <clenshaw-curtis-rule> | <monte-carlo-rule>
         | <multidimensional-rule>
         | <cartesian-rule>
         | <whatever>
@@ -208,8 +208,9 @@ grammar Math::NIntegrate::Processing::Grammar {
     token gauss-kronrod-rule { GaussKronrodRule | gauss <[_\-]> kronrod <[_\-]> rule }
     token lobatto-kronrod-rule { LobattoKronrodRule | lobatto <[_\-]> kronrod <[_\-]> rule }
     token monte-carlo-rule { MonteCarloRule | monte <[_\-]> carlo <[_\-]> rule }
-    token trapezoidal-rule { TrapezoidalRule | trapezoidal <[_\-]> rule }
     token multidimensional-rule { Multi [d|D] imensionalRule | multidimensional <[_\-]> rule }
+    token newton-cotes-rule { NewtonCotesRule | newton <[_\-]> cotes <[_\-]> rule }
+    token trapezoidal-rule { TrapezoidalRule | trapezoidal <[_\-]> rule }
 
     # Singularity handler names
     token imt {:i imt | iri <[\-_]> moriguti <[\-_]> takesawa }

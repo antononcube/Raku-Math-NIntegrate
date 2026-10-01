@@ -34,11 +34,12 @@ subtest {
 subtest {
     my @specs =
             'GaussKronrodRule',
-            'gauss-kronrod-rule',
             'clenshaw-curtis-rule',
-            'monte-carlo-rule',
+            'gauss-kronrod-rule',
             'lobatto_kronrod_rule',
-            'multidimensional-rule'
+            'monte-carlo-rule',
+            'multidimensional-rule',
+            'newton_cotes-rule',
             ;
     for @specs.kv -> $i, $spec {
         ok $gr.parse($spec, rule => 'rule-symbol-known'), "failed rule name $i : ⎡$spec⎦";
