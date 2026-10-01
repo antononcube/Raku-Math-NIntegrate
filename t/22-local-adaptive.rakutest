@@ -2,10 +2,35 @@ use v6.d;
 use Test;
 
 use Math::NIntegrate;
+use Math::NIntegrate::Spec;
+use Math::NIntegrate::Builder;
+use Math::NIntegrate::Strategy::LocalAdaptive;
 
 plan *;
 
 # 1
+subtest {
+    my &f = { 1 / $^x.sqrt };
+    my @ranges = <x 0 1>, ;
+    my $method = ('local-adaptive', partitioning => 3);
+
+    # Check and normalize
+    my $spec = Math::NIntegrate::Spec.new(&f, @ranges, %(:$method));
+
+    # Integrator object
+    my $integrator = Math::NIntegrate::Builder.new.make-integrator(
+            integrand => $spec.integrand,
+            ranges => $spec.ranges,
+            |$spec.options);
+
+    isa-ok $integrator, Math::NIntegrate::Strategy::LocalAdaptive:D, 'expected integrator type';
+
+    is $integrator.partitioning, 3, 'expected integrator attribute value';
+
+}, 'Creation';
+
+
+# 2
 subtest {
     my &f = { 1 / $^x.sqrt };
 
@@ -16,7 +41,7 @@ subtest {
 }, '1D sinqular integral';
 
 
-# 2
+# 3
 subtest {
     my &f = {$^x + $^y ** 2};
     # The undefined integral of &f is (x^2 y)/2 + (x y^3)/3.
@@ -41,7 +66,7 @@ subtest {
 }, 'nintegrate({$^x + $^y ** 2}, <x 0 3>, <y 0 5>)';
 
 
-# 3
+# 4
 subtest {
     # This tests for proper region boundaries computation by Region::divide
     my &f = { $^x.sqrt };
