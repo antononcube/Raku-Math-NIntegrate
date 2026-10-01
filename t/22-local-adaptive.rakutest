@@ -3,6 +3,8 @@ use Test;
 
 use Math::NIntegrate;
 
+plan *;
+
 # 1
 subtest {
     my &f = { 1 / $^x.sqrt };
