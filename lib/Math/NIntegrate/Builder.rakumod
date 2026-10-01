@@ -242,8 +242,8 @@ class Math::NIntegrate::Builder {
 
             when $_<name> eq 'LocalAdaptive' {
                 # Specific local adaptive options
-                my $partitioning = $method<partititioning> // Whatever;
-                my $initial-estimate-relaxation = $method<initial-estimate-relaxation> // True;
+                my $partitioning = $method<Partitioning> // Whatever;
+                my $initial-estimate-relaxation = $method<InitialEstimateRelaxation> // True;
 
                 Math::NIntegrate::Strategy::LocalAdaptive.new(
                         :$min-recursion,
