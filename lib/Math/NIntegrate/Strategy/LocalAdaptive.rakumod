@@ -94,13 +94,24 @@ class Math::NIntegrate::Strategy::LocalAdaptive
         # Hence, check the middle points.
         # TBD...
 
+        my $axis = $region.axis;
+        if $region.levels[$axis] == self.singularity-depth && $region.range-end-cases[$axis] ne RE_NONE {
+            # Apply singularity handler
+            if self.singularity-handler ~~ Str:D && self.singularity-handler.lc eq 'imt' {
+                $region.add-variable-transformer('imt', :$axis, :$working-precision)
+            }
+
+            # Reset split level
+            $region.levels[$axis] = 0;
+        }
+
         # Integrate
         try $region.apply-rule;
         return %no-result if $!;
 
         my $error = $region.error;
         my $integral = $region.integral;
-        my $axis = $region.axis;
+        $axis = $region.axis;
 
         my Bool:D $done-max-recursion = $region.levels.max ≥ self.max-recursion;
 
@@ -117,10 +128,10 @@ class Math::NIntegrate::Strategy::LocalAdaptive
             # If $!partitioning = Whatever the region should partitioned
             # in order to reuse the integrand values, if the integration rule is closed.
 
-            # If there is a one of the transformers is singularity handler the region is just split
+            # If one of the transformers is a singularity handler the region is just split.
             # TBD...
 
-            # Special handling of closed rules for integrand values reuse
+            # Special handling of closed rules for integrand values reuse.
             # TBD...
 
             my @divisions = do given $!partitioning {
@@ -133,6 +144,12 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
             # Divide the region
             my @regions = $region.divide(@divisions);
+
+            # Reverse the variable if needed for the new regions
+            for @regions -> $r {
+                $r.add-variable-transformer('reverse', :$axis, :$working-precision)
+                if $r.range-end-cases[$axis] eq RE_RIGHT;
+            }
 
             # Recursive computation
             my %result = integral => 0, error => 0, region-count => 0;
