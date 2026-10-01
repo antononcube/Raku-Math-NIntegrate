@@ -69,7 +69,9 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             if $topRegion.levels[$axis] == self.singularity-depth && $topRegion.range-end-cases[$axis] ne RE_NONE  {
                 # Apply singularity handler
                 if self.singularity-handler ~~ Str:D && self.singularity-handler.lc eq 'imt' {
-                    $topRegion.add-variable-transformer('imt', :$axis, :$working-precision)
+                    $topRegion.add-variable-transformer('imt', :$axis, :$working-precision);
+                    # Prevent another application of a singularity handler on that axis
+                    $topRegion.range-end-cases[$axis] = RE_NONE
                 }
 
                 # Reset split level
