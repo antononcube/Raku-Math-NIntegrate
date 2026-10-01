@@ -89,7 +89,7 @@ Here is a description using the OOP DP language:
 
 ------
 
-## Usage example
+## Usage examples
 
 Basic usage examples:
 
@@ -205,6 +205,12 @@ nintegrate '{$^x + $^y}' '<x 0 1>' '<y 0 10>' --pairs
 
 ------
 
+## Status
+
+The implementation status is tracked in the [Org-mode](https://orgmode.org) file [Work-plan.org](./org/Work-plan.org).
+
+------
+
 ## References
 
 [WRI1]
@@ -229,3 +235,4 @@ Anton Antonov,
 Anton Antonov   
 Windermere, Florida, USA  
 2021-04-05
+2026-09-28

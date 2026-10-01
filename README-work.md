@@ -89,7 +89,7 @@ Here is a description using the OOP DP language:
 
 ------
 
-## Usage example
+## Usage examples
 
 Basic usage examples:
 
@@ -157,6 +157,12 @@ Here is an example invocation:
 ```shell
 nintegrate '{$^x + $^y}' '<x 0 1>' '<y 0 10>' --pairs
 ```
+
+------
+
+## Status
+
+The implementation status is tracked in the [Org-mode](https://orgmode.org) file [Work-plan.org](./org/Work-plan.org).
 
 ------
 
