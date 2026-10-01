@@ -27,7 +27,10 @@ subtest {
 
     is $integrator.partitioning, 3, 'expected integrator attribute value';
 
-}, 'Creation';
+    my %res = $integrator.algorithm();
+    is %res<region-count>, $integrator.regions.elems, 'expected number of regions correspondence';
+
+}, 'Creation and integration';
 
 
 # 2
