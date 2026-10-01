@@ -171,6 +171,9 @@ class Math::NIntegrate::Spec {
         # Method option
         %options<method> = self.normalize-method(%options<method> // Whatever);
 
+        # Integration monitor
+        %options<integration-monitor> = %options<integration-monitor> // WhateverCode;
+
         # Assign
         %!options = %options;
     }

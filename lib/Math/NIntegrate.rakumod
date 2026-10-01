@@ -55,6 +55,7 @@ multi sub nintegrate(+@args,
     my %res = $integrator.algorithm(
             relative-tolerance => $spec.options<relative-tolerance>,
             absolute-tolerance => $spec.options<absolute-tolerance>,
+            integration-monitor => $spec.options<integration-monitor>
             );
 
     return $pairs ?? %res !! %res<integral>
