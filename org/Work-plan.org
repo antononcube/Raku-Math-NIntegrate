@@ -19,7 +19,7 @@
 - [ ] Process goals to tolerances
 - [ ] Process method option
   - See "Abstract Factory"
-** TODO Integration Rules [27%] [3/11]
+** TODO Integration Rules [36%] [4/11]
 *** DONE General rule 1D [100%] [2/2]
 - [X] Attributes: abscissas, weights, error-weights
 - [X] Integration
@@ -55,7 +55,7 @@
   - Simple and elegant, but does not allow the determination of largest-error axis
 - [X] Integration with error calculation for each axis
   - In order to determine the largest-error axis.
-*** TODO MultiDimensional rule [%]
+*** DONE MultiDimensional rule [%]
 - [C] Genz-Malik
   - Low priority, maybe, at some point to be implemented
 - [X] DCUHRE
@@ -66,12 +66,12 @@
 - [X] Using a fine point generator
 - [ ] En bloc (rapid) generator
 *** TODO Quasi Monte Carlo rule
-** TODO Integration Region [66%] [4/6]
+** TODO Integration Region [83%] [5/6]
 - [X] Design: attributes & methods
 - [X] Clone
 - [X] Apply rule
 - [X] Split
-- [ ] Divide
+- [X] Divide
 - [ ] Partition
 ** TODO Variable Transformers [0%] [0/5]
 *** TODO Affine
@@ -102,16 +102,24 @@
   - With Leftist Heap
 - [X] Main integration loop
   - With Leftist Heap
-- [ ] Singularity handling
+- [-] Singularity handling
+  - [X] IMT
+  - [ ] DoubleExponential
 - [ ] Convergence monitoring
 - [X] Integration monitor
-*** TODO Local Adaptive [0%] [0/6]
-- [ ] Initial regions by min-recursion
-- [ ] Main integration loop
-- [ ] Reuse of integrand values 
-- [ ] Singularity handling
+*** TODO Local Adaptive [50%] [4/8]
+- [X] Initial regions by min-recursion
+- [X] Main integration recursive process
+- [X] Partitioning option treatment
+- [ ] InitialEstimateRelaxation option treatment
+- [ ] Reuse of integrand values
+  - Works well for 1D integrals using closed rules with small number nodes.
+  - Hence it is of low(er) priority
+- [-] Singularity handling
+  - [X] IMT
+  - [ ] DoubleExponential
 - [ ] Convergence monitoring
-- [ ] Integration monitor
+- [X] Integration monitor
 *** TODO Saturating
 *** TODO Trapezoidal
 *** TODO Double Exponential
@@ -126,9 +134,14 @@
 - [X] Refactor ~Math::NIntegrate::Spec~ to use the full method spec
 - [X] Implement decorator builder method in ~Math::NIntegrate::Builder~
 *** TODO UnitCubeRescaling
-- [ ] The simplest way is to use textual functional boundaries and produces callables with RakuAST
+- [ ] The simplest way is to use textual functional boundaries and produce callables with RakuAST
 - [ ] Using closures?
 - [ ] Using function composition?
+- [ ] Using lookup
+  - Obviously, limited, but:
+    - Good for motivational demos
+    - Can be used of most popular cases in 2D and 3D
+- [ ] Using CortexJS
 ** DONE Builder [100%] [6/6]
 - [X] Numerical function (for the integrand) making
 - [X] Composite variable transformer
@@ -142,7 +155,7 @@
 - [X] Concrete allowed method-option specs grammar
 - [X] Grammar actions of canonical representation
 - [X] Actions invoking Builder methods
-** TODO Unit tests [72%] [8/11]
+** TODO Unit tests [75%] [9/12]
 - [X] Numerical function
 - [X] Trapezoidal rule
   - [X] Creation
@@ -161,10 +174,11 @@
   - [X] Constant ranges 2D
   - [ ] Functional ranges 2D
   - [ ] Functional ranges 3D
-- [X] Global strategy
+- [X] Global Adaptive strategy
   - [X] Integration 1D
   - [X] Integration monitor use
   - [X] Integration 2D
+- [X] Local Adaptive strategy
 - [X] Grammar parsing
   - [X] Simple grammar method specs
   - [X] Method-spec interpretation
