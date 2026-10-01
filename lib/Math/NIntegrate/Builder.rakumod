@@ -113,7 +113,7 @@ class Math::NIntegrate::Builder {
 
         # Create rule by spec
         my $rule = do given $method {
-            when $_.isa(Whatever) || $_.isa(WhateverCode) {
+            when $_.isa(Whatever) || $_.isa(WhateverCode) || $_ ~~ Map:D && $_<name>.isa(Whatever) {
                 return $dimension == 1
                         ?? self.make-rule(method => %default-spec, :$dimension, :$working-precision)
                         !! self.make-rule(method => {type => 'rule', name => 'MultiDimensionalRule', generators => 9, :$dimension}, :$dimension, :$working-precision)
