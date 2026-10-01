@@ -53,7 +53,7 @@ class Math::NIntegrate::Spec {
 
         die $msg unless @ranges>>.head.all ~~ Str:D && ([&&] @ranges>>.elems <<≥>> 3);
 
-        return @ranges.kv.map( -> $i, @r { @r.head => %(index => $i, var => @r.head, min => @r[1], max => @r.tail, interval-points => @r[2... @r.elems - 2]) }).Hash
+        return @ranges.kv.map( -> $i, @r { @r.head => %(index => $i, var => @r.head, min => @r[1], max => @r.tail, inner-points => @r[2... @r.elems - 2]) }).Hash
     }
 
     multi method normalize-ranges(%ranges is copy) {
