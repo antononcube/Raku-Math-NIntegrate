@@ -123,10 +123,8 @@ class Math::NIntegrate::Strategy::LocalAdaptive
             return {:$integral, :$error, region-count => 1}
         } else {
 
-            my Bool:D $done-max-recursion = $region.levels.max ≥ self.max-recursion;
-
             # Warning the max recursion was reached
-            if $done-max-recursion {
+            if $region.levels.max ≥ self.max-recursion {
                 note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$region.numerical-function.last-argument-values}.";
                 return {:$integral, :$error, region-count => 1}
             }
@@ -169,6 +167,8 @@ class Math::NIntegrate::Strategy::LocalAdaptive
                         :$absolute-tolerance,
                         :&integration-monitor,
                         :$working-precision);
+
+                return %no-result unless %recRes<integral> ~~ Numeric:D;
 
                 %result<integral> += %recRes<integral>;
                 %result<error> += %recRes<error>;
