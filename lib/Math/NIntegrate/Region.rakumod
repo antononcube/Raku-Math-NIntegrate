@@ -280,6 +280,35 @@ class Math::NIntegrate::Region {
             $obj.levels = |self.levels.map(* + 1);
             $_.map(*.head).kv.map(-> $axis, $b { $obj.variable-transformer.set-min-transform-bound($axis, $b) });
             $_.map(*.tail).kv.map(-> $axis, $b { $obj.variable-transformer.set-max-transform-bound($axis, $b) });
+
+            $obj.range-end-cases = RE_NONE xx self.dimension;
+
+            for ^self.dimension -> $axis {
+                given @!range-end-cases[$axis] {
+                    when $_ eq RE_BOTH {
+                        if $obj.variable-transformer.get-transform-bounds<min>[$axis] == %bounds<min>[$axis] {
+                            $obj.range-end-cases[$axis] = RE_LEFT
+                        } elsif $obj.variable-transformer.get-transform-bounds<max>[$axis] == %bounds<max>[$axis] {
+                            $obj.range-end-cases[$axis] = RE_RIGHT
+                        }
+                    }
+                    when RE_LEFT {
+                        if $obj.variable-transformer.get-transform-bounds<min>[$axis] == %bounds<min>[$axis] {
+                            $obj.range-end-cases[$axis] = RE_LEFT
+                        }
+                    }
+                    when RE_RIGHT {
+                        if $obj.variable-transformer.get-transform-bounds<max>[$axis] == %bounds<max>[$axis] {
+                            $obj.range-end-cases[$axis] = RE_RIGHT
+                        }
+                    }
+                    default {
+                        # It was already set above
+                        $obj.range-end-cases[$axis] = RE_NONE
+                    }
+                }
+            }
+
             $obj
         });
 
