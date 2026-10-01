@@ -1,0 +1,44 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+
+# 1
+subtest {
+    my &f = { 1 / $^x.sqrt };
+
+    my %res = nintegrate(&f, <x 0 1>,  method => ('LocalAdaptive', partitioning => 2, singularity-depth => 2), max-recursion => 9):pairs;
+
+    is-approx %res<integral>, 2, rel-tol => 1e-6, abs-tol => 1e-6, 'integral estimate';
+
+}, '1D sinqular integral';
+
+
+# 2
+subtest {
+    my &f = {$^x + $^y ** 2};
+    # The undefined integral of &f is (x^2 y)/2 + (x y^3)/3.
+    # The exact value in [0, 1] x [0, 1] is 5/6.
+    # The exact value in [0, 3] x [0, 5] is 295/2.
+    my $exact = 295/2;
+
+   isa-ok
+           nintegrate(&f, ('x', 0, 3), ('y', 0, 5),
+                   method => ('LocalAdaptive', method => 'MultiDimensionalRule'),
+                   max-recursion => 3),
+           Numeric:D,
+           'ok to call';
+
+    my %res = nintegrate(&f, ('x', 0, 3), ('y', 0, 5),
+            method => 'LocalAdaptive',
+            max-recursion => 3):pairs;
+
+    say (:%res);
+
+    # Num
+    is abs(%res<integral> - $exact) ≤ 1e-6, True, 'expected Num result';
+
+}, 'nintegrate({$^x + $^y ** 2}, <x 0 3>, <y 0 5>)';
+
+
+done-testing;
