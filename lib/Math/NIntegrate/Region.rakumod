@@ -326,11 +326,12 @@ class Math::NIntegrate::Region {
     # Partition
     #--------------------------------------
 
-    # The argument points are, likely, integration rule abscissas.
-    # This method facilitates reuse of integral computations, by strategies, like, LocalAdaptive.
+    # The argument points can be a) user specified integral ranges points, or b) integration rule abscissas.
+    # These points reside on different domains: a) on the original integral domain, and b) on the transformed domain.
+    # For the latter, this method can facilitate the reuse of integral computations, by strategies, like, LocalAdaptive.
     # This means that partitioning over points (integration rule nodes) makes sense for 1D regions.
     # For nD regions (n > 1) the partitioning makes sense for Cartesian rules.
-    # In order this method to "make sense" it the integration values reuse have to be implemented.
+    # In order this method to "make sense" the reuse of integration values have to be implemented.
 
     #| Partition the region with a given array of partition points.
     method partition(@points --> Array) {
