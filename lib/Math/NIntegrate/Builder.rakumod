@@ -148,7 +148,7 @@ class Math::NIntegrate::Builder {
             }
 
             when $_<name> eq 'NewtonCotesRule' {
-                Math::NIntegrate::Rule::NewtonCotesRule.new(points => $_<gauss-points> // $_<points> // 5, :$working-precision);
+                Math::NIntegrate::Rule::NewtonCotes.new(points => $_<gauss-points> // $_<points> // 5, :$working-precision);
             }
 
             when $_<name> eq 'CartesianRule' {
