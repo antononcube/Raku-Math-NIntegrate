@@ -107,7 +107,7 @@
   - [ ] DoubleExponential
 - [ ] Convergence monitoring
 - [X] Integration monitor
-*** TODO Local Adaptive [50%] [4/8]
+*** TODO Local Adaptive [44%] [4/9]
 - [X] Initial regions by min-recursion
 - [X] Main integration recursive process
 - [X] Partitioning option treatment
@@ -119,6 +119,7 @@
   - [X] IMT
   - [ ] DoubleExponential
 - [ ] Convergence monitoring
+- [ ] Relaxation of the integral estimate stopping criteria
 - [X] Integration monitor
 *** TODO Saturating
 *** TODO Trapezoidal
@@ -179,6 +180,9 @@
   - [X] Integration monitor use
   - [X] Integration 2D
 - [X] Local Adaptive strategy
+  - [X] Creation
+  - [X] Integration 1D
+  - [X] Integration 2D
 - [X] Grammar parsing
   - [X] Simple grammar method specs
   - [X] Method-spec interpretation
