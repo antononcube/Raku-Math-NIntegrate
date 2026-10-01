@@ -68,10 +68,11 @@ subtest {
     my $rule = Math::NIntegrate::Rule::Trapezoidal.new(3);
 
     # Region
+    my $offset = 0.02;
     my $region = Math::NIntegrate::Builder.make-region(
             $numerical-function,
-            [0, 0],
-            [5, 12],
+            [$offset,     $offset],
+            [$offset + 5, $offset + 12],
             :$rule);
 
     my $volume = 5 * 12;
@@ -92,12 +93,12 @@ subtest {
     # Boundaries after the partition
     is
             @regions.map({ .variable-transformer.get-transform-bounds<min>[0] }).sort,
-            [0, 0, 0, 2.5, 2.5, 2.5],
+            [0, 0, 0, 2.5, 2.5, 2.5] >>+>> $offset,
             'expected min boundaries';
 
     is
             @regions.map({ .variable-transformer.get-transform-bounds<max>[1] }).sort,
-            [4, 4, 8, 8, 12, 12],
+            [4, 4, 8, 8, 12, 12] >>+>> $offset,
             'expected max boundaries';
 
     is ([+] |@regions>>.volume), $volume, 'expected volume';
