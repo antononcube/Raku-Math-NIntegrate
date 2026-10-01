@@ -48,6 +48,27 @@ class Math::NIntegrate::NumericalFunction {
         # It seems it is a better to keep argument values with which the function failed to evaluate
         @!last-argument-values = @args;
 
+        # When the Infinity or IMT variable transforms are used it can happen that the @args is at a singular point.
+        # Hence a very small step inside the integration region has to be taken.
+        # For example:
+
+        #`[
+        if $! {
+            try {
+                $!value = &!function(|(@args <<±>> 2 * $MACHINE_EPSILON));
+            }
+
+            if $! {
+                warn "Cannot evaluate numerical function at { @args.raku }.";
+                return Whatever
+            }
+        }
+        ]
+
+        # The code above requires the directions to be specified for each axis.
+        # I.e. instead of <<±>> to have <<->>, or <<+>>, or a full array of signs, like, [-1, 0, 0, 1, 0],
+        # (for an integral in the 5th dimension) that is multiplied with (2 * $MACHINE_EPSILON).
+
         if $! {
             warn "Cannot evaluate numerical function at {@args.raku}.";
             return Whatever
