@@ -266,9 +266,16 @@ class Math::NIntegrate::Region {
         my @range-pairs = do for ^self.dimension -> $axis {
             my $min = %bounds<min>[$axis];
             my $max = %bounds<max>[$axis];
-            my $h = numerical($max - $min, $working-precision) / @divisions[$axis];
+            my $h = numerical(numerical($max - $min, $working-precision) / @divisions[$axis], $working-precision);
 
-            ($min, $min + $h ... $max).map({ numerical($_, $working-precision) }).rotor(2 => -1);
+            # Using ($min, $min + $h ... $max) can produce incomplete set boundaries
+            # because of the precision manipulations
+            my @bounds = $min;
+            for ^@divisions[$axis] {
+                @bounds.push( numerical(@bounds.tail + $h, $working-precision) )
+            }
+
+            @bounds.map({ numerical($_, $working-precision) }).rotor(2 => -1);
         }
 
         # Same code as in method partition.
