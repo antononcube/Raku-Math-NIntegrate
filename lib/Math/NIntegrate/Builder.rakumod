@@ -11,6 +11,7 @@ use Math::NIntegrate::VariableTransformer::Composite;
 # Strategies
 use Math::NIntegrate::Strategy;
 use Math::NIntegrate::Strategy::GlobalAdaptive;
+use Math::NIntegrate::Strategy::LocalAdaptive;
 use Math::NIntegrate::Strategy::UnitCubeRescaling;
 
 # Rules
@@ -240,14 +241,19 @@ class Math::NIntegrate::Builder {
             }
 
             when $_<name> eq 'LocalAdaptive' {
-                die 'The LocalAdaptive strategy is not implemented yet.'
-#                Math::NIntegrate::Strategy::LocalAdaptive.new(
-#                        :$min-recursion,
-#                        :$max-recursion,
-#                        :$singularity-depth,
-#                        :$singularity-handler,
-#                        :$max-points
-#                        );
+                # Specific local adaptive options
+                my $partitioning = $method<partititioning> // Whatever;
+                my $initial-estimate-relaxation = $method<initial-estimate-relaxation> // True;
+
+                Math::NIntegrate::Strategy::LocalAdaptive.new(
+                        :$min-recursion,
+                        :$max-recursion,
+                        :$singularity-depth,
+                        :$singularity-handler,
+                        :$max-points,
+                        :$partitioning,
+                        :$initial-estimate-relaxation
+                        );
             }
 
             when $_<name> eq 'AdaptiveMonteCarlo' {
