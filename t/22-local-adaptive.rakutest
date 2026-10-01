@@ -35,8 +35,6 @@ subtest {
             method => 'LocalAdaptive',
             max-recursion => 3):pairs;
 
-    say (:%res);
-
     # Num
     is abs(%res<integral> - $exact) ≤ 1e-6, True, 'expected Num result';
 
