@@ -48,7 +48,6 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
         my $reference-estimate = max($rel-est, $acc-est);
 
-        say (:$reference-estimate);
         # Maybe the integral estimate is zero -- this does not mean the integral is zero.
         # Use the sum of the volumes of the regions.
         if is-zero($integral) {
@@ -126,7 +125,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
             my @divisions = do given $!partitioning {
                 when Whatever { 2 xx $region.dimension }
-                when $_ ~~ Int:D && $_ > 1 { $_ xx $region.dimenion }
+                when $_ ~~ Int:D && $_ > 1 { $_ xx $region.dimension }
                 default {
                     die 'The partitioning option is expected to be an integer greater than 1 or Whatever.'
                 }
