@@ -480,11 +480,17 @@ class Math::NIntegrate::Region {
 
                 # Jacobian factor
                 if $!variable-transformer.jacobian-factors.elems == 0 {
-                    # This somewhat too weak -- setting the factors here.
+                    # This is somewhat too weak -- setting the factors here.
                     # But on the other hand it is the only place where it is set.
                     $!variable-transformer.jacobian-factors = 1 xx $!dimension
                 }
-                $!variable-transformer.jacobian-factors[$axis] *= -1
+                $!variable-transformer.jacobian-factors[$axis] *= -1;
+
+                @!range-end-cases[$axis] = do given @!range-end-cases[$axis] {
+                    when $_ eq RE_RIGHT { RE_LEFT }
+                    when $_ eq RE_LEFT { RE_RIGHT }
+                    default { $_ }
+                }
             }
         }
     }
