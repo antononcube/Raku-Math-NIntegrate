@@ -41,4 +41,28 @@ subtest {
 }, 'nintegrate({$^x + $^y ** 2}, <x 0 3>, <y 0 5>)';
 
 
+# 3
+subtest {
+    # This tests for proper region boundaries computation by Region::divide
+    my &f = { $^x.sqrt };
+    my &F = { (2 * $^x ** (3 / 2)) / 3 };
+    my ($a, $b) = 2.7, 30;
+    my $exact = &F($b) - &F($a);
+    my $precision-goal = 5;
+
+    my %res =
+            nintegrate(&f, ['x', $a, $b],
+                    method => ('LocalAdaptive', partitioning => 2, singularity-depth => Inf),
+                    :$precision-goal,
+                    min-recuraion => 4,
+                    max-recursion => 9):pairs;
+
+    is-approx %res<integral>, $exact,
+            abs-tol => 5 * 10e0 ** (-$precision-goal), rel-tol => 5 * 10e0 ** (-$precision-goal),
+            'integral estimate';
+
+    #say (:$a, :$b, actual-error => %res<integral> - $exact);
+    #say (:%res);
+}, '1D, 1/sqrt(x) for [a,b] ranges';
+
 done-testing;
