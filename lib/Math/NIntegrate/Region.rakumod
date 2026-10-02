@@ -262,7 +262,7 @@ class Math::NIntegrate::Region {
 
         my %bounds = $!variable-transformer.get-transform-bounds();
 
-        # For each axis for partition pairs
+        # For each axis form partition pairs
         my @range-pairs = do for ^self.dimension -> $axis {
             my $min = %bounds<min>[$axis];
             my $max = %bounds<max>[$axis];
