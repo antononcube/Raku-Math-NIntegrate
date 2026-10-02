@@ -6,6 +6,7 @@ Changes of the Raku package "Math::NIntegrate".
       - nintegrate({1/(1-$^x).abs.sqrt}, <x 0 1 2>)
       - nintegrate({1/($^x + $^y).abs.sqrt}, <x -1 0 1>, <y -1 0 1>)
     - Fixes for both concise- and multi-component Cartesian rule specifications
+    - Facilitation of stepping away from singular points during integrand evaluation
 
 0.0.2 2026-10-01
     - Implemented LocalAdaptive integration strategy
