@@ -84,7 +84,7 @@ class Math::NIntegrate::Rule::General
     multi method Hash(::?CLASS:D:-->Map:D) {
         my %h =
                 name => self.^name,
-                :$!dimension
+                :$!dimension,
                 :@!abscissas,
                 :@!weights,
                 :@!error-weights,
