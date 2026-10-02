@@ -105,7 +105,7 @@ class Math::NIntegrate::Spec {
         }
 
         if $! {
-            die 'Cannot parse method option.'
+            die "Cannot parse method option.\n⎡$!⎦"
         }
 
         return %method-spec
