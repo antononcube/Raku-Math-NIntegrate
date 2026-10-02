@@ -73,4 +73,26 @@ class Math::NIntegrate::Rule::General
 
         return self;
     }
+
+    #======================================================
+    # Representation
+    #======================================================
+    method Str(::?CLASS:D:-->Str) {
+        self.gist
+    }
+
+    multi method Hash(::?CLASS:D:-->Map:D) {
+        my %h =
+                name => self.^name,
+                :$!dimension
+                :@!abscissas,
+                :@!weights,
+                :@!error-weights,
+                ;
+        return %h
+    }
+
+    multi method gist(::?CLASS:D:-->Str) {
+        self.^name ~ self.Hash.map({ $_.key => $_.value ~~ Positional:D ?? $_.value.elems !! $_.value }).grep(*.key ne 'name').sort(*.key).List.raku;
+    }
 }
