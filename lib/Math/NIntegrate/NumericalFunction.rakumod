@@ -1,5 +1,7 @@
 use v6.d;
 
+use Math::NIntegrate::Utilities;
+
 class Math::NIntegrate::NumericalFunction {
     has &.function is rw;
     has @.argument-dimensions;
@@ -39,8 +41,13 @@ class Math::NIntegrate::NumericalFunction {
         self.new(:&function, :$working-precision)
     }
 
-    multi method evaluate(*@args) { self.eval(@args) }
-    multi method eval(*@args) {
+    #| Synonym of eval
+    multi method evaluate(*@args, :$derivative-signs = Whatever) {
+        self.eval(@args, :$derivative-signs)
+    }
+
+    #| Evaluate the numerical function at a given point
+    multi method eval(*@args, :$derivative-signs = Whatever) {
         try {
             $!value = &!function(|@args);
         }
@@ -50,28 +57,30 @@ class Math::NIntegrate::NumericalFunction {
 
         # When the Infinity or IMT variable transforms are used it can happen that the @args is at a singular point.
         # Hence a very small step inside the integration region has to be taken.
-        # For example:
-
-        #`[
-        if $! {
-            try {
-                $!value = &!function(|(@args <<±>> 2 * $MACHINE_EPSILON));
-            }
-
-            if $! {
-                warn "Cannot evaluate numerical function at { @args.raku }.";
-                return Whatever
-            }
-        }
-        ]
-
-        # The code above requires the directions to be specified for each axis.
+        # The code below requires the directions to be specified for each axis.
         # I.e. instead of <<±>> to have <<->>, or <<+>>, or a full array of signs, like, [-1, 0, 0, 1, 0],
         # (for an integral in the 5th dimension) that is multiplied with (2 * $MACHINE_EPSILON).
 
         if $! {
-            warn "Cannot evaluate numerical function at {@args.raku}.";
-            return Whatever
+            with $derivative-signs {
+                fail 'INCORRECT_ARGUMENTS: The named argument $derivative-signs is expected to be Whatever' ~
+                        ' or an array of length that equals the positional arguments.'
+                unless $derivative-signs ~~ Positional:D && $derivative-signs.elems == @args.elems;
+
+                my @steps = |((2 * $MACHINE_EPSILON) <<*>> $derivative-signs);
+
+                try {
+                    $!value = &!function(|(@args <<+>> @steps));
+                }
+
+                if $! {
+                    warn "Cannot evaluate numerical function at { @args.raku }.";
+                    return Whatever
+                }
+            } else {
+                warn "Cannot evaluate numerical function at { @args.raku }.";
+                return Whatever
+            }
         }
 
         if $!value ~~ Inf | -Inf || $!value.isNaN {
