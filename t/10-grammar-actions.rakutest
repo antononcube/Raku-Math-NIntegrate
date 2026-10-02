@@ -66,6 +66,16 @@ subtest {
 
             '(ClenshawCurtisRule, :10points)' =>
                     {name => 'ClenshawCurtisRule', points => 10, type => 'rule'},
+
+            '(CartesianRule, method => ((TrapezoidalRule, :10points), (GaussKronrodRule, :10points)) )' =>
+                    {
+                        name => 'CartesianRule',
+                        method => [
+                            {name => 'TrapezoidalRule', points => 10, type => 'rule'},
+                            {name => 'GaussKronrodRule', points => 10, type => 'rule'}
+                        ],
+                        type => 'rule'
+                    }
             ;
 
     for @specs.kv -> $i, $p {
