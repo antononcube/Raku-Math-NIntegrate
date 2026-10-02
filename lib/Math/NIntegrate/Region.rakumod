@@ -388,9 +388,15 @@ class Math::NIntegrate::Region {
             return 0
         }
 
+        # Preparer derivative-signs
+        my $derivative-signs = Whatever;
+        if $!variable-transformer.stack.tail ~~ Math::NIntegrate::VariableTransformer::IMT {
+            $derivative-signs = $!variable-transformer.stack.tail.derivatives>>.sign;
+        }
+
         # Evaluate the integrand functor over the transformed point
         try {
-            $value = $!numerical-function.eval(@point);
+            $value = $!numerical-function.eval(@point, :$derivative-signs);
         }
 
         if $! || $value !~~ Numeric:D {
