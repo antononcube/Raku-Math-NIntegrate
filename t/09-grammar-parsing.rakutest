@@ -74,13 +74,25 @@ subtest {
             $gr.parse('((TrapezoidalRule, :10points), (GaussKronrodRule, :10points))', rule => 'rule-component-option-value'),
             'rule component option value';
 
+    ok
+           $gr.parse('(("TrapezoidalRule", :points(5)), ("GaussKronrodRule", :points(10)))', rule => 'rule-component-option-value'),
+           'rule component option with quotes';
+    ok
+            $gr.parse(':method((("TrapezoidalRule", :points(5)), ("GaussKronrodRule", :points(10))))', rule => 'cartesian-rule-method'),
+            'cartesian-rule-method';
+
     my @specs =
             'CartesianRule',
+            '"CartesianRule"',
             '( CartesianRule )',
             '(CartesianRule, method => ClenshawCurtisRule)',
             '(CartesianRule, method => (TrapezoidalRule, points => 5))',
             '(CartesianRule, method => (TrapezoidalRule, :10points))',
             '(CartesianRule, method => ((TrapezoidalRule, :10points), (GaussKronrodRule, :10points)) )',
+            '("CartesianRule", method => ("ClenshawCurtisRule", :points(5)))',
+            '("CartesianRule", :method(("ClenshawCurtisRule", :points(5))))',
+            '("CartesianRule", method => (("TrapezoidalRule", :points(5)), ("ClenshawCurtisRule", :points(5))))',
+            '("CartesianRule", :method((("TrapezoidalRule", :points(5)), ("ClenshawCurtisRule", :points(5)))))'
             ;
     for @specs.kv -> $i, $spec {
         ok $gr.parse($spec, rule => 'cartesian-rule-spec'), "failed CartesianRule spec $i : ⎡$spec⎦";
