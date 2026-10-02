@@ -5,6 +5,7 @@ use Math::NIntegrate::NumericalFunction;
 use Math::NIntegrate::Rule::Trapezoidal;
 use Math::NIntegrate::Region;
 use Math::NIntegrate::Builder;
+use Math::NIntegrate::Spec;
 
 plan *;
 
@@ -104,5 +105,47 @@ subtest {
     is ([+] |@regions>>.volume), $volume, 'expected volume';
 
 }, 'Region division';
+
+
+## 3
+subtest {
+    # 1D
+    my &f = { 1 / $^x.sqrt };
+    my @ranges = ['x', 0, 1], ;
+
+    my $spec = Math::NIntegrate::Spec.new(&f, @ranges);
+
+    my $builder = Math::NIntegrate::Builder.new;
+    my @res11 = $builder.make-region-ranges($spec.ranges);
+
+    is-deeply
+        @res11,
+        [((0,), (1,)),],
+        "expected ranges, <x 0 1>";
+
+    @ranges = ['x', 0, 2, 5, 7],;
+
+    my %normalized-ranges = $spec.normalize-ranges(@ranges);
+
+    my @res12 = |$builder.make-region-ranges(%normalized-ranges);
+
+    is-deeply
+            @res12,
+            [((0,), (2,)), ((2,), (5,)), ((5,), (7,))],
+            "expected ranges, 1D, <x 0 2 5 7>";
+
+    # 2D
+    @ranges = ['x', 0, 1], ['y', 1, 2, 3, 5];
+
+    %normalized-ranges = $spec.normalize-ranges(@ranges);
+
+    my @res2 = |$builder.make-region-ranges(%normalized-ranges);
+
+    is-deeply
+            @res2,
+            [((0, 1), (1, 2)), ((0, 2), (1, 3)), ((0, 3), (1, 5))],
+            "expected ranges, 2D";
+
+}, 'top level ranges spec processing';
 
 done-testing;
