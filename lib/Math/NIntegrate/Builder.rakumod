@@ -177,7 +177,11 @@ class Math::NIntegrate::Builder {
             }
 
             when $_<name> eq 'CartesianRule' {
-                my @components = ($_<method> ~~ Map:D ?? [$_<method>,] !! $_<method>).map({ self.make-rule(:1dimension, method => $_, :$working-precision) });
+                my @components = do with $_<method> {
+                    ($_<method> ~~ Map:D ?? [$_<method>,] !! $_<method>).map({ self.make-rule(:1dimension, method => $_, :$working-precision) })
+                } else {
+                    self.make-rule(:1dimension, method => %default-spec, :$working-precision)
+                }
                 Math::NIntegrate::Rule::Cartesian.new(:@components, :$dimension);
             }
 
