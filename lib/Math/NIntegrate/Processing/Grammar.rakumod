@@ -123,7 +123,8 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     regex cartesian-rule-method {:i
         | <method> \s* <.arrow> \s* <rule-component-option-value>
-        | ':' <method> <.lb> \s* <rule-component-option-value> \s* <.rb>
+        # It really does not want me to use <.lb> instead of <.punct> !!
+        | ':' <method> <.punct> \s* <rule-component-option-value> \s* <.rb>
         | '"' <method> '"' \s* ':' \s* <.lb> \s* <rule-component-option-value> \s* <.rb>
     }
 
@@ -132,7 +133,8 @@ grammar Math::NIntegrate::Processing::Grammar {
     # (Although, in principle, that can be processed and corresponding "flattened" Cartesian rule be created.)
     rule cartesian-rule-spec {
         || <cartesian-rule>
-        || <.lb> <cartesian-rule> [ <.sep> [ <cartesian-rule-method> | <numeric-option-spec> ]* % <.sep> ]? <.rb>
+        || '"' ~ '"' <cartesian-rule>
+        || <.lb> [ <cartesian-rule> | '"' ~ '"' <cartesian-rule> ] [ <.sep> [ <cartesian-rule-method> | <numeric-option-spec> ]* % <.sep> ]? <.rb>
     }
 
     rule rule-spec {
