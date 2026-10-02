@@ -110,4 +110,30 @@ class Math::NIntegrate::Strategy {
             Numeric:D :acc(:$absolute-tolerance) = 0,
             :$working-precision = Num
             -->Map:D) {!!!}
+
+    #======================================================
+    # Representation
+    #======================================================
+    method Str(::?CLASS:D:-->Str) {
+        self.gist
+    }
+
+    multi method Hash(::?CLASS:D:-->Map:D) {
+        my %h =
+            name => self.^name,
+            :$!min-recursion,
+            :$!max-recursion,
+            :$!max-points,
+            :$!singularity-depth,
+            :$!singularity-handler,
+            :$!max-number-of-error-increases,
+            region-count => @!regions.elems,
+            rules => @!regions>>.rule.map({ $_.^name }).List
+                ;
+        return %h
+    }
+
+    multi method gist(::?CLASS:D:-->Str) {
+        self.^name ~ self.Hash.grep(*.key ne 'name').sort(*.key).List.raku;
+    }
 }

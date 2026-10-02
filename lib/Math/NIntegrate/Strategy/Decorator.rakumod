@@ -18,4 +18,18 @@ class Math::NIntegrate::Strategy::Decorator
     method algorithm(*%args -->Map:D) {
         self.component.algorithm(|%args)
     }
+
+    #======================================================
+    # Representation
+    #======================================================
+    multi method Hash(::?CLASS:D:-->Map:D) {
+        my %h =
+                name => self.^name,
+                component => self.component.Hash;
+        return %h
+    }
+
+    multi method gist(::?CLASS:D:-->Str) {
+        self.^name ~ '(component => ' ~ self.component.gist ~ ')'
+    }
 }
