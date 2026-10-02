@@ -8,6 +8,8 @@ use Math::NIntegrate::Codes;
 class Math::NIntegrate::VariableTransformer::IMT
         is Math::NIntegrate::VariableTransformer {
 
+    has @.derivatives;
+
     method clone(-->Math::NIntegrate::VariableTransformer::IMT) {
         Math::NIntegrate::VariableTransformer::IMT.new(region => self.region).copy(self, :clone)
     }
@@ -20,7 +22,11 @@ class Math::NIntegrate::VariableTransformer::IMT
         self.transforms[$i] = WhateverCode
     }
 
-    method !singfin-fin-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
+    method !singfin-fin-transform(
+            Numeric:D $point,
+            Numeric:D $min, Numeric:D $max,
+            Numeric:D :$a = 10, Numeric:D :$p = 1
+            -->Map) {
 
         my $tPoint;
         my $tJacobian;
@@ -32,9 +38,9 @@ class Math::NIntegrate::VariableTransformer::IMT
             # This for p==1
             $pInv = numerical(1 / $point, self.working-precision);
             # This is not high precision. At some point continued fractions can be used.
-            my $exp = exp(1 - $pInv);
+            my $exp = exp($a * (1 - $pInv));
             $tPoint = $min + ($max - $min) * $exp;
-            $tJacobian = ($max - $min) * $exp * $pInv * $pInv;
+            $tJacobian = ($max - $min) * $exp * $pInv * $pInv * $a;
         }
         return %(point => $tPoint, jacobian => $tJacobian)
     }
@@ -54,6 +60,12 @@ class Math::NIntegrate::VariableTransformer::IMT
             --> Map:D) {
         my %bounds = self.get-transform-bounds(:$context);
 
+        # Derivative signs are used to known in which
+        # direction to make a step back from singular points.
+        if @!derivatives.elems == 0 {
+            @!derivatives = 0 xx %bounds<min>.elems
+        }
+
         if $functional-bounds {
             die 'Functional boundaries variable transformation is not implemented yet.'
         } else {
@@ -63,6 +75,7 @@ class Math::NIntegrate::VariableTransformer::IMT
                     my %h = self.transforms[$i](@point[$i], self.min-original-bounds[$i], self.max-original-bounds[$i]);
                     %res<point>[$i] = %h<point>;
                     %res<jacobian> = %res<jacobian> * %h<jacobian>;
+                    @!derivatives[$i] = %h<jacobian>;
                 }
             }
             return %res
