@@ -1,16 +1,23 @@
 Changes of the Raku package "Math::NIntegrate".
 
+0.0.3 2026-10-02
+    - Process user specified "singular points" given in the range specs
+      - For example:
+      - nintegrate({1/(1-$^x).abs.sqrt}, <x 0 1 2>)
+      - nintegrate({1/($^x + $^y).abs.sqrt}, <x -1 0 1>, <y -1 0 1>)
+    - Fixes for both concise- and multi-component Cartesian rule specifications
+
 0.0.2 2026-10-01
     - Implemented LocalAdaptive integration strategy
-      - Related region division implementation and grammar/interpreter extensions
+      - Related region division implementation and grammar/interpreter extensions.
 
 0.0.1 2026-09-28
     - First version with:
         - GlobalAdaptive integration strategy
-            - Can be given an integration monitor routine as an argument
+            - Can be given an integration monitor routine as an argument.
         - The integration rules:
             - Cartesian, ClenshawCurtis, GaussKronrod, MonteCarlo, MultiDimensional, NewtonCotes, Trapezoidal
-        - Singularity handler by Iri, Moriguti, & Takesawa ("IMT rule")
+        - Singularity handler by Iri, Moriguti, & Takesawa ("IMT rule").
         - Comprehensive integrator spec parsing and interpretation
         - Kahaner integrator tests
         - CLI script
