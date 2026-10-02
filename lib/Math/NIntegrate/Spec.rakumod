@@ -53,7 +53,9 @@ class Math::NIntegrate::Spec {
 
         die $msg unless @ranges>>.head.all ~~ Str:D && ([&&] @ranges>>.elems <<≥>> 3);
 
-        return @ranges.kv.map( -> $i, @r { @r.head => %(index => $i, var => @r.head, min => @r[1], max => @r.tail, inner-points => @r[2... @r.elems - 2]) }).Hash
+        my %res = @ranges.kv.map( -> $i, @r { @r.head => %(index => $i, var => @r.head, min => @r[1], max => @r.tail, inner-points => @r[2, 3 ... @r.elems - 2]) });
+
+        return %res
     }
 
     multi method normalize-ranges(%ranges is copy) {
@@ -67,11 +69,11 @@ class Math::NIntegrate::Spec {
         # The indexes can be concluded from integrand's arguments names and positions.
         die $msg2 unless [&&] %ranges.map({ ($_.value.keys (&) <max min index>).elems == 3});
 
-        %ranges .= map({ $_.key => merge-hash($_.value, %(var => $_.head) ) });
+        %ranges .= map({ $_.key => merge-hash($_.value, %(var => $_.key) ) });
 
         # Check range indexes are integers between 0 and %ranges.elems and unique
         my @indexes = %ranges.values.map({ $_<index> }).unique;
-        die 'All ranges indexes are expected to be integers.' unless @indexes.all ~~ Int:D;
+        die 'All range indexes are expected to be integers.' unless @indexes.all ~~ Int:D;
         die 'Range indexes are expected to be unique.' if @indexes.elems < %ranges.elems;
         die 'Range indexes are expected to be between 0 and the ranges spec length.' unless @indexes.min == 0 && @indexes.max == %ranges.elems - 1;
 
