@@ -28,6 +28,31 @@ class Math::NIntegrate::Builder {
     has Math::NIntegrate::Strategy $.strategy;
 
     #------------------------------------------------------
+    #| Make the region ranges from a normalized ranges data.
+    method make-region-ranges(%normalized-ranges) {
+        # Similar derivation of ranges for regions-in-a-grid is done in Region::divide.
+
+        if %normalized-ranges.elems == 1 {
+            my %h = %normalized-ranges.values.head;
+            my @bounds = %h<inner-points> ?? [%h<min>, |%h<inner-points>, %h<max>] !! [%h<min>, %h<max>];
+            return @bounds.map({ ($_,) }).rotor(2 => -1)
+        }
+
+        # For each axis form partition pairs
+        my @range-pairs = %normalized-ranges.values.sort(*<index>).map({
+            my @bounds = $_<inner-points> ?? [$_<min>, |$_<inner-points>, $_<max>] !! [$_<min>, $_<max>];
+            @bounds.rotor(2 => -1)
+        });
+
+        @range-pairs = @range-pairs.elems > 1 ?? |cross(|@range-pairs>>.Array) !! |@range-pairs.head.map({ [$_,] });
+
+        # Transpose
+        @range-pairs = |@range-pairs.map({ zip(|$_>>.Array)>>.List });
+
+        return @range-pairs
+    }
+
+    #------------------------------------------------------
     #| Make variable transformer composite
     method make-variable-transformer-composite(
             :$region
@@ -328,9 +353,15 @@ class Math::NIntegrate::Builder {
                 dimension => %bounds<min>.elems,
                 :$working-precision);
 
+        # Derive the region ranges
+        # Multiple ranges are expected for specs like <x 0 1 3>, <y 1 3 5 7>
+        my @region-ranges = |self.make-region-ranges(%ranges);
+
         # Make regions
         # The numerical function object for the integrand is already made
-        my @regions = self.make-region($integrand, %bounds<min>, %bounds<max>, :$rule);
+        # This is over the whole region, but we have to respect user-specified inner range points (see the next line)
+        #my @regions = self.make-region($integrand, %bounds<min>, %bounds<max>, :$rule);
+        my @regions = @region-ranges.map({ self.make-region($integrand, $_.head, $_.tail, :$rule) });
 
         # In the future:
         # - More than one region is obtained from the original ranges
