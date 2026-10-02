@@ -285,6 +285,7 @@ class Math::NIntegrate::Region {
         my @regions = @range-pairs.map({
             my $obj = self.clone;
             $obj.levels = |self.levels.map(* + 1);
+            # This transposes the min-max values, could be done beforehand as in Builder::make-region-ranges
             $_.map(*.head).kv.map(-> $axis, $b { $obj.variable-transformer.set-min-transform-bound($axis, $b) });
             $_.map(*.tail).kv.map(-> $axis, $b { $obj.variable-transformer.set-max-transform-bound($axis, $b) });
 
