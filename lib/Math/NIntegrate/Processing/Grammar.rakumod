@@ -210,17 +210,18 @@ grammar Math::NIntegrate::Processing::Grammar {
     token quote { <["']> }
 
     # Option names
+    token generators {:i generators }
+    token initial-estimate-relaxation { InitialEstimateRelaxation | initial <[\-_]> estimate <[\-_]> relaxation }
     token max-points { MaxPoints | max <[\-_]> points }
     token max-recursion { MaxRecursion | max <[\-_]> recursion }
     token method {:i method }
     token min-recursion { MinRecursion | min <[\-_]> recursion }
+    token partitioning {:i partitioning }
     token points {:i points }
-    token generators {:i generators }
+    token random-seed {:i RandomSeed | random <[\-_]> seed }
     token singularity-depth { SingularityDepth | singularity <[\-_]> depth }
     token singularity-handler { SingularityHandler | singularity <[\-_]> handler }
     token symbolic-processing { SymbolicProcessing | symbolic <[\-_]> processing }
-    token partitioning {:i partitioning }
-    token initial-estimate-relaxation { InitialEstimateRelaxation | initial <[\-_]> estimate <[\-_]> relaxation }
 
     # Automatic and Whatever
     token whatever { Whatever | WhateverCode }
