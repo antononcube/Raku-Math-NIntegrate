@@ -31,7 +31,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 maxpoints => 'max-points', maxrecursion => 'max-recursion', minrecursion => 'min-recursion',
                 singularitydepth => 'singularity-depth', singularityhandler => 'singularity-handler',
                 symbolicprocessing => 'symbolic-processing', nosingularityhandler => 'None',
-                partitioning => 'Partitioning', initialestimaterelaxation => 'InitialSstimateRelaxation',
+                partitioning => 'Partitioning', initialestimaterelaxation => 'InitialSstimateRelaxation', randomseed => 'RandomSeed',
                 duffycoordinates => 'DuffyCoordinates', imt => 'IMT', irimorigutitakesawa => 'IMT',
                 unitcuberescaling => 'UnitCubeRescaling',
                 whatever => Whatever

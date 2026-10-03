@@ -123,7 +123,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     token numeric-option-symbol {
-        <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> | <generators> | <partitioning>
+        <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> | <generators> | <partitioning> | <random-seed>
     }
 
     regex numeric-option-spec {
