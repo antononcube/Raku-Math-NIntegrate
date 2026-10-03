@@ -20,7 +20,6 @@ class Math::NIntegrate::Strategy::MonteCarlo
             :$working-precision = Num,
             :&integration-monitor = WhateverCode
             -->Map:D) {
-
         if $!random-seed ~~ Numeric:D {
             srand($!random-seed.round)
         }
@@ -55,11 +54,13 @@ class Math::NIntegrate::Strategy::MonteCarlo
         my Bool:D $done-tol = $error ≤ $relative-tolerance * $integral.abs;
         my Bool:D $done-accuracy = $error ≤ $absolute-tolerance;
         my Bool:D $done-max-recursion = $heap.top.levels.max > self.max-recursion;
+        # This assumes that all regions in the heap are with MonteCarloRule
+        my Bool:D $done-max-points = $heap.values.map(*.reuse-values<n>).sum > self.max-points;
         my $step;
         my $topRegion;
 
         # Main loop
-        while !($done-tol || $done-accuracy || $done-max-recursion) {
+        while !($done-tol || $done-accuracy || $done-max-recursion || $done-max-points) {
             $step++;
 
             #say ('start of loop:', :$integral, :$error, :$step, region-count => $heap.elems);
@@ -96,6 +97,7 @@ class Math::NIntegrate::Strategy::MonteCarlo
             $done-tol = $error ≤ $relative-tolerance * $integral.abs;
             $done-accuracy = $error ≤ $absolute-tolerance;
             $done-max-recursion = $topRegion.levels[$axis] > self.max-recursion;
+            $done-max-points = $$heap.values.map(*.reuse-values<n>).sum > self.max-points;
 
             #say ('end of loop:', :$integral, :$error, relative-error => $error/$integral, region-count => $heap.elems, :$step)
         }
@@ -103,6 +105,10 @@ class Math::NIntegrate::Strategy::MonteCarlo
         # Warning the max recursion was reached
         if $done-max-recursion {
             note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$topRegion.numerical-function.last-argument-values}."
+        }
+
+        if $done-max-points {
+            note "Failed to converge to prescribed accuracy after {self.max-points} integrand evaluations."
         }
 
         # Put the regions in the heap in the object regions holder
