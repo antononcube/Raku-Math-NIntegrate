@@ -16,6 +16,7 @@ class CustomStrategy is Math::NIntegrate::Strategy::GlobalAdaptive {
 my $gr = Math::NIntegrate::Processing::Grammar.new;
 my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new;
 
+# 1
 subtest {
         my @specs =
                 'CustomRule',
@@ -27,6 +28,7 @@ subtest {
         }
 }, 'User defined by descendents pass parsing';
 
+# 2
 subtest {
         class CustomRule2 {
                 has @.abcsissas
@@ -43,7 +45,9 @@ subtest {
         }
 }, 'User defined generic does not pass parsing';
 
+# 3
 subtest {
+
         my %res1 = nintegrate({ $^x }, <x 0 1>, method => 'CustomRule', :4precision-goal):pairs;
         is-approx %res1<integral>, 1 / 2, 'expected 1D integral value';
 
@@ -53,7 +57,16 @@ subtest {
         my %res3 = nintegrate({ $^x + $^y }, <x 0 1>, <y 0 1>,
                 method => ('local-adaptive', method => 'CustomRule')):pairs;
         is-approx %res3<integral>, 1, 'expected 2D integral value, local-adative';
+}, 'Integral computations with a user rule';
 
-}, 'Integrals computation with a user rule';
+# 4
+subtest {
+        my %res1 = nintegrate({ $^x + $^y }, <x 0 1>, <y 0 1>, method => 'CustomStrategy'):pairs;
+        is-approx %res1<integral>, 1, 'expected 2D integral value';
+
+        my $res2 = nintegrate({ $^x + $^y }, <x 0 1>, <y 0 1>, method => ('CustomStrategy', method => 'GaussKronrodRule'));
+        is-approx $res2, 1, 'expected 2D integral value';
+}, 'Integral computations with a user strategy';
+
 
 done-testing;
