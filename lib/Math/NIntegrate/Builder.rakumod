@@ -191,6 +191,15 @@ class Math::NIntegrate::Builder {
                 Math::NIntegrate::Rule::Cartesian.new(:@components, :$dimension);
             }
 
+            # There should be more elegant check here
+            when ::($_<name>.subst(/ <["']> /):g) !~~ Failure && ::($_<name>.subst(/ <["']> /):g) ~~ Math::NIntegrate::Rule::General {
+                my $rule = ::($_<name>.subst(/ <["']> /):g).new(points => $_<points> // 5, :1dimension, :$working-precision);
+                if $rule.dimension == 1 && $rule.dimension < $dimension {
+                    $rule = Math::NIntegrate::Rule::Cartesian.new(components => [$rule,], :$dimension)
+                }
+                $rule
+            }
+
             default {
                 die "Unknown integration rule: $_<name>."
             }
