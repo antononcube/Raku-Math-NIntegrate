@@ -260,7 +260,6 @@ class Math::NIntegrate::Builder {
         $singularity-handler = $method<singularity-handler> // $singularity-handler // 'imt';
 
         # Default strategy
-        #my %default-spec = type => 'strategy', name => 'GlobalAdaptive', min-recursion => 0, max-recursion => 12, singularity-depth => 4, max-points => Whatever;
         my %default-spec = type => 'strategy', name => 'GlobalAdaptive', method => Whatever;
 
         # Create strategy by spec
@@ -402,8 +401,13 @@ class Math::NIntegrate::Builder {
 
         # Integration rule
         # At this point $method is normalized with :full-spec
+
+        # We have to assign proper default rule of Monte-Carlo strategies
+        my $rule-spec = $method<method><method> // Whatever;
+        $rule-spec = 'MonteCarloRule' if $rule-spec.isa(Whatever) && $method<method><name>.contains('MonteCarlo');
+
         my $rule = self.make-rule(
-                method => $method<method><method> // Whatever,
+                method => $rule-spec,
                 dimension => %bounds<min>.elems,
                 :$working-precision);
 
