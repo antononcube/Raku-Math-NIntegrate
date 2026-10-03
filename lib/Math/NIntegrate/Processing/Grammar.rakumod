@@ -18,10 +18,14 @@ grammar Math::NIntegrate::Processing::Grammar {
     rule top-level-strategy {
         (<symbol>)
         <?{
-            given $0.Str {
+            my $t = $0.Str.subst(/ <["']> /):g;
+            try ::($t);
+            my $exists = $! ?? False !! True;
+            given $t {
                 when $_ ~~ / [ 'Rule' | '-rule' | 'Rescaling' | '-rescaling' ] <["']>? $/ { False }
-                when ::($_) ~~ Failure { note "⎡$_⎦ does not exist."; False}
+                when !$exists { note "⎡$_⎦ does not exist."; False}
                 when ::($_) ~~ Math::NIntegrate::Strategy { True }
+                when ::($_) ~~ Math::NIntegrate::Rule { False }
                 default {
                     note "If {$_} is a top level strategy then it is expected to be of type Math::NIntegrate::Strategy.";
                     False
@@ -32,10 +36,14 @@ grammar Math::NIntegrate::Processing::Grammar {
     rule top-level-rule {
         (<symbol>)
         <?{
-            given $0.Str {
+            my $t = $0.Str.subst(/ <["']> /):g;
+            try ::($t);
+            my $exists = $! ?? False !! True;
+            given $t {
                 when $_ ~~ / [ 'Rescaling' | '-rescaling' ] <["']>? $/ { False }
-                when ::($_) ~~ Failure { note "⎡$_⎦ does not exist."; False}
+                when !$exists { note "⎡$_⎦ does not exist."; False}
                 when ::($_) ~~ Math::NIntegrate::Rule { True }
+                when ::($_) ~~ Math::NIntegrate::Strategy { False }
                 default {
                     note "If {$_} is a top level rule then it is expected to be of type Math::NIntegrate::Rule.";
                     False
