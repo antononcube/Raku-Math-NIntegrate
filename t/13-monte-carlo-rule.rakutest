@@ -55,6 +55,6 @@ subtest {
 
     is-approx %res<integral>, 1/2, rel-tol => 0.2, 'expected 1D integral value';
 
-}, 'Monte-Carlo rule from top-level';
+}, 'Monte-Carlo rule specs for &nintegrate';
 
 done-testing;
