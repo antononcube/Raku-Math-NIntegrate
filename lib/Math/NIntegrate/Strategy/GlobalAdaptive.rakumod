@@ -150,6 +150,10 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$topRegion.numerical-function.last-argument-values}."
         }
 
+        if $done-max-points {
+            note "Failed to converge to prescribed accuracy after {self.max-points} integrand evaluations."
+        }
+
         # Put the regions in the heap in the object regions holder
         self.regions = $heap.values;
 
