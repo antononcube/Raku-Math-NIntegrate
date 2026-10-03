@@ -12,6 +12,7 @@ use Math::NIntegrate::VariableTransformer::Composite;
 use Math::NIntegrate::Strategy;
 use Math::NIntegrate::Strategy::GlobalAdaptive;
 use Math::NIntegrate::Strategy::LocalAdaptive;
+use Math::NIntegrate::Strategy::MonteCarlo;
 use Math::NIntegrate::Strategy::UnitCubeRescaling;
 
 # Rules
@@ -314,6 +315,22 @@ class Math::NIntegrate::Builder {
                 #                        :$singularity-handler, # does not apply
                 #                        :$max-points
                 #                        );
+            }
+
+            when $_<name> eq 'MonteCarlo' {
+                # Specific local adaptive options
+                my $partitioning = $method<Partitioning> // Whatever;
+                my $random-seed = $method<RandomSeed> // (1_000_000).rand.floor;
+
+                Math::NIntegrate::Strategy::MonteCarlo.new(
+                        :$min-recursion,
+                        :$max-recursion,
+                        :$singularity-depth,
+                        :$singularity-handler,
+                        :$max-points,
+                        :$partitioning,
+                        :$random-seed
+                        );
             }
 
             # There should be more elegant check here
