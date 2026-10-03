@@ -26,10 +26,10 @@ subtest {
 
         isa-ok
                 nintegrate({ exp(-($^x ** 4 + $^y ** 4)) }, <x -2 2>, <y -2 2>,
-                        method => ('MonteCarlo', method => ('MonteCarloRule', points => 1_000), partitioning => 3,
+                        method => ('MonteCarlo', method => ('MonteCarloRule', points => 300), partitioning => 3,
                                    random-seed => 11343),
-                        min-recurion => 1,
-                        precision-goal => 1.2),
+                        min-recurion => 2,
+                        precision-goal => 1.1),
                 Numeric:D,
                 '2D integral gives a numeric result';
         
