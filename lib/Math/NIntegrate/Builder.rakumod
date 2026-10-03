@@ -321,6 +321,7 @@ class Math::NIntegrate::Builder {
                 # Specific local adaptive options
                 my $partitioning = $method<Partitioning> // Whatever;
                 my $random-seed = $method<RandomSeed> // Whatever;
+                $max-points = 50_000 without $max-points;
 
                 Math::NIntegrate::Strategy::MonteCarlo.new(
                         :$min-recursion,
