@@ -45,11 +45,9 @@ class Math::NIntegrate::Rule::MonteCarlo
     method integrate($region) {
 
         my ($sum, $sqsum, $n);
-        with $region.^find_method('get-reuse-values') {
-            $sum = $region.get-reuse-values<sum> // 0;
-            $sqsum = $region.get-reuse-values<sqsum> // 0;
-            $n = $region.get-reuse-values<n> // 0;
-        }
+        $sum = $region.reuse-values<sum> // 0;
+        $sqsum = $region.reuse-values<sqsum> // 0;
+        $n = $region.reuse-values<n> // 0;
 
         self.abscissas = [];
         my $dim = $region.dimension;
@@ -65,9 +63,7 @@ class Math::NIntegrate::Rule::MonteCarlo
             $sqsum += $value ** 2;
         }
 
-        with $region.^find_method('get-reuse-values') {
-            $region.set-reuse-values(%(:$sum, :$sqsum, :$n))
-        }
+        $region.reuse-values = %(:$sum, :$sqsum, :$n);
 
         self.integral = $sum / $n;
         self.error = sqrt(($sqsum / $n - ($sum / $n) ** 2) / $n)   ;

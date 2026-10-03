@@ -65,7 +65,7 @@ class Math::NIntegrate::Region {
     has Str $.type;
 
     # Reuse values
-    has @.reuse-values;
+    has %.reuse-values;
 
     #--------------------------------------
     # Object attributes
@@ -117,7 +117,7 @@ class Math::NIntegrate::Region {
         @!has-end-point = $clone ?? $from.has-end-point.clone !! $from.has-end-point;
         $!no-error-decrease-count = $from.no-error-decrease-count;
         $!type = $from.type;
-        @!reuse-values = $clone ?? $from.reuse-values.clone !! $from.reuse-values;
+        %!reuse-values = $clone ?? $from.reuse-values.clone !! $from.reuse-values;
         @!range-end-cases = $clone ?? $from.range-end-cases.clone !! $from.range-end-cases;
 
         # This is somewhat redundant
