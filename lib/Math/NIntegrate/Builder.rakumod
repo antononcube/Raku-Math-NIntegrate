@@ -320,7 +320,7 @@ class Math::NIntegrate::Builder {
             when $_<name> eq 'MonteCarlo' {
                 # Specific local adaptive options
                 my $partitioning = $method<Partitioning> // Whatever;
-                my $random-seed = $method<RandomSeed> // (1_000_000).rand.floor;
+                my $random-seed = $method<RandomSeed> // Whatever;
 
                 Math::NIntegrate::Strategy::MonteCarlo.new(
                         :$min-recursion,
