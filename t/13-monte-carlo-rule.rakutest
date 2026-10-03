@@ -44,4 +44,17 @@ subtest {
 
 }, 'Monte-Carlo integration in a region';
 
+# 3
+subtest {
+
+    ok nintegrate( { $^x }, <x 0 1>, method => 'MonteCarloRule', :1precision-goal, max-recursion => 2);
+
+    isa-ok nintegrate( { $^x }, <x 0 1>, method => 'MonteCarloRule', :1precision-goal, max-recursion => 2), Numeric:D;
+
+    my %res = nintegrate( { $^x }, <x 0 1>, method => 'MonteCarloRule', :1precision-goal, max-recursion => 2):pairs;
+
+    is-approx %res<integral>, 1/2, rel-tol => 0.2, 'expected 1D integral value';
+
+}, 'Monte-Carlo rule from top-level';
+
 done-testing;
