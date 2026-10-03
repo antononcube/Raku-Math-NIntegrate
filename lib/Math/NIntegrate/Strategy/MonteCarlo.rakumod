@@ -54,8 +54,8 @@ class Math::NIntegrate::Strategy::MonteCarlo
         my Bool:D $done-tol = $error ≤ $relative-tolerance * $integral.abs;
         my Bool:D $done-accuracy = $error ≤ $absolute-tolerance;
         my Bool:D $done-max-recursion = $heap.top.levels.max > self.max-recursion;
-        my Bool:D $done-max-points = False;
-        my UInt:D $number-of-points = 0;
+        my UInt:D $number-of-points = $heap.values.map(*.rule.abscissas.elems).sum;
+        my $done-max-points = $number-of-points > self.max-points;
         my $step;
         my $topRegion;
 
