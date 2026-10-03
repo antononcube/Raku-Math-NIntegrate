@@ -311,6 +311,18 @@ class Math::NIntegrate::Builder {
                 #                        );
             }
 
+            # There should be more elegant check here
+            when ::($_<name>.subst(/ <["']> /):g) !~~ Failure && ::($_<name>.subst(/ <["']> /):g) ~~ Math::NIntegrate::Strategy {
+                # This does not handle additional options
+                ::($_<name>.subst(/ <["']> /):g).new(
+                        :$min-recursion,
+                        :$max-recursion,
+                        :$singularity-depth,
+                        :$singularity-handler,
+                        :$max-points,
+                        )
+            }
+
             default {
                 die "Unknown integration strategy: $_<name>."
             }
