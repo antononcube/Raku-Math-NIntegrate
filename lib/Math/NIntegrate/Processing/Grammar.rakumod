@@ -1,5 +1,8 @@
 use v6.d;
 
+use Math::NIntegrate::Rule;
+use Math::NIntegrate::Strategy;
+
 grammar Math::NIntegrate::Processing::Grammar {
 
     rule TOP { <strategy-decorator-spec> | <strategy-spec> | <rule-spec> }
@@ -8,12 +11,37 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     token number { \d+ | <[-+]>? Inf }
 
-    # Conditional parsing with a very weak predicate.
-    # This is used in order to prevent <top-level-strategy> parsing known rules.
-    # There should be a separate rule for parsing <top-level-rule> only within a strategy spec.
-    rule top-level-strategy { (<symbol>) <!{ $0.Str ~~ / [ 'Rule' | '-rule' | 'Rescaling' | '-rescaling' ] <["']>? $/ }>}
+    # Conditional parsing with different predicates.
+    # The regex predicates are probably redundant.
+    # Probably it is a good idea to check similarity with known-symbols.
 
-    rule top-level-rule { (<symbol>) <!{ $0.Str ~~ / [ 'Rescaling' | '-rescaling' ] <["']>? $/ }>}
+    rule top-level-strategy {
+        (<symbol>)
+        <?{
+            given $0.Str {
+                when $_ ~~ / [ 'Rule' | '-rule' | 'Rescaling' | '-rescaling' ] <["']>? $/ { False }
+                when ::($_) ~~ Failure { note "⎡$_⎦ does not exist."; False}
+                when ::($_) ~~ Math::NIntegrate::Strategy { True }
+                default {
+                    note "If {$_} is a top level strategy then it is expected to be of type Math::NIntegrate::Strategy.";
+                    False
+                }
+            }
+        }> }
+
+    rule top-level-rule {
+        (<symbol>)
+        <?{
+            given $0.Str {
+                when $_ ~~ / [ 'Rescaling' | '-rescaling' ] <["']>? $/ { False }
+                when ::($_) ~~ Failure { note "⎡$_⎦ does not exist."; False}
+                when ::($_) ~~ Math::NIntegrate::Rule { True }
+                default {
+                    note "If {$_} is a top level rule then it is expected to be of type Math::NIntegrate::Rule.";
+                    False
+                }
+            }
+        }> }
 
     rule option-value { <symbol> | <number> }
 
