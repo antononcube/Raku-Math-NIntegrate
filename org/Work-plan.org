@@ -4,11 +4,12 @@
 #+TODO: TODO ONGOING MAYBE | DONE CANCELED 
 #+OPTIONS: toc:1 num:0
 
-* TODO Work plan [30%] [3/10]
-** DONE Numerical function [100%] [2/2]
+* TODO Work plan [36%] [4/11]
+** DONE Numerical function [100%] [3/3]
 - [X] Creation
 - [X] Evaluation
   - ~eval~ method
+- [X] Facilitate stepping away from singular points
 ** TODO Utilities [71%] [5/7]
 - [X] Numerical precision coercion
 - [X] Process range of single dimension
@@ -69,7 +70,7 @@
 - [X] Using a fine point generator
 - [ ] En bloc (rapid) generator
 *** TODO Quasi Monte Carlo rule
-** TODO Integration Region [85%] [6/7]
+** TODO Integration Region [87%] [7/8]
 - [X] Design: attributes & methods
 - [X] Clone
 - [X] Apply rule
@@ -77,8 +78,9 @@
 - [X] Divide
 - [ ] Partition
 - [X] Make region ranges
-  - This is order to process user specified "singular points".
+  - This is order to process user specified "singular points". 
     - E.g. ~nintegrate({1/(1-$^x).abs.sqrt}, <x 0 1 2>)~
+- [X] Facilitate stepping away from singular points
 ** TODO Variable Transformers [0%] [0/5]
 *** TODO Affine
 - [X] Constant ranges
@@ -92,6 +94,8 @@
 *** TODO IMT
 - [X] Constant ranges
 - [ ] Functional ranges
+- [X] Facilitate stepping away from singular points
+  - By keeping track of transformation derivatives.
 - [ ] High precision computation
   - The current implementation seems under-performing
 *** TODO Double Exponent
@@ -151,20 +155,24 @@
     - Good for motivational demos
     - Can be used of most popular cases in 2D and 3D
 - [ ] Using CortexJS
-** DONE Builder [100%] [6/6]
+** DONE Builder [100%] [8/8]
 - [X] Numerical function (for the integrand) making
 - [X] Composite variable transformer
 - [X] Integration region making
 - [X] Rule by spec
 - [X] Strategy by spec
 - [X] Full Integrator
+- [X] User defined rule processing
+  - [X] For 1D rules
+  - [X] 1D user rule are become components of a Cartesian rule
+- [X] User defined strategy processing
 ** DONE Abstract Factory [100%] [4/4]
 - Done with a grammar parsing the method option and actions
 - [X] Simple method-option grammar
 - [X] Concrete allowed method-option specs grammar
 - [X] Grammar actions of canonical representation
 - [X] Actions invoking Builder methods
-** TODO Unit tests [75%] [9/12]
+** TODO Unit tests [69%] [9/13]
 - [X] Numerical function
 - [X] Trapezoidal rule
   - [X] Creation
@@ -199,6 +207,12 @@
 - [-] Top-level ~nintegrate~
   - [X] Easy integrals
   - [ ] Graceful failure
+- [-] User defined rules and strategies
+  - [X] Properly defined pass
+  - [X] Improperly defined do not pass
+  - [X] Integration 1D with a custom rule
+  - [X] Integration 2D with a 1D custom rule
+  - [ ] Integration with a custom strategy
 ** TODO Documentation [0%] [0/5]
 - [ ] Design
   - [ ] Initial version
