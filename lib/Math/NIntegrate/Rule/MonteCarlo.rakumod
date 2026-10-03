@@ -66,7 +66,7 @@ class Math::NIntegrate::Rule::MonteCarlo
         $region.reuse-values = %(:$sum, :$sqsum, :$n);
 
         self.integral = $sum / $n;
-        self.error = sqrt(($sqsum / $n - ($sum / $n) ** 2) / $n)   ;
+        self.error = sqrt( ($sqsum / $n - ($sum / $n) ** 2) / $n );
         self.largest-error-axis = &!axis-selector ?? &!axis-selector(self.abscissas) !! 0;
 
         return self;
