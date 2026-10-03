@@ -19,6 +19,7 @@ use Math::NIntegrate::Rule;
 use Math::NIntegrate::Rule::Cartesian;
 use Math::NIntegrate::Rule::ClenshawCurtis;
 use Math::NIntegrate::Rule::GaussKronrod;
+use Math::NIntegrate::Rule::MonteCarlo;
 use Math::NIntegrate::Rule::MultiDimensional;
 use Math::NIntegrate::Rule::NewtonCotes;
 use Math::NIntegrate::Rule::Trapezoidal;
@@ -173,7 +174,11 @@ class Math::NIntegrate::Builder {
             }
 
             when $_<name> eq 'NewtonCotesRule' {
-                Math::NIntegrate::Rule::NewtonCotes.new(points => $_<gauss-points> // $_<points> // 5, :$working-precision);
+                Math::NIntegrate::Rule::NewtonCotes.new(points => $_<points> // 5, :$working-precision);
+            }
+
+            when $_<name> eq 'MonteCarloRule' {
+                Math::NIntegrate::Rule::MonteCarlo.new(points => $_<points> // 100, :$dimension, :$working-precision);
             }
 
             when $_<name> eq 'CartesianRule' {
