@@ -120,36 +120,6 @@ class Math::NIntegrate::Spec {
         # Working precision
         %options<working-precision> = Num without %options<working-precision>;
 
-        die 'The value of working precision is expected to be Num, Rat, FatRat, or Whatever.'
-        unless %options<working-precision> ~~ (Num | Rat | FatRat);
-
-        # Precision goal
-        my $msg-pg = 'The value of precision-goal is expected to be a positive number or Whatever.';
-        if %options<precision-goal> ~~ Numeric:D {
-            die $msg-pg unless %options<precision-goal> > 0;
-        } elsif %options<precision-goal>.isa(Whatever) {
-            %options<precision-goal> = do given %options<working-precision> {
-                when Num { 6 }
-                when FatRat { 20 }
-                when Rat { 6 }
-                default {
-                    die 'Cannot deduce the value of precision-goal.'
-                }
-            }
-        } else {
-            die $msg-pg
-        }
-
-        %options<relative-tolerance> = 10 ** -%options<precision-goal>;
-
-        # Accuracy
-        %options<accuracy-goal> = Inf if %options<accuracy-goal>.isa(Whatever);
-
-        die 'The value of accuracy-goal is expected to be a positive integer, Inf, or Whatever.'
-        unless %options<accuracy-goal> ~~ Int:D && %options<accuracy-goal> > 0 || %options<accuracy-goal> ~~ Inf;
-
-        %options<absolute-tolerance> = 10 ** -%options<accuracy-goal>;
-
         # Recursion options
         die 'The value of max-recursion is expected to be a non-negative integer.'
         unless %options<max-recursion> ~~ Int:D && %options<max-recursion> ≥ 0;
@@ -170,11 +140,45 @@ class Math::NIntegrate::Spec {
         die 'The value of singularity-depth is expected to be a non-negative integer, Inf, or Whatever.'
         unless %options<singularity-depth> ~~ Int:D && %options<singularity-depth> ≥ 0 || %options<singularity-depth> ~~ Inf;
 
+        # Integration monitor
+        %options<integration-monitor> = %options<integration-monitor> // WhateverCode;
+
         # Method option
         %options<method> = self.normalize-method(%options<method> // Whatever);
 
-        # Integration monitor
-        %options<integration-monitor> = %options<integration-monitor> // WhateverCode;
+        # Precision goal
+        my $msg-pg = 'The value of precision-goal is expected to be a positive number or Whatever.';
+        if %options<precision-goal> ~~ Numeric:D {
+            die $msg-pg unless %options<precision-goal> > 0;
+        } elsif %options<precision-goal>.isa(Whatever) {
+            if %options<method><name>.contains('MonteCarlo') {
+                %options<precision-goal> = 2
+            } else {
+                %options<precision-goal> = do given %options<working-precision> {
+                    when Num { 6 }
+                    when FatRat { 20 }
+                    when Rat { 6 }
+                    default {
+                        die 'Cannot deduce the value of precision-goal.'
+                    }
+                }
+            }
+        } else {
+            die $msg-pg
+        }
+
+        %options<relative-tolerance> = 10 ** -%options<precision-goal>;
+
+        # Accuracy
+        %options<accuracy-goal> = Inf if %options<accuracy-goal>.isa(Whatever);
+
+        die 'The value of working precision is expected to be Num, Rat, FatRat, or Whatever.'
+        unless %options<working-precision> ~~ (Num | Rat | FatRat);
+
+        die 'The value of accuracy-goal is expected to be a positive integer, Inf, or Whatever.'
+        unless %options<accuracy-goal> ~~ Int:D && %options<accuracy-goal> > 0 || %options<accuracy-goal> ~~ Inf;
+
+        %options<absolute-tolerance> = 10 ** -%options<accuracy-goal>;
 
         # Assign
         %!options = %options;
