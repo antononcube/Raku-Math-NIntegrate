@@ -47,11 +47,13 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         my Bool:D $done-tol = $error ≤ $relative-tolerance * $integral.abs;
         my Bool:D $done-accuracy = $error ≤ $absolute-tolerance;
         my Bool:D $done-max-recursion = $heap.top.levels.max > self.max-recursion;
+        my Bool:D $done-max-points = False;
+        my UInt:D $number-of-points = 0;
         my $step;
         my $topRegion;
 
         # Main loop
-        while !($done-tol || $done-accuracy || $done-max-recursion) {
+        while !($done-tol || $done-accuracy || $done-max-recursion || $done-max-points) {
             $step++;
 
             #say ('start of loop:', :$integral, :$error, :$step, region-count => $heap.elems);
@@ -88,6 +90,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
                 # Add the region with a new variable transformer to the heap
                 $heap.insert($topRegion);
 
+                $number-of-points += $topRegion.rule.abscissas.elems;
             } else {
                 # Split the region
                 my $newRegion = $topRegion.split(:$axis);
@@ -122,6 +125,9 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
                 # Add the split regions to the heap
                 $heap.insert($topRegion);
                 $heap.insert($newRegion);
+
+                $number-of-points += $topRegion.rule.abscissas.elems;
+                $number-of-points += $newRegion.rule.abscissas.elems;
             }
 
             # Integration monitor
@@ -134,6 +140,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             $done-tol = $error ≤ $relative-tolerance * $integral.abs;
             $done-accuracy = $error ≤ $absolute-tolerance;
             $done-max-recursion = $topRegion.levels[$axis] > self.max-recursion;
+            $done-max-points = $number-of-points > self.max-points if self.max-points ~~ Numeric:D;
 
             #say ('end of loop:', :$integral, :$error, relative-error => $error/$integral, region-count => $heap.elems, :$step)
         }
