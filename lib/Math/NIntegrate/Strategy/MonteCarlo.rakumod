@@ -21,12 +21,17 @@ class Math::NIntegrate::Strategy::MonteCarlo
             :&integration-monitor = WhateverCode
             -->Map:D) {
 
+        if $!random-seed ~~ Numeric:D {
+            srand($!random-seed.round)
+        }
+
         # At this point the working precision should be known in the integrand and region.
-        # Do we want to reset the working precision here?
+        # But does high precision matter for Monte-Carlo methods.
 
         # Integral dimension shortcut
         my $dim = self.regions.head.dimension;
 
+        # Does the partitioning option override max-recursion option?
         # Divide regions according to min-recursion
         self.min-recursion-regions;
 
