@@ -16,8 +16,18 @@ class Math::NIntegrate::Rule::MonteCarlo
         # But since all the rule classes take working-precision as an argument it is also present here.
         without &!point-generator {
             # The most universal point generator has very fine granularity: one point per invocation.
-            &!point-generator = -> UInt:D $n, UInt:D $axis, UInt:D $dim, UInt:D $points-per-step { 1.rand }
+            &!point-generator = -> UInt:D $n, UInt:D $axis, UInt:D $dim, UInt:D $points-per-step {1.rand}
         }
+    }
+
+    submethod TWEAK(:%args) {
+        # Why is this needed?
+        # It passifies Math::NIntegrate::Rule::General workings.
+        # For now Math::NIntegrate::Region takes Math::NIntegrate::Rule::General not Math::NIntegrate::Rule.
+        # Hence Math::NIntegrate::Rule::MonteCarlo is a Math::NIntegrate::Rule::General.
+        self.abscissas = |(&!point-generator xx $!points);
+        self.weights = |((1/$!points) xx $!points);
+        self.error-weights = |((1/$!points) xx $!points);
     }
 
     multi method new($points, $working-precision = Num, :&point-generator = WhateverCode) {
