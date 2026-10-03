@@ -1,5 +1,9 @@
 Changes of the Raku package "Math::NIntegrate".
 
+0.0.4 2026-10-03
+    - Streamlined computations with user defined integration rules and strategies
+    - Implemented (crude) Monte-Carlo strategy
+
 0.0.3 2026-10-02
     - Process user specified "singular points" given in the range specs
       - For example:
