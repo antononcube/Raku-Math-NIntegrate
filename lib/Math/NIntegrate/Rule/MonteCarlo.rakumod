@@ -10,7 +10,7 @@ class Math::NIntegrate::Rule::MonteCarlo
     has &.point-generator = WhateverCode;
     has &.axis-selector = WhateverCode;
 
-    submethod BUILD(UInt:D :$!points, :$dimension!, :&!point-generator = WhateverCode, :$working-precision = Num) {
+    submethod BUILD(UInt:D :$!points, UInt:D :$dimension!, :&!point-generator = WhateverCode, :$working-precision = Num) {
         # In general, working precision of Monte-Carlo methods does not matter --
         # the precision- and accuracy goals are low.
         # But since all the rule classes take working-precision as an argument it is also present here.
@@ -20,20 +20,26 @@ class Math::NIntegrate::Rule::MonteCarlo
         }
 
         self.dimension = $dimension;
-        self.abscissas = |((0 xx self.dimension) xx $!points);
+
+        self.abscissas = [];
+        for ^$!points -> $n {
+            my @point = (^self.dimension).map({ &!point-generator($n, $_, self.dimension, $!points) });
+            self.abscissas.push(@point);
+        }
+
         self.weights = |((1/$!points) xx $!points);
         self.error-weights = |((1/$!points) xx $!points);
     }
 
-    multi method new($points, $working-precision = Num, :$dimension = 1, :&point-generator = WhateverCode) {
+    multi method new($points, $working-precision = Num, UInt:D :$dimension = 1, :&point-generator = WhateverCode) {
         self.bless(:$points, :$dimension, :&point-generator, :$working-precision)
     }
 
-    multi method new($points, :$dimension = 1, :prec(:$working-precision) = Num, :&point-generator = WhateverCode) {
+    multi method new($points, UInt:D :$dimension = 1, :prec(:$working-precision) = Num, :&point-generator = WhateverCode) {
         self.bless(:$points, :$dimension, :$working-precision, :&point-generator)
     }
 
-    multi method new(:$points, :$dimension, :$working-precision = Num, :&point-generator = WhateverCode) {
+    multi method new(:$points, UInt:D :$dimension, :$working-precision = Num, :&point-generator = WhateverCode) {
         self.bless(:$points, :$dimension, :$working-precision, :&point-generator)
     }
 
