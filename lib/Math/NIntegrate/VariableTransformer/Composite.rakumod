@@ -129,7 +129,6 @@ class Math::NIntegrate::VariableTransformer::Composite
             --> Map:D) {
 
         my %bounds = self.get-transform-bounds(:$context);
-        my %orig-bounds = self.get-original-bounds(:$context);
 
         $jacobian = 1;
 
