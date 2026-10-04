@@ -10,12 +10,16 @@ class Math::NIntegrate::Rule::MonteCarlo
     has &.point-generator = WhateverCode;
     has &.axis-selector = WhateverCode;
 
+    #======================================================
+    # Creators
+    #======================================================
+
     submethod BUILD(UInt:D :$!points, UInt:D :$dimension!, :&!point-generator = WhateverCode, :$working-precision = Num) {
         # In general, working precision of Monte-Carlo methods does not matter --
         # the precision- and accuracy goals are low.
         # But since all the rule classes take working-precision as an argument it is also present here.
         without &!point-generator {
-            # The most universal point generator has very fine granularity: one point per invocation.
+            # The most universal point generator has very fine granularity: one point coordinate per invocation.
             &!point-generator = -> UInt:D $n, UInt:D $axis, UInt:D $dim, UInt:D $points-per-step {1.rand}
         }
 
@@ -42,6 +46,27 @@ class Math::NIntegrate::Rule::MonteCarlo
     multi method new(:$points, UInt:D :$dimension, :$working-precision = Num, :&point-generator = WhateverCode) {
         self.bless(:$points, :$dimension, :$working-precision, :&point-generator)
     }
+
+    #| Copy attributes from an object
+    method copy(Math::NIntegrate::Rule::MonteCarlo:D $from, Bool:D :deep(:deep-copy(:$clone)) = False) {
+        self.Math::NIntegrate::Rule::General::copy($from, :$clone);
+        $!points = $from.points;
+        &!point-generator = $from.point-generator;
+        &!axis-selector = $from.axis-selector;
+
+        return self
+    }
+
+    #| Clone the object
+    method clone(-->Math::NIntegrate::Rule::MonteCarlo:D) {
+        my $obj = Math::NIntegrate::Rule::MonteCarlo.new(:$!points, dimension => self.dimension, :&!point-generator);
+        say (:$obj);
+        $obj.copy(self, :clone)
+    }
+
+    #======================================================
+    # Integration
+    #======================================================
 
     method integrate($region) {
 
