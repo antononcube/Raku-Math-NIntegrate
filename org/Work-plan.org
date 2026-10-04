@@ -4,7 +4,7 @@
 #+TODO: TODO ONGOING MAYBE | DONE CANCELED 
 #+OPTIONS: toc:1 num:0
 
-* TODO Work plan [36%] [4/11]
+* TODO Work plan [33%] [4/12]
 ** DONE Numerical function [100%] [3/3]
 - [X] Creation
 - [X] Evaluation
@@ -109,7 +109,7 @@
 - [ ] Functional ranges?
   - It is just a swap of range/boundary values, but have to be tested.
 ** TODO Integration Strategies [0%] [0/8]
-*** TODO Global Adaptive [60%] [3/5]
+*** TODO Global Adaptive [66%] [4/6]
 - [X] Initial regions by min-recursion
   - With Leftist Heap
 - [X] Main integration loop
@@ -118,8 +118,9 @@
   - [X] IMT
   - [ ] DoubleExponential
 - [ ] Convergence monitoring
+- [X] Max points stopping criteria
 - [X] Integration monitor
-*** TODO Local Adaptive [44%] [4/9]
+*** TODO Local Adaptive [40%] [4/10]
 - [X] Initial regions by min-recursion
 - [X] Main integration recursive process
 - [X] Partitioning option treatment
@@ -131,12 +132,18 @@
   - [X] IMT
   - [ ] DoubleExponential
 - [ ] Convergence monitoring
+- [ ] Max points stopping criteria?
 - [ ] Relaxation of the integral estimate stopping criteria
 - [X] Integration monitor
 *** TODO Saturating
 *** TODO Trapezoidal
 *** TODO Double Exponential
-*** TODO Monte Carlo
+*** TODO Monte Carlo [80%] [4/5]
+- [X] Creation from Builder
+- [X] Passing options
+- [X] Simple loop saturation with a heap
+- [X] Processing "RandomSeed" option
+- [ ] Processing "Partitioning" option
 *** TODO Adaptive Monte Carlo
 *** TODO Importance Sampling
 ** DONE Integration Strategy Decorators
@@ -172,7 +179,11 @@
 - [X] Concrete allowed method-option specs grammar
 - [X] Grammar actions of canonical representation
 - [X] Actions invoking Builder methods
-** TODO Unit tests [69%] [9/13]
+** TODO Parallel implementations [0%] [0/1] 
+*** TODO Parallel Crude Monte Carlo
+- This is almost an embarrassingly parallel algorithm
+*** TODO Parallel Heap
+** TODO Unit tests [71%] [10/14]
 - [X] Numerical function
 - [X] Trapezoidal rule
   - [X] Creation
@@ -196,6 +207,10 @@
   - [X] Integration monitor use
   - [X] Integration 2D
 - [X] Local Adaptive strategy
+  - [X] Creation
+  - [X] Integration 1D
+  - [X] Integration 2D
+- [X] Monte Carlo strategy
   - [X] Creation
   - [X] Integration 1D
   - [X] Integration 2D
