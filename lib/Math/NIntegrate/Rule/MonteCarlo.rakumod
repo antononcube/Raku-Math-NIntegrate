@@ -59,9 +59,7 @@ class Math::NIntegrate::Rule::MonteCarlo
 
     #| Clone the object
     method clone(-->Math::NIntegrate::Rule::MonteCarlo:D) {
-        my $obj = Math::NIntegrate::Rule::MonteCarlo.new(:$!points, dimension => self.dimension, :&!point-generator);
-        say (:$obj);
-        $obj.copy(self, :clone)
+        Math::NIntegrate::Rule::MonteCarlo.new(:$!points, dimension => self.dimension, :&!point-generator).copy(self, :clone)
     }
 
     #======================================================
