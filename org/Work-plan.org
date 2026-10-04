@@ -46,8 +46,8 @@
 - [ ] Using resource large precision pre-computed results
   - For most popular Gauss-points, say, at precision 100
 *** TODO Lobatto-Kronrod rule
-- [X] Abscissas & weights
-- [C] Any precision
+- [ ] Abscissas & weights
+- [ ] Any precision
   - Not possible
 - [ ] Large precision with "extra-precision" spec
 *** DONE Cartesian rule [100%] [4/4]
@@ -69,6 +69,7 @@
 *** TODO Monte Carlo rule
 - [X] Using a fine point generator
 - [ ] En bloc (rapid) generator
+- [ ] En bloc (rapid) variable transformation
 *** TODO Quasi Monte Carlo rule
 ** TODO Integration Region [87%] [7/8]
 - [X] Design: attributes & methods
@@ -81,19 +82,19 @@
   - This is order to process user specified "singular points". 
     - E.g. ~nintegrate({1/(1-$^x).abs.sqrt}, <x 0 1 2>)~
 - [X] Facilitate stepping away from singular points
-** TODO Variable Transformers [0%] [0/5]
-*** TODO Affine
+** TODO Variable Transformers [71%] [5/7]
+*** DONE Affine
 - [X] Constant ranges
-- [ ] Functional ranges 
-*** TODO Infinity
+- [X] Functional ranges 
+*** DONE Infinity
 - [X] Constant ranges
-- [ ] Functional ranges 
-*** TODO Composite
+- [X] Functional ranges 
+*** DONE Composite
 - [X] Constant ranges
-- [ ] Functional ranges 
-*** TODO IMT
+- [X] Functional ranges 
+*** TODO IMT [75%] [3/4]
 - [X] Constant ranges
-- [ ] Functional ranges
+- [X] Functional ranges
 - [X] Facilitate stepping away from singular points
   - By keeping track of transformation derivatives.
 - [ ] High precision computation
@@ -101,13 +102,15 @@
 *** TODO Double Exponent
 - [ ] Constant ranges
 - [ ] Functional ranges
-*** TODO Reverse (class)
+*** DONE Reverse (class)
 - [X] Constant ranges
-- [ ] Functional ranges
-*** TODO Reverse (ad hoc)
+- [X] Functional ranges
+*** DONE Reverse (ad hoc)
 - [X] Constant ranges
-- [ ] Functional ranges?
-  - It is just a swap of range/boundary values, but have to be tested.
+- [X] Functional ranges
+  - It is just a swap of range/boundary values.
+  - It is tested when multi-dimensional integrals with functional ranges.
+    - Without singularity handling (like, IMT).
 ** TODO Integration Strategies [0%] [0/8]
 *** TODO Global Adaptive [66%] [4/6]
 - [X] Initial regions by min-recursion
