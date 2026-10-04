@@ -10,7 +10,7 @@ class Math::NIntegrate::Rule::MonteCarlo
     has &.point-generator = WhateverCode;
     has &.axis-selector = WhateverCode;
 
-    submethod BUILD(UInt:D :$!points, :&!point-generator = WhateverCode, :$working-precision = Num) {
+    submethod BUILD(UInt:D :$!points, :$dimension!, :&!point-generator = WhateverCode, :$working-precision = Num) {
         # In general, working precision of Monte-Carlo methods does not matter --
         # the precision- and accuracy goals are low.
         # But since all the rule classes take working-precision as an argument it is also present here.
@@ -18,28 +18,23 @@ class Math::NIntegrate::Rule::MonteCarlo
             # The most universal point generator has very fine granularity: one point per invocation.
             &!point-generator = -> UInt:D $n, UInt:D $axis, UInt:D $dim, UInt:D $points-per-step {1.rand}
         }
-    }
 
-    submethod TWEAK(:%args) {
-        # Why is this needed?
-        # It passifies Math::NIntegrate::Rule::General workings.
-        # For now Math::NIntegrate::Region takes Math::NIntegrate::Rule::General not Math::NIntegrate::Rule.
-        # Hence Math::NIntegrate::Rule::MonteCarlo is a Math::NIntegrate::Rule::General.
-        self.abscissas = |(&!point-generator xx $!points);
+        self.dimension = $dimension;
+        self.abscissas = |((0 xx self.dimension) xx $!points);
         self.weights = |((1/$!points) xx $!points);
         self.error-weights = |((1/$!points) xx $!points);
     }
 
-    multi method new($points, $working-precision = Num, :&point-generator = WhateverCode) {
-        self.bless(:$points, :&point-generator, :$working-precision)
+    multi method new($points, $working-precision = Num, :$dimension = 1, :&point-generator = WhateverCode) {
+        self.bless(:$points, :$dimension, :&point-generator, :$working-precision)
     }
 
-    multi method new($points, :prec(:$working-precision) = Num, :&point-generator = WhateverCode) {
-        self.bless(:$points, :&point-generator, :$working-precision)
+    multi method new($points, :$dimension = 1, :prec(:$working-precision) = Num, :&point-generator = WhateverCode) {
+        self.bless(:$points, :$dimension, :$working-precision, :&point-generator)
     }
 
-    multi method new(:$points, :$working-precision = Num, :&point-generator = WhateverCode) {
-        self.bless(:$points, :$working-precision)
+    multi method new(:$points, :$dimension, :$working-precision = Num, :&point-generator = WhateverCode) {
+        self.bless(:$points, :$dimension, :$working-precision, :&point-generator)
     }
 
     method integrate($region) {
