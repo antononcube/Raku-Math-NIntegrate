@@ -114,12 +114,25 @@ class Math::NIntegrate::VariableTransformer::Infinity
             :@point is copy,
             :$jacobian is copy,
             Bool:D :fb(:$functional-bounds) = False,
-            :$context = Nil
+            :$context = Nil,
+            :$axis = Nil
             --> Map:D) {
         my %bounds = self.get-transform-bounds(:$context);
 
-        if $functional-bounds {
-            die 'Functional boundaries variable transformation is not implemented yet.'
+        if $functional-bounds || (%bounds.values.flat(:hammer).one ~~ Callable:D) {
+            die 'For functional boundaries computations $axis is expected to be a non-negative integer within the integral dimensions.'
+            unless 0 ≤ $axis < %bounds<min>.elems;
+
+            # Infinity transformation for a single axis
+            my %res = :@point, :$jacobian;
+            with self.transforms[$axis] {
+                say "Infinity for $axis";
+                my %h = self.transforms[$axis](@point[$axis], self.min-original-bounds[$axis], self.max-original-bounds[$axis]);
+                %res<point>[$axis] = %h<point>;
+                %res<jacobian> = %res<jacobian> * %h<jacobian>;
+            }
+            return %res
+
         } else {
             my %res = :@point, :$jacobian;
             for ^self.min-original-bounds.elems -> $i {

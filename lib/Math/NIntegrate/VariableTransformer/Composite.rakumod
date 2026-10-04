@@ -124,13 +124,48 @@ class Math::NIntegrate::VariableTransformer::Composite
             :@point is copy,
             :$jacobian is copy,
             Bool:D :fb(:$functional-bounds) = False,
-            :$context = Nil
+            :$context = Nil,
+            :$axis = Whatever
             --> Map:D) {
 
+        my %bounds = self.get-transform-bounds(:$context);
+
         $jacobian = 1;
+
+        # Functional boundaries
+        # We can verify that:
+        # - dimension is higher than 1,
+        # - the first range is with numbers
+        # - at least one of the boundaries has a Callable
+        # We have to match the variables and/or the arity of the callables.
+        # This probably means using NumericalFunction objects for callable boundaries.
+
         # Special treatment is needed for functional boundaries
-        if $functional-bounds {
-            die 'Functional boundaries variable transformation is not implemented yet.'
+        if $functional-bounds || (%bounds.values.flat(:hammer).one ~~ Callable:D) {
+
+            # Should it be imposed that $variable-index is Whatever or Nil for Composite?
+            # This means that Composite objects are not components in other Composite objects.
+            die 'For functional boundaries computations $axis is expected to be Whatever for the composite variable transformer.'
+            unless $axis.isa(Whatever);
+
+            for ^%bounds<min>.elems -> $i {
+                # Essentially the same code as the one constant boundaries
+                # except it is in a loop and defined $axis
+                if $.vtAffine {
+                    # Affine transform is multidimensional
+                    my %res = $.vtAffine.transform(:@point, :$jacobian, context => self, axis => $i);
+                    @point = |%res<point>;
+                    $jacobian = %res<jacobian>
+                }
+
+                # Apply the stack of transformations in reverse order
+                for @!stack.reverse -> $vt {
+                    my %res = $vt.transform(:@point, :$jacobian, context => self, axis => $i);
+                    @point = |%res<point>;
+                    $jacobian = %res<jacobian>
+                }
+            }
+
         } else {
             # Affine transformation is always done with Composite
             if $.vtAffine {

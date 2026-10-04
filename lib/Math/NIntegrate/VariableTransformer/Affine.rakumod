@@ -13,7 +13,8 @@ class Math::NIntegrate::VariableTransformer::Affine
             :@point is copy,
             :$jacobian is copy,
             Bool:D :fb(:$functional-bounds) = False,
-            :$context = Nil
+            :$context = Nil,
+            :$axis= Nil
             --> Map:D) {
         # If the Affine object has a context (most likely, a Composite object)
         # then the transform boundaries of the context object are used.
@@ -22,23 +23,21 @@ class Math::NIntegrate::VariableTransformer::Affine
         fail 'DIMENSIONS_DO_NOT_MATCH: for point argument and boundary' if @point.elems != %bounds<min>.elems;
 
         if $functional-bounds || (%bounds.values.flat(:hammer).one ~~ Callable:D) {
-            die 'Functional boundaries variable transformation is not implemented yet.';
-            # We can verify that:
-            # - dimension is higher than 1,
-            # - the first range is with numbers
-            # - at least one of the boundaries has a Callable
-            # We have to match the variables and/or the arity of the callables.
-            # This probably means using NumericalFunction objects for callable boundaries.
-            for (1 ..^ %bounds<min>.elems) -> $i {
-                if %bounds<min>[$i] ~~ Callable:D {
-                    %bounds<min>[$i] = %bounds<min>[$i].(|@point.head($i))
-                }
+            die 'For functional boundaries computations $axis is expected to be a non-negative integer within the integral dimensions.'
+            unless 0 ≤ $axis < %bounds<min>.elems;
 
-                if %bounds<max>[$i] ~~ Callable:D {
-                    %bounds<max>[$i] = %bounds<max>[$i].(|@point.head($i))
-                }
-            }
+            # Affine transformation for a single axis, with Callable boundaries evaluation first
+            my $min = %bounds<min>[$axis] ~~ Callable ?? %bounds<min>[$axis](|@point.head($axis)) !! %bounds<min>[$axis];
+            my $max = %bounds<max>[$axis] ~~ Callable ?? %bounds<max>[$axis](|@point.head($axis)) !! %bounds<max>[$axis];
+
+            my %calc = self.length-calc($min, $max);
+            my @res-point = @point;
+            @res-point[$axis] = %calc<min> + @point[$axis] * %calc<length>;
+            my $res-jacobian = $jacobian * %calc<jacobian>;
+            return %(point => @res-point, jacobian => $res-jacobian)
+
         } else {
+            # Affine transformation for all axes
             my %calc = self.length-calc-md(%bounds<min>, %bounds<max>);
             my @res-point = @point.kv.map(-> $i, $p {%calc<min>[$i] + ($p * %calc<length>[$i])});
             my $res-jacobian = $jacobian * %calc<jacobian>;
