@@ -1,0 +1,63 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+
+# 1
+isa-ok nintegrate({$^x + $^y}, ['x', 0, 1], ['y', 0, {$^x}]), Numeric:D, 'ok to call with functional boundaries';
+
+# 2
+is-approx
+        nintegrate({$^x + $^y}, ['x', 0, 1], ['y', 0, {$^x}]),
+        1/2,
+        "nintegrate(x+y, <x 0 1>, <y 0 x>)";
+
+# 3
+subtest {
+    is-approx
+            nintegrate({ $^x + $^y }, ['x', 0, 1], ['y', 0, { $^x.sqrt }], singularity-depth => Inf),
+            13 / 20,
+            "without IMT";
+
+    # 4
+    is-approx
+            nintegrate({ $^x + $^y }, ['x', 0, 1], ['y', 0, { $^x.sqrt }], singularity-depth => 4),
+            13 / 20,
+            "with IMT";
+
+}, 'nintegrate(x+y, <x 0 1>, <y 0 x.sqrt>)';
+
+# 4
+subtest {
+
+    my $singularity-depth = Inf;
+    isa-ok
+            nintegrate({ $^x + $^y ** 2 }, ['x', 0, 5], ['y', { $^x.sqrt }, { $^x }], :$singularity-depth),
+            Numeric:D,
+            'ok to call';
+
+    # 5
+    is-approx
+            nintegrate({ $^x + $^y ** 2 }, ['x', 0, 5], ['y', { $^x.sqrt }, { $^x }], :$singularity-depth),
+            375 / 4 - 40 * sqrt(5) / 3,
+            "expected result";
+
+}, "nintegrate(x+y², <x 0 5>, <y x.sqrt x>)";
+
+# 5
+subtest {
+
+    my $singularity-depth = Inf;
+    is-approx
+            nintegrate({ $^x + $^y + $^z }, <x 0 1>, ['y', 0, { $^x }], ['z', 0, 1], :$singularity-depth),
+            3 / 4,
+            "nintegrate(x+y+x, <x 0 1>, <y 0 x>, <z 0 1>)";
+
+    is-approx
+            nintegrate({ $^x + $^y + $^z }, <x 0 1>, ['y', 0, { $^x }], ['z', 0, { $^x + $^y }], :$singularity-depth),
+            7 / 8,
+            "nintegrate(x+y+x, <x 0 1>, <y 0 x>, <z 0 x+y>)";
+
+}, '3D integrals';
+
+done-testing;
