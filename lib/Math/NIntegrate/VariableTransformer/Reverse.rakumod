@@ -46,12 +46,26 @@ class Math::NIntegrate::VariableTransformer::Reverse
             :@point is copy,
             :$jacobian is copy,
             Bool:D :fb(:$functional-bounds) = False,
-            :$context = Nil
+            :$context = Nil,
+            :$axis = Nil
             --> Map:D) {
         my %bounds = self.get-transform-bounds(:$context);
 
-        if $functional-bounds {
-            die 'Functional boundaries variable transformation is not implemented yet.'
+        if $functional-bounds || (%bounds.values.flat(:hammer).any ~~ Callable:D) {
+            die 'For functional boundaries computations $axis is expected to be a non-negative integer within the integral dimensions.'
+            unless 0 ≤ $axis < %bounds<min>.elems;
+
+            # Reverse transformation for a single axis, with Callable boundaries evaluation first
+            my $min = %bounds<min>[$axis] ~~ Callable ?? %bounds<min>[$axis](|@point.head($axis)) !! %bounds<min>[$axis];
+            my $max = %bounds<max>[$axis] ~~ Callable ?? %bounds<max>[$axis](|@point.head($axis)) !! %bounds<max>[$axis];
+
+            my %res = :@point, :$jacobian;
+            if $axis ∈ @!indexes {
+                %res<point>[$axis] = %bounds<min>[$axis] + %bounds<max>[$axis] - %res<point>[$axis];
+                %res<jacobian> = %res<jacobian> * -1;
+            }
+            return %res;
+
         } else {
             my %res = :@point, :$jacobian;
             for @!indexes -> $i {
