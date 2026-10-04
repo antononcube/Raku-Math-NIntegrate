@@ -1,8 +1,10 @@
 Changes of the Raku package "Math::NIntegrate".
 
-0.0.4 2026-10-03
+0.0.4 2026-10-04
     - Streamlined computations with user defined integration rules and strategies
     - Implemented (crude) Monte-Carlo strategy
+    - Integrals can have functional boundaries
+        - I.e. this works: nintegrate({$^x + $^y}, ['x', 0, 1], ['y', {$^x.sqrt}, {$^x}])
 
 0.0.3 2026-10-02
     - Process user specified "singular points" given in the range specs
