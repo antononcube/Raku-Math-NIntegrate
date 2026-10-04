@@ -180,24 +180,14 @@ class Math::NIntegrate::Region {
         # Make the right-side region of the split
         my $new-obj = self.clone;
 
-        # Region mid-point to split over
-        # This not an operational mid-point -- it is an "info".
-        # See the variable transformer split below.
-        # Special care is needed for functional boundaries.
-        my $mid-info = (@!min[$axis] + @!max[$axis]) / 2 + $dithering * (@!max[$axis] - @!min[$axis]);
-        # Should this precision setting be before or after the computation of the mid point?
-        $mid-info = numerical($mid-info, self.get-working-precision);
-        self.max[$axis] = $mid-info;
-        $new-obj.min[$axis] = $mid-info;
-
         # Change the boundaries of the transformation object.
         # This is needed in order to map the integration rule abscissas to into the transformed half-ranges.
         without $!variable-transformer {
             fail 'MISSING_OBJECT: no variable transformer in region spliting.'
         }
         my %bounds = $!variable-transformer.get-transform-bounds();
-        my $min = %bounds<min>[$axis];
-        my $max = %bounds<max>[$axis];
+        my $min = %bounds<min>[$axis] ~~ Callable:D ?? %bounds<min>[$axis](|%bounds<min>.head($axis)) !! %bounds<min>[$axis];
+        my $max = %bounds<max>[$axis] ~~ Callable:D ?? %bounds<max>[$axis](|%bounds<max>.head($axis)) !! %bounds<max>[$axis];
 
         my $mid = ($min + $max) / 2 + $dithering * ($max - $min);
 
@@ -208,6 +198,20 @@ class Math::NIntegrate::Region {
         # Level of splitting
         @!levels[$axis] += 1;
         $new-obj.levels[$axis] += 1;
+
+        # Region mid-point to split over
+        # This not an operational mid-point -- it is an "info".
+        # See the variable transformer split below.
+        # Special care is needed for functional boundaries.
+        #my $mid-info = (@!min[$axis] + @!max[$axis]) / 2 + $dithering * (@!max[$axis] - @!min[$axis]);
+        # Since Affine is always used 1/2 just have to transformed by $!variable-transformer
+        #`[
+        my $mid-info = (@!min[$axis] + @!max[$axis]) / 2 + $dithering * (@!max[$axis] - @!min[$axis]);
+        # Should this precision setting be before or after the computation of the mid point?
+        $mid-info = numerical($mid-info, self.get-working-precision);
+        self.max[$axis] = $mid-info;
+        $new-obj.min[$axis] = $mid-info;
+        ]
 
         # Special treatment of reuse-values
         # TBD...
