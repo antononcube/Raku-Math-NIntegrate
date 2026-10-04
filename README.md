@@ -99,7 +99,7 @@ use Math::NIntegrate;
 nintegrate( -> $x { 1/sqrt($x) }, ['x', 0, 2] );
 ```
 ```
-# 2.8284271225533
+# 2.8284271225432907
 ```
 
 With the adverb "pairs" the result shows the integral and error estimates together with the number of subregions used:
@@ -126,10 +126,14 @@ Adaptive Monte-Carlo integration (not implemented yet):
 nintegrate( -> $x, $y, $z { $x + $y² + 1/$z⁻¹ }, x => (0, 2), y => (0, 12), z => (1, 4), method => 'adaptive-monte-carlo' );
 ```
 
-Integration with functional boundaries (not implemented yet):
+Integration with functional boundaries 
+(using a 2D Cartesian integration rule specified with an 1D component, and no singularity handling):
 
-```raku, eval=FALSE
-nintegrate( { 1 }, <x 0 1>, <y 0 x>, method => Whatever ):pairs
+```raku
+nintegrate( -> *@_ { 1 }, ['x', 0, 1], ['y', 0, {$^x.sqrt}], method => 'clenshaw-curtis-rule', singularity-depth => Inf ):pairs
+```
+```
+# {error => 6.46800288251937e-07, integral => 0.6666666120967495, region-count => 9}
 ```
 
 Compute a two-dimensional integral with a singularity using Cartesian integration rule based 
@@ -139,7 +143,7 @@ on a one-dimensional [Gauss-Kronrod rule](https://en.wikipedia.org/wiki/Gauss–
 nintegrate( { 1 / ($^x + $^y).sqrt }, <x 0 1>, <y 0 1>, method => ('global-adaptive', method => ('gauss-kronrod-rule', points => 5))):pairs
 ```
 ```
-# {error => 9.483115939647426e-07, integral => 1.1045693394722014, region-count => 16}
+# {error => 7.137271613577306e-08, integral => 1.1045694924770812, region-count => 10}
 ```
 
 Compare with the Wolfram Language results:
@@ -234,5 +238,5 @@ Anton Antonov,
 ------
 Anton Antonov   
 Windermere, Florida, USA  
-2021-04-05
+2021-04-05   
 2026-09-28

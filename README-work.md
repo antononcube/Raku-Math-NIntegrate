@@ -117,10 +117,11 @@ Adaptive Monte-Carlo integration (not implemented yet):
 nintegrate( -> $x, $y, $z { $x + $y² + 1/$z⁻¹ }, x => (0, 2), y => (0, 12), z => (1, 4), method => 'adaptive-monte-carlo' );
 ```
 
-Integration with functional boundaries (not implemented yet):
+Integration with functional boundaries 
+(using a 2D Cartesian integration rule specified with an 1D component, and no singularity handling):
 
-```raku, eval=FALSE
-nintegrate( { 1 }, <x 0 1>, <y 0 x>, method => Whatever ):pairs
+```raku
+nintegrate( -> *@_ { 1 }, ['x', 0, 1], ['y', 0, {$^x.sqrt}], method => 'clenshaw-curtis-rule', singularity-depth => Inf ):pairs
 ```
 
 Compute a two-dimensional integral with a singularity using Cartesian integration rule based 
@@ -189,5 +190,5 @@ Anton Antonov,
 ------
 Anton Antonov   
 Windermere, Florida, USA  
-2021-04-05
+2021-04-05   
 2026-09-28
