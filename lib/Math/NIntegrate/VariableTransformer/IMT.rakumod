@@ -67,7 +67,7 @@ class Math::NIntegrate::VariableTransformer::IMT
             @!derivatives = 0 xx %bounds<min>.elems
         }
 
-        if $functional-bounds {
+        if $functional-bounds || (%bounds.values.flat(:hammer).any ~~ Callable:D) {
             die 'For functional boundaries computations $axis is expected to be a non-negative integer within the integral dimensions.'
             unless 0 ≤ $axis < %bounds<min>.elems;
 

@@ -22,7 +22,7 @@ class Math::NIntegrate::VariableTransformer::Affine
 
         fail 'DIMENSIONS_DO_NOT_MATCH: for point argument and boundary' if @point.elems != %bounds<min>.elems;
 
-        if $functional-bounds || (%bounds.values.flat(:hammer).one ~~ Callable:D) {
+        if $functional-bounds || (%bounds.values.flat(:hammer).any ~~ Callable:D) {
             die 'For functional boundaries computations $axis is expected to be a non-negative integer within the integral dimensions.'
             unless 0 ≤ $axis < %bounds<min>.elems;
 
