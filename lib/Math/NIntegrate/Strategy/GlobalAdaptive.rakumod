@@ -29,7 +29,14 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
         # First integration step
         try self.regions>>.apply-rule;
-        return %no-result if $!;
+        # For now the error is printed out.
+        # Something more graceful has to be done later.
+        #return %no-result if $!;
+        if $! {
+            say 'Problems integrating the original set of regions.';
+            say $!;
+            return %no-result;
+        }
 
         my $error = self.regions.map(*.error).sum;
         my $integral = self.regions.map(*.integral).sum;
