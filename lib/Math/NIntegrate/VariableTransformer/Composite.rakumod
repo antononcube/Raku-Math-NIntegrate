@@ -123,7 +123,7 @@ class Math::NIntegrate::VariableTransformer::Composite
     method transform(
             :@point is copy,
             :$jacobian is copy,
-            Bool:D :fb(:$functional-bounds) = False,
+            Bool:D :fb(:$functional-bounds) is copy = False,
             :$context = Nil,
             :$axis = Whatever
             --> Map:D) {
@@ -141,7 +141,8 @@ class Math::NIntegrate::VariableTransformer::Composite
         # This probably means using NumericalFunction objects for callable boundaries.
 
         # Special treatment is needed for functional boundaries
-        if $functional-bounds || (%bounds.values.flat(:hammer).any ~~ Callable:D) {
+        $functional-bounds = (%bounds.values.flat(:hammer).any ~~ Callable:D);
+        if $functional-bounds {
 
             # Should it be imposed that $variable-index is Whatever or Nil for Composite?
             # This means that Composite objects are not components in other Composite objects.
@@ -153,14 +154,14 @@ class Math::NIntegrate::VariableTransformer::Composite
                 # except it is in a loop and defined $axis
                 if $.vtAffine {
                     # Affine transform is multidimensional
-                    my %res = $.vtAffine.transform(:@point, :$jacobian, context => self, axis => $i);
+                    my %res = $.vtAffine.transform(:@point, :$jacobian, context => self, axis => $i, :$functional-bounds);
                     @point = |%res<point>;
                     $jacobian = %res<jacobian>
                 }
 
                 # Apply the stack of transformations in reverse order
                 for @!stack.reverse -> $vt {
-                    my %res = $vt.transform(:@point, :$jacobian, context => self, axis => $i);
+                    my %res = $vt.transform(:@point, :$jacobian, context => self, axis => $i, :$functional-bounds);
                     @point = |%res<point>;
                     $jacobian = %res<jacobian>
                 }
@@ -170,14 +171,14 @@ class Math::NIntegrate::VariableTransformer::Composite
             # Affine transformation is always done with Composite
             if $.vtAffine {
                 # Affine transform is multidimensional
-                my %res = $.vtAffine.transform(:@point, :$jacobian, context => self);
+                my %res = $.vtAffine.transform(:@point, :$jacobian, context => self, :!functional-bounds);
                 @point = |%res<point>;
                 $jacobian = %res<jacobian>
             }
 
             # Apply the stack of transformations in reverse order
             for @!stack.reverse -> $vt {
-                my %res = $vt.transform(:@point, :$jacobian, context => self);
+                my %res = $vt.transform(:@point, :$jacobian, context => self, :!functional-bounds);
                 @point = |%res<point>;
                 $jacobian = %res<jacobian>
             }
