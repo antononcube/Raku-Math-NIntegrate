@@ -64,3 +64,12 @@ Ok, reprogram to Raku the FORTRAN code in the file "./resources/D07HRE.f". Make 
 ```text
 Ok, reprogram to Raku the FORTRAN code in the file "./resources/D09HRE.f". Make a separate method for it named "d09hre".
 ```
+
+The GPT models dies quite a lot of "refactoring" while reprogramming to Raku the Fortran code of D09HRE.
+
+```text
+Translate the following Fortran code to Raku code
+Keep the variable names just put the corresponding sigils. For example, `lam0` becomes in Raku `$lam0` and `W(1,4)` becomes `@w[0][3]`.
+The `WTLENG` variable is `8` if the dimension is 2, and it is 9 otherwise.
+Do not refactor or otherwise simplify the formulas for the weights
+```
