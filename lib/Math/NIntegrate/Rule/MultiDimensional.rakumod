@@ -2,6 +2,7 @@ use v6.d;
 
 use Math::NIntegrate::Rule::General;
 use Math::NIntegrate::Utilities;
+use Math::NIntegrate::Codes;
 
 class Math::NIntegrate::Rule::MultiDimensional
         is Math::NIntegrate::Rule::General {
@@ -14,6 +15,18 @@ class Math::NIntegrate::Rule::MultiDimensional
     #======================================================
     # Creators
     #======================================================
+
+    method get-wt-length() {
+        do given $!generators {
+            when $_ == 9 { self.dimension == 2 ?? 8 !! 9 }
+            when $_ == 7 { 6 }
+            default {
+                # Should we give error;
+                warn 'INCORRECT_ARGUMENTS: potential wrong argument.';
+                self.rule-points.elems
+            }
+        }
+    }
 
     submethod TWEAK(:$!generators, :$dimension!, :$working-precision = Num) {
         # The dimension attribute is inherited from Rule::General, so assign it before
@@ -38,7 +51,9 @@ class Math::NIntegrate::Rule::MultiDimensional
         @!rule-points = |%data<rule-points>;
 
         # Fill-in the scales and norms -- see DEINHR
-        my $wtLength = self.rule-points.elems;
+        #my $wtLength = self.rule-points.elems;
+        my $wtLength = self.get-wt-length;
+
         my @we = 0 xx 14;
         for ^3 -> $k {
             for ^$wtLength -> $i {
@@ -212,188 +227,184 @@ class Math::NIntegrate::Rule::MultiDimensional
         };
     }
 
-    #| Initialise the DCUHRE degree-nine fully symmetric rule.
-    #|
-    #| This is a direct translation of D09HRE.  As for `d07hre`, rule zero
-    #| is the integration rule and rules one through four are null rules.
-    method d09hre(
-            UInt:D $dimension,
-            --> Map:D
-                  ) {
-        die 'D09HRE requires a positive dimension.' unless $dimension > 0;
+    #| D09HRE
+    method d09hre(UInt:D $ndim --> Map:D) {
+        my $wtleng = $ndim == 2 ?? 8 !! 9;
 
-        my UInt:D $weight-length = 9;
+        my @w      = do for ^5 { [0 xx $wtleng] };
+        my @g      = do for ^$ndim { [0 xx $wtleng] };
+        my @errcof = 0 xx 6;
+        my @rulpts = 0 xx $wtleng;
 
+        my $ratio;
+        my $lam0;
+        my $lam1;
+        my $lam2;
+        my $lam3;
+        my $lamp;
+        my $twondm;
 
-        my @weights = (^5).map({ [0e0 xx $weight-length] }).Array;
-        my @generators = (^$dimension).map({ [0e0 xx $weight-length] }).Array;
-        my @rule-points = (2e0 * $dimension) xx $weight-length;
-
-        my Num $two-to-dimension = 2e0 ** $dimension;
-        @rule-points[8] = $two-to-dimension;
-        @rule-points[7] = 4e0 * $dimension * ($dimension - 1) * ($dimension - 2) / 3e0
-        if $dimension > 2;
-        @rule-points[6] = 4e0 * $dimension * ($dimension - 1);
-        @rule-points[5] = 2e0 * $dimension * ($dimension - 1);
-        @rule-points[0] = 1e0;
-
-        # Squared generator parameters.
-        my Num $lambda0 = 0.4707e0;
-        my Num $lambda1 = 4e0 / (15e0 - 5e0 / $lambda0);
-        my Num $ratio = (1e0 - $lambda1 / $lambda0) / 27e0;
-        my Num $lambda2 = (5e0 - 7e0 * $lambda1 - 35e0 * $ratio)
-                / (7e0 - 35e0 * $lambda1 / 3e0 - 35e0 * $ratio / $lambda0);
-        $ratio *= (1e0 - $lambda2 / $lambda0) / 3e0;
-        my Num $lambda3 = (7e0 - 9e0 * ($lambda2 + $lambda1)
-                + 63e0 * $lambda2 * $lambda1 / 5e0 - 63e0 * $ratio)
-                / (9e0 - 63e0 * ($lambda2 + $lambda1) / 5e0
-                        + 21e0 * $lambda2 * $lambda1 - 63e0 * $ratio / $lambda0);
-        my Num $lambda-p = 0.0625e0;
-
-        # Degree-nine rule weights.
-        @weights[0][8] = 1e0 / (3e0 * $lambda0) ** 4 / $two-to-dimension;
-        @weights[0][7] = (1e0 - 1e0 / (3e0 * $lambda0)) / (6e0 * $lambda1) ** 3
-        if $dimension > 2;
-        @weights[0][6] = (1e0 - 7e0 * ($lambda0 + $lambda1) / 5e0
-                + 7e0 * $lambda0 * $lambda1 / 3e0)
-                / (84e0 * $lambda1 * $lambda2 * ($lambda2 - $lambda0)
-                        * ($lambda2 - $lambda1));
-        @weights[0][5] = (1e0 - 7e0 * ($lambda0 + $lambda2) / 5e0
-                + 7e0 * $lambda0 * $lambda2 / 3e0)
-                / (84e0 * $lambda1 ** 2 * ($lambda1 - $lambda0)
-                        * ($lambda1 - $lambda2))
-                - @weights[0][6] * $lambda2 / $lambda1
-                - 2e0 * ($dimension - 2) * @weights[0][7];
-        @weights[0][3] = (1e0 - 9e0 * (($lambda0 + $lambda1 + $lambda2) / 7e0
-                - ($lambda0 * $lambda1 + $lambda0 * $lambda2 + $lambda1 * $lambda2) / 5e0)
-                - 3e0 * $lambda0 * $lambda1 * $lambda2)
-                / (18e0 * $lambda3 * ($lambda3 - $lambda0) * ($lambda3 - $lambda1)
-                        * ($lambda3 - $lambda2));
-        @weights[0][2] = (1e0 - 9e0 * (($lambda0 + $lambda1 + $lambda3) / 7e0
-                - ($lambda0 * $lambda1 + $lambda0 * $lambda3 + $lambda1 * $lambda3) / 5e0)
-                - 3e0 * $lambda0 * $lambda1 * $lambda3)
-                / (18e0 * $lambda2 * ($lambda2 - $lambda0) * ($lambda2 - $lambda1)
-                        * ($lambda2 - $lambda3)) - 2e0 * ($dimension - 1) * @weights[0][6];
-        @weights[0][1] = (1e0 - 9e0 * (($lambda0 + $lambda2 + $lambda3) / 7e0
-                - ($lambda0 * $lambda2 + $lambda0 * $lambda3 + $lambda2 * $lambda3) / 5e0)
-                - 3e0 * $lambda0 * $lambda2 * $lambda3)
-                / (18e0 * $lambda1 * ($lambda1 - $lambda0) * ($lambda1 - $lambda2)
-                        * ($lambda1 - $lambda3))
-                - 2e0 * ($dimension - 1) * (@weights[0][6] + @weights[0][5]
-                        + ($dimension - 2) * @weights[0][7]);
-
-        # Two degree-seven, one degree-five, and one degree-three rules.
-        @weights[1][8] = 1e0 / (108e0 * $lambda0 ** 4) / $two-to-dimension;
-        @weights[2][8] = 5e0 / (324e0 * $lambda0 ** 4) / $two-to-dimension;
-        @weights[3][8] = 2e0 / (81e0 * $lambda0 ** 4) / $two-to-dimension;
-        for 1 .. 3 -> $rule {
-            @weights[$rule][7] = ((($rule == 3 ?? 2e0 !! 1e0)
-                    - 27e0 * $two-to-dimension * @weights[$rule][8] * $lambda0 ** 3)
-                    / (6e0 * $lambda1) ** 3) if $dimension > 2;
+        # Initialize generators, weights and RULPTS
+        for 1..$wtleng -> $j {
+            for 1..$ndim -> $i {
+                @g[$i - 1][$j - 1] = 0;
+            }
+            for 1..5 -> $i {
+                @w[$i - 1][$j - 1] = 0;
+            }
+            @rulpts[$j - 1] = 2 * $ndim;
         }
-
-        for 1, 2, 3 -> $rule {
-            my $factor = $rule == 3 ?? 2e0 !! 1e0;
-            @weights[$rule][6] = ($factor - 5e0 * $lambda1 / 3e0
-                    - 15e0 * $two-to-dimension * @weights[$rule][8] * $lambda0
-                            ** ($rule == 3 ?? 1 !! 2) * ($lambda0 - $lambda1))
-                    / (60e0 * $lambda1 * $lambda2 * ($lambda2 - $lambda1));
-            @weights[$rule][5] = (1e0 - 9e0 * (8e0 * $lambda1 * $lambda2
-                    * @weights[$rule][6] + $two-to-dimension * @weights[$rule][8]
-            * $lambda0 ** 2)) / (36e0 * $lambda1 ** 2)
-                    - 2e0 * @weights[$rule][7] * ($dimension - 2);
+        $twondm = 2 ** $ndim;
+        @rulpts[$wtleng - 1] = $twondm;
+        if $ndim > 2 {
+            @rulpts[7] = (4 * $ndim * ($ndim - 1) * ($ndim - 2)) div 3;
         }
+        @rulpts[6] = 4 * $ndim * ($ndim - 1);
+        @rulpts[5] = 2 * $ndim * ($ndim - 1);
+        @rulpts[0] = 1;
 
-        @weights[1][3] = (1e0 - 7e0 * (($lambda1 + $lambda2) / 5e0
-                - $lambda1 * $lambda2 / 3e0 + $two-to-dimension * @weights[1][8]
-                * $lambda0 * ($lambda0 - $lambda1) * ($lambda0 - $lambda2)))
-                / (14e0 * $lambda3 * ($lambda3 - $lambda1) * ($lambda3 - $lambda2));
-        @weights[1][2] = (1e0 - 7e0 * (($lambda1 + $lambda3) / 5e0
-                - $lambda1 * $lambda3 / 3e0 + $two-to-dimension * @weights[1][8]
-                * $lambda0 * ($lambda0 - $lambda1) * ($lambda0 - $lambda3)))
-                / (14e0 * $lambda2 * ($lambda2 - $lambda1) * ($lambda2 - $lambda3))
-                - 2e0 * ($dimension - 1) * @weights[1][6];
-        @weights[1][1] = (1e0 - 7e0 * (($lambda2 + $lambda3) / 5e0
-                - $lambda2 * $lambda3 / 3e0 + $two-to-dimension * @weights[1][8]
-                * $lambda0 * ($lambda0 - $lambda2) * ($lambda0 - $lambda3)))
-                / (14e0 * $lambda1 * ($lambda1 - $lambda2) * ($lambda1 - $lambda3))
-                - 2e0 * ($dimension - 1) * (@weights[1][6] + @weights[1][5]
-                        + ($dimension - 2) * @weights[1][7]);
+        # Compute squared generator parameters
+        $lam0 = 0.4707;
+        $lam1 = 4 / (15 - 5 / $lam0);
+        $ratio = (1 - $lam1 / $lam0) / 27;
+        $lam2 = (5 - 7 * $lam1 - 35 * $ratio) / (7 - 35 * $lam1 / 3 - 35 * $ratio / $lam0);
+        $ratio = $ratio * (1 - $lam2 / $lam0) / 3;
+        $lam3 = (7 - 9 * ($lam2 + $lam1) + 63 * $lam2 * $lam1 / 5 - 63 * $ratio) /
+                (9 - 63 * ($lam2 + $lam1) / 5 + 21 * $lam2 * $lam1 - 63 * $ratio / $lam0);
+        $lamp = 0.0625;
 
-        @weights[2][4] = (1e0 - 7e0 * (($lambda1 + $lambda2) / 5e0
-                - $lambda1 * $lambda2 / 3e0 + $two-to-dimension * @weights[2][8]
-                * $lambda0 * ($lambda0 - $lambda1) * ($lambda0 - $lambda2)))
-                / (14e0 * $lambda-p * ($lambda-p - $lambda1) * ($lambda-p - $lambda2));
-        @weights[2][2] = (1e0 - 7e0 * (($lambda1 + $lambda-p) / 5e0
-                - $lambda1 * $lambda-p / 3e0 + $two-to-dimension * @weights[2][8]
-                * $lambda0 * ($lambda0 - $lambda1) * ($lambda0 - $lambda-p)))
-                / (14e0 * $lambda2 * ($lambda2 - $lambda1) * ($lambda2 - $lambda-p))
-                - 2e0 * ($dimension - 1) * @weights[2][6];
-        @weights[2][1] = (1e0 - 7e0 * (($lambda2 + $lambda-p) / 5e0
-                - $lambda2 * $lambda-p / 3e0 + $two-to-dimension * @weights[2][8]
-                * $lambda0 * ($lambda0 - $lambda2) * ($lambda0 - $lambda-p)))
-                / (14e0 * $lambda1 * ($lambda1 - $lambda2) * ($lambda1 - $lambda-p))
-                - 2e0 * ($dimension - 1) * (@weights[2][6] + @weights[2][5]
-                        + ($dimension - 2) * @weights[2][7]);
-
-        @weights[3][3] = (2e0 - 7e0 * (($lambda1 + $lambda2) / 5e0
-                - $lambda1 * $lambda2 / 3e0 + $two-to-dimension * @weights[3][8]
-                * $lambda0 * ($lambda0 - $lambda1) * ($lambda0 - $lambda2)))
-                / (14e0 * $lambda3 * ($lambda3 - $lambda1) * ($lambda3 - $lambda2));
-        @weights[3][2] = (2e0 - 7e0 * (($lambda1 + $lambda3) / 5e0
-                - $lambda1 * $lambda3 / 3e0 + $two-to-dimension * @weights[3][8]
-                * $lambda0 * ($lambda0 - $lambda1) * ($lambda0 - $lambda3)))
-                / (14e0 * $lambda2 * ($lambda2 - $lambda1) * ($lambda2 - $lambda3))
-                - 2e0 * ($dimension - 1) * @weights[3][6];
-        @weights[3][1] = (2e0 - 7e0 * (($lambda2 + $lambda3) / 5e0
-                - $lambda2 * $lambda3 / 3e0 + $two-to-dimension * @weights[3][8]
-                * $lambda0 * ($lambda0 - $lambda2) * ($lambda0 - $lambda3)))
-                / (14e0 * $lambda1 * ($lambda1 - $lambda2) * ($lambda1 - $lambda3))
-                - 2e0 * ($dimension - 1) * (@weights[3][6] + @weights[3][5]
-                        + ($dimension - 2) * @weights[3][7]);
-        @weights[4][1] = 1e0 / (6e0 * $lambda1);
-
-        # Generator values are the positive square roots of their parameters.
-        $lambda0 = $lambda0.sqrt;
-        $lambda1 = $lambda1.sqrt;
-        $lambda2 = $lambda2.sqrt;
-        $lambda3 = $lambda3.sqrt;
-        $lambda-p = $lambda-p.sqrt;
-        for ^$dimension -> $axis {
-            @generators[$axis][8] = $lambda0;
+        # Compute degree 9 rule weights
+        @w[0][$wtleng - 1] = 1 / (3 * $lam0) ** 4 / $twondm;
+        if $ndim > 2 {
+            @w[0][7] = (1 - 1 / (3 * $lam0)) / (6 * $lam1) ** 3;
         }
-        if $dimension > 2 {
-            @generators[0][7] = $lambda1;
-            @generators[1][7] = $lambda1;
-            @generators[2][7] = $lambda1;
-        }
-        @generators[0][6] = $lambda1;
-        @generators[1][6] = $lambda2 if $dimension > 1;
-        @generators[0][5] = $lambda1;
-        @generators[1][5] = $lambda1 if $dimension > 1;
-        @generators[0][4] = $lambda-p;
-        @generators[0][3] = $lambda3;
-        @generators[0][2] = $lambda2;
-        @generators[0][1] = $lambda1;
+        @w[0][6] = (1 - 7 * ($lam0 + $lam1) / 5 + 7 * $lam0 * $lam1 / 3) /
+                (84 * $lam1 * $lam2 * ($lam2 - $lam0) * ($lam2 - $lam1));
+        @w[0][5] = (1 - 7 * ($lam0 + $lam2) / 5 + 7 * $lam0 * $lam2 / 3) /
+                (84 * $lam1 * $lam1 * ($lam1 - $lam0) * ($lam1 - $lam2)) -
+                @w[0][6] * $lam2 / $lam1 - 2 * ($ndim - 2) * @w[0][7];
+        @w[0][3] = (1 - 9 * (($lam0 + $lam1 + $lam2) / 7 - ($lam0 * $lam1 + $lam0 * $lam2 +
+                $lam1 * $lam2) / 5) - 3 * $lam0 * $lam1 * $lam2) /
+                (18 * $lam3 * ($lam3 - $lam0) * ($lam3 - $lam1) * ($lam3 - $lam2));
+        @w[0][2] = (1 - 9 * (($lam0 + $lam1 + $lam3) / 7 - ($lam0 * $lam1 + $lam0 * $lam3 +
+                $lam1 * $lam3) / 5) - 3 * $lam0 * $lam1 * $lam3) /
+                (18 * $lam2 * ($lam2 - $lam0) * ($lam2 - $lam1) * ($lam2 - $lam3)) -
+                2 * ($ndim - 1) * @w[0][6];
+        @w[0][1] = (1 - 9 * (($lam0 + $lam2 + $lam3) / 7 - ($lam0 * $lam2 + $lam0 * $lam3 +
+                $lam2 * $lam3) / 5) - 3 * $lam0 * $lam2 * $lam3) /
+                (18 * $lam1 * ($lam1 - $lam0) * ($lam1 - $lam2) * ($lam1 - $lam3)) -
+                2 * ($ndim - 1) * (@w[0][6] + @w[0][5] + ($ndim - 2) * @w[0][7]);
 
-        # Convert embedded-rule weights to null-rule weights, then scale the
-        # integration-rule weights for the [-1, 1]^dimension hypercube.
-        @weights[0][0] = $two-to-dimension;
-        for 1 ..^ 5 -> $rule {
-            for 1 ..^ $weight-length -> $generator {
-                @weights[$rule][$generator] -= @weights[0][$generator];
-                @weights[$rule][0] -= @rule-points[$generator] * @weights[$rule][$generator];
+        # Compute weights for 2 degree 7, 1 degree 5 and 1 degree 3 rules
+        @w[1][$wtleng - 1] = 1 / (108 * $lam0 ** 4) / $twondm;
+        if $ndim > 2 {
+            @w[1][7] = (1 - 27 * $twondm * @w[1][8] * $lam0 ** 3) / (6 * $lam1) ** 3;
+        }
+        @w[1][6] = (1 - 5 * $lam1 / 3 - 15 * $twondm * @w[1][$wtleng - 1] * $lam0 ** 2 * ($lam0 - $lam1)) /
+                (60 * $lam1 * $lam2 * ($lam2 - $lam1));
+        @w[1][5] = (1 - 9 * (8 * $lam1 * $lam2 * @w[1][6] + $twondm * @w[1][$wtleng - 1] * $lam0 ** 2)) /
+                (36 * $lam1 * $lam1) - 2 * @w[1][7] * ($ndim - 2);
+        @w[1][3] = (1 - 7 * (($lam1 + $lam2) / 5 - $lam1 * $lam2 / 3 + $twondm * @w[1][$wtleng - 1] *
+                $lam0 * ($lam0 - $lam1) * ($lam0 - $lam2))) /
+                (14 * $lam3 * ($lam3 - $lam1) * ($lam3 - $lam2));
+        @w[1][2] = (1 - 7 * (($lam1 + $lam3) / 5 - $lam1 * $lam3 / 3 + $twondm * @w[1][$wtleng - 1] *
+                $lam0 * ($lam0 - $lam1) * ($lam0 - $lam3))) /
+                (14 * $lam2 * ($lam2 - $lam1) * ($lam2 - $lam3)) - 2 * ($ndim - 1) * @w[1][6];
+        @w[1][1] = (1 - 7 * (($lam2 + $lam3) / 5 - $lam2 * $lam3 / 3 + $twondm * @w[1][$wtleng - 1] *
+                $lam0 * ($lam0 - $lam2) * ($lam0 - $lam3))) /
+                (14 * $lam1 * ($lam1 - $lam2) * ($lam1 - $lam3)) -
+                2 * ($ndim - 1) * (@w[1][6] + @w[1][5] + ($ndim - 2) * @w[1][7]);
+        @w[2][$wtleng - 1] = 5 / (324 * $lam0 ** 4) / $twondm;
+        if $ndim > 2 {
+            @w[2][7] = (1 - 27 * $twondm * @w[2][8] * $lam0 ** 3) / (6 * $lam1) ** 3;
+        }
+        @w[2][6] = (1 - 5 * $lam1 / 3 - 15 * $twondm * @w[2][$wtleng - 1] * $lam0 ** 2 * ($lam0 - $lam1)) /
+                (60 * $lam1 * $lam2 * ($lam2 - $lam1));
+        @w[2][5] = (1 - 9 * (8 * $lam1 * $lam2 * @w[2][6] + $twondm * @w[2][$wtleng - 1] * $lam0 ** 2)) /
+                (36 * $lam1 * $lam1) - 2 * @w[2][7] * ($ndim - 2);
+        @w[2][4] = (1 - 7 * (($lam1 + $lam2) / 5 - $lam1 * $lam2 / 3 + $twondm * @w[2][$wtleng - 1] *
+                $lam0 * ($lam0 - $lam1) * ($lam0 - $lam2))) /
+                (14 * $lamp * ($lamp - $lam1) * ($lamp - $lam2));
+        @w[2][2] = (1 - 7 * (($lam1 + $lamp) / 5 - $lam1 * $lamp / 3 + $twondm * @w[2][$wtleng - 1] *
+                $lam0 * ($lam0 - $lam1) * ($lam0 - $lamp))) /
+                (14 * $lam2 * ($lam2 - $lam1) * ($lam2 - $lamp)) - 2 * ($ndim - 1) * @w[2][6];
+        @w[2][1] = (1 - 7 * (($lam2 + $lamp) / 5 - $lam2 * $lamp / 3 + $twondm * @w[2][$wtleng - 1] *
+                $lam0 * ($lam0 - $lam2) * ($lam0 - $lamp))) /
+                (14 * $lam1 * ($lam1 - $lam2) * ($lam1 - $lamp)) -
+                2 * ($ndim - 1) * (@w[2][6] + @w[2][5] + ($ndim - 2) * @w[2][7]);
+        @w[3][$wtleng - 1] = 2 / (81 * $lam0 ** 4) / $twondm;
+        if $ndim > 2 {
+            @w[3][7] = (2 - 27 * $twondm * @w[3][8] * $lam0 ** 3) / (6 * $lam1) ** 3;
+        }
+        @w[3][6] = (2 - 15 * $lam1 / 9 - 15 * $twondm * @w[3][$wtleng - 1] * $lam0 * ($lam0 - $lam1)) /
+                (60 * $lam1 * $lam2 * ($lam2 - $lam1));
+        @w[3][5] = (1 - 9 * (8 * $lam1 * $lam2 * @w[3][6] + $twondm * @w[3][$wtleng - 1] * $lam0 ** 2)) /
+                (36 * $lam1 * $lam1) - 2 * @w[3][7] * ($ndim - 2);
+        @w[3][3] = (2 - 7 * (($lam1 + $lam2) / 5 - $lam1 * $lam2 / 3 + $twondm * @w[3][$wtleng - 1] *
+                $lam0 * ($lam0 - $lam1) * ($lam0 - $lam2))) /
+                (14 * $lam3 * ($lam3 - $lam1) * ($lam3 - $lam2));
+        @w[3][2] = (2 - 7 * (($lam1 + $lam3) / 5 - $lam1 * $lam3 / 3 + $twondm * @w[3][$wtleng - 1] *
+                $lam0 * ($lam0 - $lam1) * ($lam0 - $lam3))) /
+                (14 * $lam2 * ($lam2 - $lam1) * ($lam2 - $lam3)) - 2 * ($ndim - 1) * @w[3][6];
+        @w[3][1] = (2 - 7 * (($lam2 + $lam3) / 5 - $lam2 * $lam3 / 3 + $twondm * @w[3][$wtleng - 1] *
+                $lam0 * ($lam0 - $lam2) * ($lam0 - $lam3))) /
+                (14 * $lam1 * ($lam1 - $lam2) * ($lam1 - $lam3)) -
+                2 * ($ndim - 1) * (@w[3][6] + @w[3][5] + ($ndim - 2) * @w[3][7]);
+        @w[4][1] = 1 / (6 * $lam1);
+
+        # Set generator values
+        $lam0 = sqrt($lam0);
+        $lam1 = sqrt($lam1);
+        $lam2 = sqrt($lam2);
+        $lam3 = sqrt($lam3);
+        $lamp = sqrt($lamp);
+        for 1..$ndim -> $i {
+            @g[$i - 1][$wtleng - 1] = $lam0;
+        }
+        if $ndim > 2 {
+            @g[0][7] = $lam1;
+            @g[1][7] = $lam1;
+            @g[2][7] = $lam1;
+        }
+        @g[0][6] = $lam1;
+        @g[1][6] = $lam2;
+        @g[0][5] = $lam1;
+        @g[1][5] = $lam1;
+        @g[0][4] = $lamp;
+        @g[0][3] = $lam3;
+        @g[0][2] = $lam2;
+        @g[0][1] = $lam1;
+
+        # Compute final weight values.
+        # The null rule weights are computed from differences between
+        # the degree 9 rule weights and lower degree rule weights.
+        @w[0][0] = $twondm;
+        for 2..5 -> $j {
+            for 2..$wtleng -> $i {
+                @w[$j - 1][$i - 1] = @w[$j - 1][$i - 1] - @w[0][$i - 1];
+                @w[$j - 1][0] = @w[$j - 1][0] - @rulpts[$i - 1] * @w[$j - 1][$i - 1];
             }
         }
-        for 1 ..^ $weight-length -> $generator {
-            @weights[0][$generator] *= $two-to-dimension;
-            @weights[0][0] -= @rule-points[$generator] * @weights[0][$generator];
+        for 2..$wtleng -> $i {
+            @w[0][$i - 1] = $twondm * @w[0][$i - 1];
+            @w[0][0] = @w[0][0] - @rulpts[$i - 1] * @w[0][$i - 1];
         }
 
-        my @error-coefficients = 5, 5, 1, 5, 0.5, 0.25;
+        # Set error coefficients
+        @errcof[0] = 5;
+        @errcof[1] = 5;
+        @errcof[2] = 1;
+        @errcof[3] = 5;
+        @errcof[4] = 0.5;
+        @errcof[5] = 0.25;
 
         # Store offsets whose fully symmetric orbits lie in [-1/2, 1/2]^dim.
-        @generators = @generators.map({ $_ <<*>> 0.5 });
+        @g = @g.map({ $_ <<*>> 0.5 });
+
+        my @weights = @w;
+        my @generators = @g;
+        my @error-coefficients = @errcof;
+        my @rule-points = @rulpts;
 
         return {
             :@weights,
@@ -494,7 +505,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         die 'The rule and region dimensions must match.'
         unless $region.dimension == self.dimension;
 
-        my UInt:D $wtleng = @!rule-points.elems;
+        my UInt:D $wtleng = self.get-wt-length;
 
         # Correspondences with the original DERLHR signature.
         my @g = self.abscissas;
