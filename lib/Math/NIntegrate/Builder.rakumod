@@ -256,7 +256,7 @@ class Math::NIntegrate::Builder {
         $max-points = $method<max-points> // $max-points // Whatever;
         $max-recursion = $method<max-recursion> // $max-recursion // 12;
         $min-recursion = $method<min-recursion> // $min-recursion // 0;
-        $singularity-depth = $method<singularity-depth> // $singularity-depth // 4;
+        $singularity-depth = $method<singularity-depth> // $singularity-depth // ($dimension == 1 ?? 4 !! Inf);
         $singularity-handler = $method<singularity-handler> // $singularity-handler // 'imt';
 
         # Default strategy
