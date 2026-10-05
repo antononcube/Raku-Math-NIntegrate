@@ -59,6 +59,7 @@ class Math::NIntegrate::VariableTransformer::IMT
             :$context = Nil,
             :$axis = Nil
             --> Map:D) {
+        # Used for dimension parametrization only
         my %bounds = self.get-transform-bounds(:$context);
 
         # Derivative signs are used to known in which
@@ -74,7 +75,6 @@ class Math::NIntegrate::VariableTransformer::IMT
             # IMT transformation for a single axis
             my %res = :@point, :$jacobian;
             with self.transforms[$axis] {
-                say "Infinity for $axis";
                 my %h = self.transforms[$axis](@point[$axis], self.min-original-bounds[$axis], self.max-original-bounds[$axis]);
                 %res<point>[$axis] = %h<point>;
                 %res<jacobian> = %res<jacobian> * %h<jacobian>;
