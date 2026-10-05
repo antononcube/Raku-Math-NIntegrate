@@ -228,7 +228,7 @@ class Math::NIntegrate::Rule::MultiDimensional
     }
 
     #| D09HRE
-    method d09hre(UInt:D $ndim --> Map:D) {
+    method d09hre(UInt:D $ndim, :$working-precision = Num --> Map:D) {
         my $wtleng = $ndim == 2 ?? 8 !! 9;
 
         my @w      = do for ^5 { [0 xx $wtleng] };
@@ -401,9 +401,9 @@ class Math::NIntegrate::Rule::MultiDimensional
         # Store offsets whose fully symmetric orbits lie in [-1/2, 1/2]^dim.
         @g = @g.map({ $_ <<*>> 0.5 });
 
-        my @weights = @w;
-        my @generators = @g;
-        my @error-coefficients = @errcof;
+        my @weights = @w.map({ $_.map(*.&numerical(:$working-precision)) });
+        my @generators = @g.map({ $_.map(*.&numerical(:$working-precision)) });
+        my @error-coefficients = @errcof.map({ numerical($_, $working-precision) });
         my @rule-points = @rulpts;
 
         return {
