@@ -1,0 +1,39 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+
+# 1
+isa-ok nintegrate({exp(-$^x ** 2) }, ['x', -Inf, Inf]), Numeric:D, 'ok to call with ±Inf boundaries';
+
+# 2
+isa-ok nintegrate({exp(-$^x ** 2) }, <x -Inf Inf>), Numeric:D, 'ok to call with ±Inf allomorph boundaries';
+
+# 3
+is-approx
+        nintegrate({exp(- $^x ** 2) }, <x -Inf Inf>),
+        π.sqrt,
+        "nintegrate(e^(-x^2), <x -Inf Inf>";
+
+# 4
+is-approx
+        nintegrate({ 1 / (1 + $^x ** 2) }, ['x', -Inf, Inf]),
+        π,
+        "nintegrate(1/(1 + x^2), <x -Inf Inf>";
+
+# 5
+is-approx
+        nintegrate({ 1 / (1 + $^x ** 2) }, <x -Inf 0 Inf>),
+        π,
+        "nintegrate(1/(1 + x^2), <x -Inf 0 Inf>";
+
+# Too hard without dedicated oscillatory integrals handling
+#`[
+# 6
+is-approx
+        nintegrate({ sin($^x) / $^x }, ['x', -Inf, Inf]),
+        π,
+        "nintegrate(sin(x) / x, <x -Inf Inf>";
+]
+
+done-testing;
