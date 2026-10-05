@@ -518,6 +518,5 @@ class Math::NIntegrate::Region {
     #--------------------------------------
 
     method duffy-transform() {!!!}
-    method reverse-variable(Int:D $var-index) {!!!}
 
 }
