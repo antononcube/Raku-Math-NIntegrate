@@ -107,7 +107,20 @@ class Math::NIntegrate::VariableTransformer::Infinity
     }
 
     method !neg-inf-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
-        return %(:$point, jacobian => 1)
+        my $tPoint;
+        my $tJacobian;
+        my $pInv;
+        my $pInv1;
+        if is-zero($point) {
+            $tPoint = 0;
+            $tJacobian = 0;
+        } else {
+            $pInv = numerical(1 / $point, self.working-precision);
+            $pInv1 = numerical(1 / (1 - $point), self.working-precision);
+            $tPoint = $pInv1 - $pInv;
+            $tJacobian = $pInv * $pInv + $pInv1 * $pInv1;
+        }
+        return %(point => $tPoint, jacobian => $tJacobian)
     }
 
     method transform(
