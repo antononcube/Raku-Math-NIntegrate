@@ -419,20 +419,20 @@ class Math::NIntegrate::Rule::MultiDimensional
     #======================================================
     # The memoization did not produce noticeable time changes for the 2D integral
     # nintegrate({ 1 / ($^x + $^y).sqrt }, <x 0 1>, <y 0 1>)
-    # has %!permutations;
+    has %!permutations;
 
     #| Generate the distinct points in the fully symmetric orbit of a
     #| non-negative generator.
-    sub distinct-permutations(@generators --> Array:D) {
+    method !distinct-permutations(@generators --> Array:D) {
         my @result;
 
         # Memoization
-        # my $key = @generators.join('::');
-        #if %!permutations{$key}:exists {
-        #    #say "retrieved for $key";
-        #    my @res = |%!permutations{$key};
-        #    return @res;
-        #}
+        my $key = @generators.join('::');
+        if %!permutations{$key}:exists {
+            #say "retrieved for $key";
+            my @res = |%!permutations{$key};
+            return @res;
+        }
 
         sub visit(@remaining, @prefix) {
             unless @remaining.elems {
@@ -483,7 +483,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         my Numeric $fulabs = 0e0;
         my Numeric $funvls = 0e0;
 
-        for distinct-permutations(@generators) -> @g {
+        for self!distinct-permutations(@generators) -> @g {
             my @point = @g.map(* + $offset);
             $funvls = $region.eval-integrand(@point);
             die 'DEFSHR obtained a non-numeric integrand value.'
