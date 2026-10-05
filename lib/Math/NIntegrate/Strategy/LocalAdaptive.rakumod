@@ -17,6 +17,9 @@ class Math::NIntegrate::Strategy::LocalAdaptive
     # For suppressing too many messages when max recursion is reached.
     has UInt:D $!msgMaxRecursionCounter = 0;
 
+    has Numeric:D $!numberOfPoints = 0;
+    has UInt:D $!msgMaxPointsCounter = 0;
+
     #| LocalAdaptive strategy's algorithm
     method algorithm(
             Numeric:D :tol(:$relative-tolerance) = 1e-6,
@@ -147,6 +150,17 @@ class Math::NIntegrate::Strategy::LocalAdaptive
             return {:$integral, :$error, region-count => 1}
         } else {
 
+            # Warning max-points was reached.
+            if self.max-points ~~ Numeric:D && $!numberOfPoints > self.max-points {
+                note "Failed to converge to prescribed accuracy after {self.max-points} integrand evaluations."
+                if $!msgMaxPointsCounter < 3;
+
+		        # Counter for suppressing this message
+                $!msgMaxPointsCounter++;
+
+                return {:$integral, :$error, region-count => 1}
+            }
+
             # Warning the max recursion was reached
             if $region.levels.max ≥ self.max-recursion {
                 note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$region.numerical-function.last-argument-values}."
@@ -204,6 +218,9 @@ class Math::NIntegrate::Strategy::LocalAdaptive
                 %result<integral> += %recRes<integral>;
                 %result<error> += %recRes<error>;
                 %result<region-count> += %recRes<region-count>;
+
+                # Does not indicate the number of abscissas for MultiDimensionalRule
+                $!numberOfPoints += $region.rule.abscissas.elems;
             }
 
             return %result
