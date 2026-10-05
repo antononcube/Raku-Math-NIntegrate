@@ -125,16 +125,22 @@ nintegrate( -> *@_ { 1 }, ['x', 0, 1], ['y', 0, {$^x.sqrt}], method => 'clenshaw
 ```
 
 Compute a two-dimensional integral with a singularity using Cartesian integration rule based 
-on a one-dimensional [Gauss-Kronrod rule](https://en.wikipedia.org/wiki/Gauss–Kronrod_quadrature_formula) with 5 Gauss points:
+on a one-dimensional [Gauss-Kronrod rule](https://en.wikipedia.org/wiki/Gauss–Kronrod_quadrature_formula) with 5 Gauss points 
+and a one-dimensional [Trapezoidal rule](https://en.wikipedia.org/wiki/Trapezoidal_rule) with 10 base-points:
 
 ```raku
-nintegrate( { 1 / ($^x + $^y).sqrt }, <x 0 1>, <y 0 1>, method => ('global-adaptive', method => ('gauss-kronrod-rule', points => 5))):pairs
+nintegrate( { ($^x + $^y ** 2).sqrt }, <x 0 1>, <y 0 1>, 
+        method => ('global-adaptive', 
+                   method => ('CartesianRule',
+                              method => (('gauss-kronrod-rule', points => 5), ('trapezoidal-rule', points => 10))
+                   )
+        )):pairs
 ```
 
 Compare with the Wolfram Language results:
 
 ```shell
-wolframscript -code 'Through[{Integrate, N@*Integrate, NIntegrate}[1/Sqrt[x+y], {x, 0, 1}, {y, 0, 1}]]'
+wolframscript -code 'Through[{Integrate, N@*Integrate, NIntegrate}[Sqrt[x+y^2], {x, 0, 1}, {y, 0, 1}]]'
 ```
 
 Utilization through a DSL specification (not implemented yet):
