@@ -111,7 +111,7 @@ class Math::NIntegrate::VariableTransformer::Infinity
         my $tJacobian;
         my $pInv;
         my $pInv1;
-        if is-zero($point) {
+        if is-zero($point) || is-zero(1 - $point) {
             $tPoint = 0;
             $tJacobian = 0;
         } else {
