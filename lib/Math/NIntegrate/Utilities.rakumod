@@ -36,11 +36,13 @@ sub is-zero(Numeric:D $x, :tol(:$tolerance) = 2 * $MACHINE_EPSILON) is export {
 
 proto sub numerical(Numeric:D $n, |) is export {*}
 
-multi sub numerical(Numeric:D $n, $working-precision = Num, $default = Num) {
-    numerical($n, :$working-precision, :$default)
+multi sub numerical(Numeric:D $n, Num) { $n.Num }
+
+multi sub numerical(Numeric:D $n, $working-precision = Num) {
+    numerical($n, :$working-precision)
 }
 
-multi sub numerical(Numeric:D $n, :wprec(:$working-precision) = Num, :$default = Num) {
+multi sub numerical(Numeric:D $n, :wprec(:$working-precision) = Num) {
     return do given $working-precision {
         when FatRat { $n.FatRat }
         when Rat { $n.Rat }
