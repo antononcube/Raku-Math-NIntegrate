@@ -143,6 +143,7 @@ class Math::NIntegrate::VariableTransformer::Composite
             --> Map:D) {
 
         my %bounds = self.get-transform-bounds(:$context);
+        my %orig-bounds = self.get-original-bounds(:$context);
 
         $jacobian = 1;
 
@@ -155,7 +156,7 @@ class Math::NIntegrate::VariableTransformer::Composite
         # This probably means using NumericalFunction objects for callable boundaries.
 
         # Special treatment is needed for functional boundaries
-        $functional-bounds = %bounds.values.flat(:hammer).any ~~ Callable:D;
+        $functional-bounds = %bounds.values.flat(:hammer).any ~~ Callable:D || %orig-bounds.values.flat(:hammer).any ~~ Callable:D;
         if $functional-bounds {
 
             # Should it be imposed that $variable-index is Whatever or Nil for Composite?

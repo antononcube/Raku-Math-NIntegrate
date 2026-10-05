@@ -53,7 +53,7 @@ class Math::NIntegrate::VariableTransformer::Reverse
 
         if $functional-bounds || (%bounds.values.flat(:hammer).any ~~ Callable:D) {
             die 'For functional boundaries computations $axis is expected to be a non-negative integer within the integral dimensions.'
-            unless 0 ≤ $axis < %bounds<min>.elems;
+            unless $axis ~~ Int:D && 0 ≤ $axis < %bounds<min>.elems;
 
             # Reverse transformation for a single axis, with Callable boundaries evaluation first
             my $min = %bounds<min>[$axis] ~~ Callable ?? %bounds<min>[$axis](|@point.head($axis)) !! %bounds<min>[$axis];

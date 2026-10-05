@@ -59,23 +59,32 @@ class Math::NIntegrate::VariableTransformer::IMT
             :$context = Nil,
             :$axis = Nil
             --> Map:D) {
-        # Used for dimension parametrization only
-        my %bounds = self.get-transform-bounds(:$context);
+        # From context or its own?
+        #my %orig-bounds = self.get-original-bounds(:$context);
+        my %orig-bounds = self.get-original-bounds;
 
         # Derivative signs are used to known in which
         # direction to make a step back from singular points.
         if @!derivatives.elems == 0 {
-            @!derivatives = 0 xx %bounds<min>.elems
+            @!derivatives = 0 xx %orig-bounds<min>.elems
         }
 
-        if $functional-bounds || (%bounds.values.flat(:hammer).any ~~ Callable:D) {
+        if $functional-bounds || (%orig-bounds.values.flat(:hammer).any ~~ Callable:D) {
             die 'For functional boundaries computations $axis is expected to be a non-negative integer within the integral dimensions.'
-            unless 0 ≤ $axis < %bounds<min>.elems;
+            unless $axis ~~ Int:D && 0 ≤ $axis < %orig-bounds<min>.elems;
 
             # IMT transformation for a single axis
             my %res = :@point, :$jacobian;
             with self.transforms[$axis] {
-                my %h = self.transforms[$axis](@point[$axis], self.min-original-bounds[$axis], self.max-original-bounds[$axis]);
+
+                my $min = self.min-original-bounds[$axis];
+                $min = $min(|@point.head($axis)) if $min ~~ Callable:D;
+
+                my $max = self.max-original-bounds[$axis];
+                $max = $max(|@point.head($axis)) if $max ~~ Callable:D;
+
+                my %h = self.transforms[$axis](@point[$axis], $min, $max);
+
                 %res<point>[$axis] = %h<point>;
                 %res<jacobian> = %res<jacobian> * %h<jacobian>;
                 @!derivatives[$axis] = %h<jacobian>;
@@ -86,7 +95,7 @@ class Math::NIntegrate::VariableTransformer::IMT
             my %res = :@point, :$jacobian;
             for ^self.min-original-bounds.elems -> $i {
                 with self.transforms[$i] {
-                    my %h = self.transforms[$i](@point[$i], self.min-original-bounds[$i], self.max-original-bounds[$i]);
+                    my %h = self.transforms[$i](@point[$i], %orig-bounds<min>[$i], %orig-bounds<max>[$i]);
                     %res<point>[$i] = %h<point>;
                     %res<jacobian> = %res<jacobian> * %h<jacobian>;
                     @!derivatives[$i] = %h<jacobian>;
