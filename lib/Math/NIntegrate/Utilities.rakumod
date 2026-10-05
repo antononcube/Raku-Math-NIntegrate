@@ -55,6 +55,20 @@ multi sub numerical(Numeric:D $n, :wprec(:$working-precision) = Num) {
 }
 
 #==========================================================
+# Frequent values
+#==========================================================
+# This might be a good idea -- numerical(1, self.working-precision) is used a lot.
+# But I do not see much difference when profiling with Raku++.
+#`[
+proto sub ONE($prec = Num) is export {*}
+
+multi sub ONE(Num) { 1e0 }
+multi sub ONE(Rat) { 1.Rat }
+multi sub ONE(FatRat) { 1.FatRat }
+multi sub ONE(Numeric) { 1 }
+]
+
+#==========================================================
 # Parse range boundaries
 #==========================================================
 
