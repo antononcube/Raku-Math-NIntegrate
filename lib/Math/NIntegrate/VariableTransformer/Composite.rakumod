@@ -95,7 +95,9 @@ class Math::NIntegrate::VariableTransformer::Composite
     }
 
     method get-original-bounds(-->Map:D) {
-        return @!stack.tail.get-original-bounds
+        return @!stack.elems
+                ?? @!stack.tail.get-original-bounds
+                !! self.Math::NIntegrate::VariableTransformer::get-original-bounds
     }
 
     method get-transform-bounds(-->Map:D) {
@@ -113,6 +115,18 @@ class Math::NIntegrate::VariableTransformer::Composite
     #| Set max transformation bound(s)
     method set-max-transform-bound(UInt:D $axis, Numeric:D $value) {
         @!stack.tail.max-transform-bounds[$axis] = $value;
+        return self
+    }
+
+    #| Set min original bound(s)
+    method set-min-original-bound(UInt:D $axis, Numeric:D $value) {
+        @!stack.tail.min-original-bounds[$axis] = $value;
+        return self
+    }
+
+    #| Set max original bound(s)
+    method set-max-original-bound(UInt:D $axis, Numeric:D $value) {
+        @!stack.tail.max-original-bounds[$axis] = $value;
         return self
     }
 
