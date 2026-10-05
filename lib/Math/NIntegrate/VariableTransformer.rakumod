@@ -77,6 +77,15 @@ class Math::NIntegrate::VariableTransformer {
     # Template Method methods
     #======================================================
 
+    #| Get region object
+    method get-region(:$context = Nil) {
+        return do if $context {
+            $context.get-region()
+        } else {
+            self.region
+        }
+    }
+
     #| Get original bounds
     method get-original-bounds(:$context = Nil -->Map:D) {
         return do if $context {
@@ -95,13 +104,16 @@ class Math::NIntegrate::VariableTransformer {
         }
     }
 
-    #| Get region object
-    method get-region(:$context = Nil) {
-        return do if $context {
-            $context.get-region()
-        } else {
-            self.region
-        }
+    #| Set min original bound(s)
+    method set-min-original-bound(UInt:D $axis, Numeric:D $value) {
+        @!min-original-bounds[$axis] = $value;
+        return self
+    }
+
+    #| Set max original bound(s)
+    method set-max-original-bound(UInt:D $axis, Numeric:D $value) {
+        @!max-original-bounds[$axis] = $value;
+        return self
     }
 
     #| Set min transformation bound(s)
