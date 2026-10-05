@@ -9,4 +9,5 @@ role Math::NIntegrate::Strategy::ErrorHandlish {
     has $.msgProbSplit = 'Problems integrating the split regions.';
     has $.msgProbIMT = 'Problems integrating the region after IMT application.';
     has $.msgProbRegion = 'Problems integrating the region at level';
+    has $.msgSuppress = 'Suppressing further messages of this type.'
 }

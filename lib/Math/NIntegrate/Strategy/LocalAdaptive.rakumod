@@ -155,6 +155,8 @@ class Math::NIntegrate::Strategy::LocalAdaptive
                 # Max recursion message counter
                 $!msgMaxRecursionCounter++;
 
+                note $.msgSuppress if $!msgMaxRecursionCounter == 3;
+
                 return {:$integral, :$error, region-count => 1}
             }
 
