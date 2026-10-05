@@ -2,13 +2,13 @@ use v6.d;
 
 use LeftistHeap;
 use Math::NIntegrate::Strategy;
+use Math::NIntegrate::Strategy::ErrorHandlish;
 use Math::NIntegrate::VariableTransformer::IMT;
 use Math::NIntegrate::Codes;
 
 class Math::NIntegrate::Strategy::GlobalAdaptive
-        is Math::NIntegrate::Strategy {
-
-    my %no-result = integral => Whatever, error => Whatever;
+        is Math::NIntegrate::Strategy
+        does Math::NIntegrate::Strategy::ErrorHandlish {
 
     #| GlobalAdaptive strategy's algorithm
     method algorithm(
@@ -32,11 +32,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         # For now the error is printed out.
         # Something more graceful has to be done later.
         #return %no-result if $!;
-        if $! {
-            say 'Problems integrating the original set of regions.';
-            say $!;
-            return %no-result;
-        }
+        if $! { say "{self.msgProbOrig}\n{$!}"; return self.no-result }
 
         my $error = self.regions.map(*.error).sum;
         my $integral = self.regions.map(*.integral).sum;
@@ -89,7 +85,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
                 # Integrate
                 try $topRegion.apply-rule;
-                return %no-result if $!;
+                if $! { say "{self.msgProbIMT}\n{$!}"; return self.no-result }
 
                 # Estimate sums
                 $error += $topRegion.error;
@@ -112,10 +108,10 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
                 # Integrate
                 try $topRegion.apply-rule;
-                return %no-result if $!;
+                if $! { say "{self.msgProbSplit}\n{$!}"; return self.no-result }
 
                 try $newRegion.apply-rule;
-                return %no-result if $!;
+                if $! { say "{self.msgProbSplit}\n{$!}"; return self.no-result }
 
                 # Convergence monitoring
                 # TBD ...

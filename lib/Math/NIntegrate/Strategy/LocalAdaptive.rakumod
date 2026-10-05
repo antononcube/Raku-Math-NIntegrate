@@ -1,17 +1,21 @@
 use v6.d;
 
 use Math::NIntegrate::Strategy;
+use Math::NIntegrate::Strategy::ErrorHandlish;
 use Math::NIntegrate::VariableTransformer::IMT;
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::Codes;
 
 class Math::NIntegrate::Strategy::LocalAdaptive
-        is Math::NIntegrate::Strategy {
-    my %no-result = integral => Whatever, error => Whatever;
+        is Math::NIntegrate::Strategy
+        does Math::NIntegrate::Strategy::ErrorHandlish {
 
     has $.partitioning = Whatever;
     has Bool:D $.initial-estimate-relaxation = True;
 
+    # Max recursion reached message counter.
+    # For suppressing too many messages when max recursion is reached.
+    has UInt:D $!msgMaxRecursionCounter = 0;
 
     #| LocalAdaptive strategy's algorithm
     method algorithm(
@@ -30,9 +34,12 @@ class Math::NIntegrate::Strategy::LocalAdaptive
         # Divide regions according to min-recursion
         self.min-recursion-regions;
 
+        # Max recursion message counter
+        $!msgMaxRecursionCounter = 0;
+
         # First integration step
         try self.regions>>.apply-rule;
-        return %no-result if $!;
+        if $! { say "{self.msgProbOrig}\n{$!}"; return self.no-result }
 
         my $error = self.regions.map(*.error).sum;
         my $integral = self.regions.map(*.integral).sum;
@@ -125,7 +132,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
         # Integrate
         try $region.apply-rule;
-        return %no-result if $!;
+        if $! { say "{self.msgProbRegion} {$region.level}\n{$!}"; return self.no-result }
 
         my $error = $region.error;
         my $integral = $region.integral;
@@ -142,7 +149,12 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
             # Warning the max recursion was reached
             if $region.levels.max ≥ self.max-recursion {
-                note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$region.numerical-function.last-argument-values}.";
+                note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$region.numerical-function.last-argument-values}."
+                if $!msgMaxRecursionCounter < 3;
+
+                # Max recursion message counter
+                $!msgMaxRecursionCounter++;
+
                 return {:$integral, :$error, region-count => 1}
             }
 
@@ -185,7 +197,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
                         :&integration-monitor,
                         :$working-precision);
 
-                return %no-result unless %recRes<integral> ~~ Numeric:D;
+                return %.no-result unless %recRes<integral> ~~ Numeric:D;
 
                 %result<integral> += %recRes<integral>;
                 %result<error> += %recRes<error>;
@@ -196,6 +208,6 @@ class Math::NIntegrate::Strategy::LocalAdaptive
         }
 
         # Should not be reached
-        return %no-result
+        return %.no-result
     }
 }
