@@ -461,7 +461,13 @@ class Math::NIntegrate::Region {
                 # If not make a new object and add it.
                 if $!variable-transformer.stack.tail ~~ Math::NIntegrate::VariableTransformer::IMT {
 
-                    $!variable-transformer.stack.tail.set-transform-axis($axis)
+                    $!variable-transformer.stack.tail.set-transform-axis($axis);
+
+                    my %bounds = self.variable-transformer.tail.get-transform-bounds;
+                    $!variable-transformer.stack.tail.set-min-original-bound($axis, %bounds<min>[$axis]);
+                    $!variable-transformer.stack.tail.set-min-original-bound($axis, %bounds<min>[$axis]);
+                    $!variable-transformer.stack.tail.set-min-transform-bound($axis, 0);
+                    $!variable-transformer.stack.tail.set-max-transform-bound($axis, 1);
 
                 } else {
                     my $vt = Math::NIntegrate::VariableTransformer::IMT.new(
