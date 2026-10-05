@@ -117,7 +117,7 @@ Compute a two-dimensional integral:
 nintegrate( -> $x, $y { $x + $y² }, <x 0 2>, <y 0 12>);
 ```
 ```
-# 1176
+# 1176.0000000000007
 ```
 
 Adaptive Monte-Carlo integration (not implemented yet):
@@ -127,32 +127,38 @@ nintegrate( -> $x, $y, $z { $x + $y² + 1/$z⁻¹ }, x => (0, 2), y => (0, 12), 
 ```
 
 Integration with functional boundaries 
-(using a 2D Cartesian integration rule specified with an 1D component, and no singularity handling):
+(using a 2D Cartesian integration rule specified with a 1D component):
 
 ```raku
-nintegrate( -> *@_ { 1 }, ['x', 0, 1], ['y', 0, {$^x.sqrt}], method => 'clenshaw-curtis-rule', singularity-depth => Inf ):pairs
+nintegrate( -> *@_ { 1 }, ['x', 0, 1], ['y', 0, {$^x.sqrt}], method => 'clenshaw-curtis-rule'):pairs
 ```
 ```
 # {error => 6.46800288251937e-07, integral => 0.6666666120967495, region-count => 9}
 ```
 
-Compute a two-dimensional integral with a singularity using Cartesian integration rule based 
-on a one-dimensional [Gauss-Kronrod rule](https://en.wikipedia.org/wiki/Gauss–Kronrod_quadrature_formula) with 5 Gauss points:
+Compute a two-dimensional integral with using a full specification of a Cartesian integration rule 
+which based on a one-dimensional [Gauss-Kronrod rule](https://en.wikipedia.org/wiki/Gauss–Kronrod_quadrature_formula) with 5 Gauss points 
+and a one-dimensional [Trapezoidal rule](https://en.wikipedia.org/wiki/Trapezoidal_rule) with 10 base-points:
 
 ```raku
-nintegrate( { 1 / ($^x + $^y).sqrt }, <x 0 1>, <y 0 1>, method => ('global-adaptive', method => ('gauss-kronrod-rule', points => 5))):pairs
+nintegrate( { ($^x + $^y ** 2).sqrt }, <x 0 1>, <y 0 1>, 
+        method => ('global-adaptive', 
+                   method => ('CartesianRule',
+                              method => (('gauss-kronrod-rule', points => 5), ('trapezoidal-rule', points => 10))
+                   )
+        )):pairs
 ```
 ```
-# {error => 7.137271613577306e-08, integral => 1.1045694924770812, region-count => 10}
+# {error => 7.99733950591386e-07, integral => 0.8786535016262365, region-count => 10}
 ```
 
 Compare with the Wolfram Language results:
 
 ```shell
-wolframscript -code 'Through[{Integrate, N@*Integrate, NIntegrate}[1/Sqrt[x+y], {x, 0, 1}, {y, 0, 1}]]'
+wolframscript -code 'Through[{Integrate, N@*Integrate, NIntegrate}[Sqrt[x+y^2], {x, 0, 1}, {y, 0, 1}]]'
 ```
 ```
-# {(8*(-1 + Sqrt[2]))/3, 1.104569499661587, 1.1045695042415091}
+# {(-2 + 7*Sqrt[2] + 3*ArcSinh[1])/12, 0.8786346414725245, 0.8786346981741846}
 ```
 
 Utilization through a DSL specification (not implemented yet):
@@ -204,7 +210,7 @@ Here is an example invocation:
 nintegrate '{$^x + $^y}' '<x 0 1>' '<y 0 10>' --pairs
 ```
 ```
-# {error => 2.6808687534823764e-14, integral => 54.99999999999999, region-count => 1}
+# {error => 1.918654139689546e-14, integral => 54.99999999999999, region-count => 1}
 ```
 
 ------

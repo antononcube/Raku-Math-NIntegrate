@@ -118,14 +118,14 @@ nintegrate( -> $x, $y, $z { $x + $y² + 1/$z⁻¹ }, x => (0, 2), y => (0, 12), 
 ```
 
 Integration with functional boundaries 
-(using a 2D Cartesian integration rule specified with an 1D component, and no singularity handling):
+(using a 2D Cartesian integration rule specified with a 1D component):
 
 ```raku
-nintegrate( -> *@_ { 1 }, ['x', 0, 1], ['y', 0, {$^x.sqrt}], method => 'clenshaw-curtis-rule', singularity-depth => Inf ):pairs
+nintegrate( -> *@_ { 1 }, ['x', 0, 1], ['y', 0, {$^x.sqrt}], method => 'clenshaw-curtis-rule'):pairs
 ```
 
-Compute a two-dimensional integral with a singularity using Cartesian integration rule based 
-on a one-dimensional [Gauss-Kronrod rule](https://en.wikipedia.org/wiki/Gauss–Kronrod_quadrature_formula) with 5 Gauss points 
+Compute a two-dimensional integral with using a full specification of a Cartesian integration rule 
+which based on a one-dimensional [Gauss-Kronrod rule](https://en.wikipedia.org/wiki/Gauss–Kronrod_quadrature_formula) with 5 Gauss points 
 and a one-dimensional [Trapezoidal rule](https://en.wikipedia.org/wiki/Trapezoidal_rule) with 10 base-points:
 
 ```raku
