@@ -141,7 +141,7 @@ class Math::NIntegrate::VariableTransformer::Composite
         # This probably means using NumericalFunction objects for callable boundaries.
 
         # Special treatment is needed for functional boundaries
-        $functional-bounds = (%bounds.values.flat(:hammer).any ~~ Callable:D);
+        $functional-bounds = %bounds.values.flat(:hammer).any ~~ Callable:D;
         if $functional-bounds {
 
             # Should it be imposed that $variable-index is Whatever or Nil for Composite?
