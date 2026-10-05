@@ -389,7 +389,7 @@ class Math::NIntegrate::Builder {
         # The method option is parsed and validated at this point.
 
         # Default strategy options
-        my %default = min-recursion => 4, max-recursion => 12, singularity-depth => 4, singularity-handler => 'imt';
+        my %default = min-recursion => 4, max-recursion => 12, singularity-depth => Whatever, singularity-handler => 'imt';
 
         # Bounds
         # Ranges are already normalized at this point.
