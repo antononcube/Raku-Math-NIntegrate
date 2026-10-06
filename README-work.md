@@ -10,7 +10,7 @@
 ## Introduction
 
 This repository has the Raku code of a library for numerical integration.
-The design and architecture of library's main function, `NIntegrate`, resembles that of 
+The design and architecture of library's main function, `nintegrate`, resembles that of 
 [Wolfram Language `NIntegrate`](https://reference.wolfram.com/language/ref/NIntegrate.html),
 [WRI1, WRI2].
 
