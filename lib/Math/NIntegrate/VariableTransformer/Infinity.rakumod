@@ -40,7 +40,7 @@ class Math::NIntegrate::VariableTransformer::Infinity
                 }
 
                 when VT_INF_FIN {
-                    # min - (1 - x) / x
+                    # max - (1 - x) / x
                     #self.transforms[$i] = { self.max-original-bounds[$i] - (1 - $_) / $_ }
                     self.transforms[$i] = -> $point, $min, $max { self!fin-inf-transform($point, $min, $max) };
 
