@@ -32,7 +32,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
         # For now the error is printed out.
         # Something more graceful has to be done later.
         #return %no-result if $!;
-        if $! { say "{self.msgProbOrig}\n{$!}"; return self.no-result }
+        if $! { note "{self.msgProbOrig}\n{$!}"; return self.no-result }
 
         my $error = self.regions.map(*.error).sum;
         my $integral = self.regions.map(*.integral).sum;
@@ -85,7 +85,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
                 # Integrate
                 try $topRegion.apply-rule;
-                if $! { say "{self.msgProbIMT}\n{$!}"; return self.no-result }
+                if $! { note "{self.msgProbIMT}\n{$!}"; return self.no-result }
 
                 # Estimate sums
                 $error += $topRegion.error;
@@ -108,10 +108,10 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
                 # Integrate
                 try $topRegion.apply-rule;
-                if $! { say "{self.msgProbSplit}\n{$!}"; return self.no-result }
+                if $! { note "{self.msgProbSplit}\n{$!}"; return self.no-result }
 
                 try $newRegion.apply-rule;
-                if $! { say "{self.msgProbSplit}\n{$!}"; return self.no-result }
+                if $! { note "{self.msgProbSplit}\n{$!}"; return self.no-result }
 
                 # Convergence monitoring
                 # TBD ...
