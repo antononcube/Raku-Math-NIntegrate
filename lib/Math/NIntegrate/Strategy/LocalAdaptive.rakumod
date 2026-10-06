@@ -135,7 +135,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
         # Integrate
         try $region.apply-rule;
-        if $! { say "{self.msgProbRegion} {$region.level}\n{$!}"; return self.no-result }
+        if $! { say "{self.msgProbRegion} {$region.levels.max}\n{$!}"; return self.no-result }
 
         my $error = $region.error;
         my $integral = $region.integral;
