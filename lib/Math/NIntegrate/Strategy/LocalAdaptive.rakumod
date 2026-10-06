@@ -42,7 +42,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
         # First integration step
         try self.regions>>.apply-rule;
-        if $! { say "{self.msgProbOrig}\n{$!}"; return self.no-result }
+        if $! { note "{self.msgProbOrig}\n{$!}"; return self.no-result }
 
         my $error = self.regions.map(*.error).sum;
         my $integral = self.regions.map(*.integral).sum;
@@ -135,7 +135,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
         # Integrate
         try $region.apply-rule;
-        if $! { say "{self.msgProbRegion} {$region.levels.max}\n{$!}"; return self.no-result }
+        if $! { note "{self.msgProbRegion} {$region.levels.max}\n{$!}"; return self.no-result }
 
         my $error = $region.error;
         my $integral = $region.integral;
