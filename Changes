@@ -5,7 +5,7 @@ Changes of the Raku package "Math::NIntegrate".
     - Implemented max-points stopping criteria for the Global-Adaptive and Local-Adaptive strategies
         - Not working properly yet for MultiDimensionalRule
 
-0.0.4 2026-10-04
+0.0.4 2026-10-05
     - Streamlined computations with user defined integration rules and strategies
     - Implemented (crude) Monte-Carlo strategy
     - Integrals can have functional boundaries
