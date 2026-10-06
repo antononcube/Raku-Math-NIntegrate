@@ -3,6 +3,7 @@ use v6.d;
 # Inheriting of Saturating is to be done
 #use Math::NIntegrate::Strategy::Saturating;
 use Math::NIntegrate::Strategy;
+use Math::NIntegrate::Spec;
 use LeftistHeap;
 
 class Math::NIntegrate::Strategy::MonteCarlo
@@ -12,6 +13,12 @@ class Math::NIntegrate::Strategy::MonteCarlo
 
     has $.partitioning = Whatever;
     has $.random-seed = Whatever;
+
+    submethod TWEAK(:$!partitioning, :$!random-seed, *%args) {
+
+        die 'The value of $random-seed is expected to be an integer or Whatever.'
+        unless $!random-seed ~~ Int:D || $!random-seed.isa(Whatever);
+    }
 
     #| MonteCarlo strategy's algorithm
     method algorithm(
@@ -30,9 +37,10 @@ class Math::NIntegrate::Strategy::MonteCarlo
         # Integral dimension shortcut
         my $dim = self.regions.head.dimension;
 
-        # Does the partitioning option override max-recursion option?
-        # Divide regions according to min-recursion
-        self.min-recursion-regions;
+        # The min-recursion option is not respected, but should some warning be given if it is large than 0?
+        # Divide regions according to partitioning option (normalized at this point)
+        $!partitioning = Math::NIntegrate::Spec.normalize-partitioning($!partitioning, dimension => self.regions.head.dimension);
+        self.regions = |self.regions.map({ $_.divide($!partitioning) }).flat(:hammer) with $!partitioning;
 
         # First integration step
         try self.regions>>.apply-rule;
