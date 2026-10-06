@@ -42,4 +42,11 @@ subtest {
 
 }, 'singularity handler parsing';
 
+# 5
+subtest {
+    # Fixed
+    ok nintegrate({ sin($^x) / $^x }, ['x', -Inf, Inf], max-recurtion => 20);
+
+}, 'nintegrate(sin(x)/x, <x -Inf Inf>)';
+
 done-testing;
