@@ -108,7 +108,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
         # Hence, check the middle points.
         # (Obviously, can happen for Num, but not for Rat and FatRat.)
         my %bounds = $region.variable-transformer.get-transform-bounds;
-        my %length-record = $region.variable-transformer.length-calc-md(%bounds<min>, %bounds<max>, True);
+        my %length-record = Math::NIntegrate::Utilities::length-calc-md(%bounds<min>, %bounds<max>, :mid-point, working-precision => $region.variable-transformer.working-precision);
         for ^%length-record<min>.elems -> $axis {
             if is-zero(%length-record<min>[$axis] - %length-record<middle>[$axis]) {
                 # Should empty regions be counted?
