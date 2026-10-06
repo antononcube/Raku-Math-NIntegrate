@@ -54,6 +54,11 @@ class Math::NIntegrate::Rule::General
         my $errorLocal = 0;
         my @values;
 
+        # Clear the cache of Jacobian values before integrating.
+        # This is done here in order to localize the memoization per rule evaluation.
+        # Hence, manage cache size.
+        Math::NIntegrate::Utilities::empty-jacobians-cache;
+
         for ^@!abscissas.elems -> $i {
             my @point = @!abscissas[$i] ~~ Numeric:D ?? @!abscissas[$i] !! |@!abscissas[$i];
             my $value = $region.eval-integrand(@point);

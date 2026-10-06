@@ -3,6 +3,8 @@ use v6.d;
 unit module Math::NIntegrate::Utilities;
 
 use Math::NIntegrate::Codes;
+#use Hash::LRU;
+#use Sub::Memoized;
 
 #==========================================================
 # Machine epsilon
@@ -155,6 +157,12 @@ our sub determine-dimension($ranges, $dimension) {
 # although that is tempting from a certain encapsulation perspective.
 # Here memoization can be (more easily) applied.
 
+my %jacobians-cache;
+
+our sub empty-jacobians-cache() {
+    %jacobians-cache = %()
+}
+
 #| Calculation of the interval length with working precision
 our sub length-calc(Numeric:D $a is copy, Numeric:D $b is copy,
                     Bool:D :$mid-point = False,
@@ -187,6 +195,9 @@ our sub length-calc-md(@a, @b,
         -->Map:D) {
     die 'The sizes of the first two arguments are expected to match' unless @a.elems == @b.elems;
 
+    my $key = @a>>.WHICH.join('|') ~ '|' ~ @b>>.WHICH.join('|') ~ '|' ~ $mid-point.WHICH ~ '|' ~ $working-precision.WHICH;
+    return %jacobians-cache{$key} if %jacobians-cache{$key}:exists;
+
     my $jacobian = numerical(1, $working-precision);
     my @length;
     my @middle;
@@ -199,5 +210,6 @@ our sub length-calc-md(@a, @b,
         $jacobian *= %res<length>
     }
 
-    return %(:@length, :@min, :@middle, :$jacobian)
+    %jacobians-cache{$key} = %(:@length, :@min, :@middle, :$jacobian);
+    return %jacobians-cache{$key};
 }
