@@ -4,7 +4,7 @@
 #+TODO: TODO ONGOING MAYBE | DONE CANCELED 
 #+OPTIONS: toc:1 num:0
 
-* TODO Work plan [33%] [4/12]
+* TODO Work plan [30%] [4/13]
 ** DONE Numerical function [100%] [3/3]
 - [X] Creation
 - [X] Evaluation
@@ -111,7 +111,7 @@
   - It is just a swap of range/boundary values.
   - It is tested when multi-dimensional integrals with functional ranges.
     - Without singularity handling (like, IMT).
-** TODO Integration Strategies [0%] [0/8]
+** TODO Integration Strategies [12%] [1/8]
 *** TODO Global Adaptive [66%] [4/6]
 - [X] Initial regions by min-recursion
   - With Leftist Heap
@@ -141,12 +141,12 @@
 *** TODO Saturating
 *** TODO Trapezoidal
 *** TODO Double Exponential
-*** TODO Monte Carlo [80%] [4/5]
+*** DONE Monte Carlo [100%] [5/5]
 - [X] Creation from Builder
 - [X] Passing options
 - [X] Simple loop saturation with a heap
 - [X] Processing "RandomSeed" option
-- [ ] Processing "Partitioning" option
+- [X] Processing "Partitioning" option
 *** TODO Adaptive Monte Carlo
 *** TODO Importance Sampling
 ** DONE Integration Strategy Decorators
@@ -186,6 +186,12 @@
 *** TODO Parallel Crude Monte Carlo
 - This is almost an embarrassingly parallel algorithm
 *** TODO Parallel Heap
+** ONGOING Performance improvements
+*** TODO Faster ~transform~ [100%] [3/3]
+- [X] Make the method ~length-calc-md~ and ~length-calc~ to be subs in "::Utiltiies".
+- [X] Memoization of ~length-calc-md~ results
+- [X] Jacobians cache reset in every integration by the rule object
+  - In "::Rule::General" only for now
 ** TODO Unit tests [71%] [10/14]
 - [X] Numerical function
 - [X] Trapezoidal rule
