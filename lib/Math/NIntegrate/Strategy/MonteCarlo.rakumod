@@ -3,13 +3,13 @@ use v6.d;
 # Inheriting of Saturating is to be done
 #use Math::NIntegrate::Strategy::Saturating;
 use Math::NIntegrate::Strategy;
+use Math::NIntegrate::Strategy::ErrorHandlish;
 use Math::NIntegrate::Spec;
 use LeftistHeap;
 
 class Math::NIntegrate::Strategy::MonteCarlo
-        is Math::NIntegrate::Strategy {
-
-    my %no-result = integral => Whatever, error => Whatever;
+        is Math::NIntegrate::Strategy
+        does Math::NIntegrate::Strategy::ErrorHandlish {
 
     has $.partitioning = Whatever;
     has $.random-seed = Whatever;
@@ -18,6 +18,9 @@ class Math::NIntegrate::Strategy::MonteCarlo
 
         die 'The value of $random-seed is expected to be an integer or Whatever.'
         unless $!random-seed ~~ Int:D || $!random-seed.isa(Whatever);
+
+        note 'The (crude) Monte Carlo strategy does not use min-recursion.'
+        unless %args<min-recursion>.isa(Whatever) || %args<min-recursion> ~~ Numeric:D && %args<min-recursion> == 0;
     }
 
     #| MonteCarlo strategy's algorithm
@@ -32,19 +35,19 @@ class Math::NIntegrate::Strategy::MonteCarlo
         }
 
         # At this point the working precision should be known in the integrand and region.
-        # But does high precision matter for Monte-Carlo methods.
+        # But does high precision matter for Monte-Carlo methods?
 
         # Integral dimension shortcut
         my $dim = self.regions.head.dimension;
 
-        # The min-recursion option is not respected, but should some warning be given if it is large than 0?
+        # The min-recursion option is not respected, but should some warning be given if it is larger than 0?
         # Divide regions according to partitioning option (normalized at this point)
-        $!partitioning = Math::NIntegrate::Spec.normalize-partitioning($!partitioning, dimension => self.regions.head.dimension);
+        $!partitioning = Math::NIntegrate::Spec.normalize-partitioning($!partitioning, :$dim);
         self.regions = |self.regions.map({ $_.divide($!partitioning) }).flat(:hammer) with $!partitioning;
 
         # First integration step
         try self.regions>>.apply-rule;
-        return %no-result if $!;
+        if $! { say "{self.msgProbOrig}\n{$!}"; return self.no-result }
 
         my $error = self.regions.map(*.error).sum;
         my $integral = self.regions.map(*.integral).sum;
@@ -86,11 +89,12 @@ class Math::NIntegrate::Strategy::MonteCarlo
 
             # Integrate
             try $topRegion.apply-rule;
-            return %no-result if $!;
+            if $! { note "{self.msgProbRegion} {$topRegion.levels.max}\n{$!}"; return self.no-result }
 
             # Estimate sums
             $error += $topRegion.error;
             $integral += $topRegion.integral;
+            for ^$dim -> $i { $topRegion.levels[$i] += 1}
 
             # Add the region with a new variable transformer to the heap
             $heap.insert($topRegion);
