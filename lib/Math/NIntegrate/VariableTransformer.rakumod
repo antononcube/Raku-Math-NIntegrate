@@ -159,7 +159,7 @@ class Math::NIntegrate::VariableTransformer {
         my $middle = do if $mid-point {
             numerical(($a + $b) / 2, self.working-precision)
         } else {
-            numerical( 1 / 2, self.working-precision)
+            Whatever
         }
 
         return %(:$length, min => $a, :$middle, jacobian => $length)
