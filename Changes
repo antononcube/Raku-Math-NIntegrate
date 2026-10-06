@@ -1,5 +1,10 @@
 Changes of the Raku package "Math::NIntegrate".
 
+0.0.5 2026-10-05
+    - Fixed a bug in the handling of integrals with range (-Inf, Inf)
+    - Implemented max-points stopping criteria for the Global-Adaptive and Local-Adaptive strategies
+        - Not working properly yet for MultiDimensionalRule
+
 0.0.4 2026-10-04
     - Streamlined computations with user defined integration rules and strategies
     - Implemented (crude) Monte-Carlo strategy
