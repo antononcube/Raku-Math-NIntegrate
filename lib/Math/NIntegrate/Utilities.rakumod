@@ -142,3 +142,62 @@ our sub determine-dimension($ranges, $dimension) {
         }
     }
 }
+
+#======================================================
+# Jacobian calculation related
+#======================================================
+
+# This method probably should be only called by length-calc-md --
+# the framework should work only with points that are lists.
+# (After initial processing.)
+
+# There is no reason these subs to be a class methods in VariableTransformer,
+# although that is tempting from a certain encapsulation perspective.
+# Here memoization can be (more easily) applied.
+
+#| Calculation of the interval length with working precision
+our sub length-calc(Numeric:D $a is copy, Numeric:D $b is copy,
+                    Bool:D :$mid-point = False,
+                    :$working-precision = Num
+        -->Map:D) {
+
+    # Numeric evaluation of $a
+    $a = numerical($a, $working-precision);
+
+    # Numeric evaluation of $b
+    $b = numerical($b, $working-precision);
+
+    # The length of the interval
+    my $length = $b - $a;
+
+    # Mid-point calculation if needed
+    my $middle = do if $mid-point {
+        numerical(($a + $b) / 2, :$working-precision)
+    } else {
+        Whatever
+    }
+
+    return %(:$length, min => $a, :$middle, jacobian => $length)
+}
+
+#| Calculation of the multidimensional interval lengths with working precision
+our sub length-calc-md(@a, @b,
+                       Bool:D :$mid-point = False,
+                       :$working-precision = Num
+        -->Map:D) {
+    die 'The sizes of the first two arguments are expected to match' unless @a.elems == @b.elems;
+
+    my $jacobian = numerical(1, $working-precision);
+    my @length;
+    my @middle;
+    my @min;
+    for ^@a.elems -> $i {
+        my %res = length-calc(@a[$i], @b[$i], :$mid-point, :$working-precision);
+        @length.push(%res<length>);
+        @middle.push(%res<middle>);
+        @min.push(%res<min>);
+        $jacobian *= %res<length>
+    }
+
+    return %(:@length, :@min, :@middle, :$jacobian)
+}

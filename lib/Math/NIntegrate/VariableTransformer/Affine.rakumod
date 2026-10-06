@@ -1,6 +1,7 @@
 use v6.d;
 
 use Math::NIntegrate::VariableTransformer;
+use Math::NIntegrate::Utilities;
 
 class Math::NIntegrate::VariableTransformer::Affine
         is Math::NIntegrate::VariableTransformer {
@@ -30,7 +31,7 @@ class Math::NIntegrate::VariableTransformer::Affine
             my $min = %bounds<min>[$axis] ~~ Callable ?? %bounds<min>[$axis](|@point.head($axis)) !! %bounds<min>[$axis];
             my $max = %bounds<max>[$axis] ~~ Callable ?? %bounds<max>[$axis](|@point.head($axis)) !! %bounds<max>[$axis];
 
-            my %calc = self.length-calc($min, $max);
+            my %calc = Math::NIntegrate::Utilities::length-calc($min, $max, :!mid-point, working-precision => self.working-precision);
             my @res-point = @point;
             @res-point[$axis] = %calc<min> + @point[$axis] * %calc<length>;
             my $res-jacobian = $jacobian * %calc<jacobian>;
@@ -38,7 +39,7 @@ class Math::NIntegrate::VariableTransformer::Affine
 
         } else {
             # Affine transformation for all axes
-            my %calc = self.length-calc-md(%bounds<min>, %bounds<max>);
+            my %calc = Math::NIntegrate::Utilities::length-calc-md(%bounds<min>, %bounds<max>, :!mid-point, working-precision => self.working-precision);
             my @res-point = @point.kv.map(-> $i, $p {%calc<min>[$i] + ($p * %calc<length>[$i])});
             my $res-jacobian = $jacobian * %calc<jacobian>;
             return %(point => @res-point, jacobian => $res-jacobian)

@@ -159,7 +159,7 @@ class Math::NIntegrate::Region {
     #| Volume of the region
     method volume() {
         my %bounds = $!variable-transformer.get-transform-bounds();
-        my @lengths = |$!variable-transformer.length-calc-md(%bounds<min>, %bounds<max>)<length>;
+        my @lengths = |Math::NIntegrate::Utilities::length-calc-md(%bounds<min>, %bounds<max>, :!mid-point, working-precision => $!variable-transformer.working-precision)<length>;
         my $volume = [*] |@lengths;
         return numerical($volume, $!variable-transformer.working-precision)
     }
