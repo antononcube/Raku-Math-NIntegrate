@@ -43,6 +43,26 @@ class Math::NIntegrate::Spec {
     #======================================================
 
     #------------------------------------------------------
+    #| Validate partitioning spec
+    method normalize-partitioning($partitioning is copy, UInt:D :dim(:$dimension)!) {
+
+        # Should this normalization done here or in Spec?
+        # Does it make sense to have it in both places? (E.g. for user-created strategy objects.)
+        return do given $partitioning {
+            when Whatever { Whatever }
+            when Int:D {
+                $_ xx $dimension
+            }
+            when $_ ~~ (Array:D | List:D | Seq:D) && $_.all ~~ Int:D && $_.all > 0 {
+                ($_ xx $dimension).flat(:hammer).head($dimension)
+            }
+            default {
+                die 'The value of $partitioning is expected to be a positive integer, a list of positive integers, or Whatever.'
+            }
+        }
+    }
+
+    #------------------------------------------------------
     #| Validate & normalize ranges
     proto method normalize-ranges($ranges) {*}
 
