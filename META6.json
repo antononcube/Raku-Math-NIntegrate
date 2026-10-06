@@ -1,7 +1,7 @@
 {
     "name": "Math::NIntegrate",
     "description": "Raku package for numerical integration.",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "raku": "6.d",
     "authors": [
         "Anton Antonov"
