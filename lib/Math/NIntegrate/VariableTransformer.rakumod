@@ -88,20 +88,12 @@ class Math::NIntegrate::VariableTransformer {
 
     #| Get original bounds
     method get-original-bounds(:$context = Nil -->Map:D) {
-        return do if $context {
-            $context.get-original-bounds()
-        } else {
-            %(min => @!min-original-bounds, max => @!max-original-bounds)
-        }
+        return $context ?? $context.get-original-bounds !! %(min => @!min-original-bounds, max => @!max-original-bounds)
     }
 
     #| Get transformation bounds
     method get-transform-bounds(:$context = Nil -->Map:D) {
-        return do if $context {
-            $context.get-transform-bounds()
-        } else {
-            %(min => @!min-transform-bounds, max => @!max-transform-bounds)
-        }
+        return $context ?? $context.get-transform-bounds() !! %(min => @!min-transform-bounds, max => @!max-transform-bounds)
     }
 
     #| Set min original bound(s)
