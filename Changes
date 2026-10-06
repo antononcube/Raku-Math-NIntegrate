@@ -1,5 +1,8 @@
 Changes of the Raku package "Math::NIntegrate".
 
+0.0.6 2026-10-06
+    - Performance related refactoring, ≈ 25% speed-up
+
 0.0.5 2026-10-05
     - Fixed a bug in the handling of integrals with range (-Inf, Inf)
     - Implemented max-points stopping criteria for the Global-Adaptive and Local-Adaptive strategies
