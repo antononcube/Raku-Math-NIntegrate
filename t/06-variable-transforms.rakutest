@@ -132,7 +132,7 @@ subtest {
 }, 'IMT';
 
 ## 5
-#subtest {
+subtest {
     my $region = Math::NIntegrate::Region.new(min => [-2,30], max => [5,10], dimension => 2);
 
     my @min-original-bounds = $region.min;
@@ -170,6 +170,6 @@ subtest {
             $vt.transform(point => [0.1, 15], jacobian => 1)<point>,
             [2.9, 25],
             'expected transform values';
-#}, 'Reverse';
+}, 'Reverse';
 
 done-testing;
