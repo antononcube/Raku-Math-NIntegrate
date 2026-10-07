@@ -158,7 +158,8 @@ class Math::NIntegrate::Builder {
             }
 
             when $_<name> eq 'TrapezoidalRule' {
-                Math::NIntegrate::Rule::Trapezoidal.new(points => $_<points> // 10, :$working-precision);
+                my $romberg-quadrature = $method<romberg-quadrature> // $method<romberg> // True;
+                Math::NIntegrate::Rule::Trapezoidal.new(points => $_<points> // 10, :$romberg-quadrature, :$working-precision);
             }
 
             when $_<name> eq 'ClenshawCurtisRule' {
@@ -291,8 +292,8 @@ class Math::NIntegrate::Builder {
 
             when $_<name> eq 'LocalAdaptive' {
                 # Specific local adaptive options
-                my $partitioning = $method<Partitioning> // Whatever;
-                my $initial-estimate-relaxation = $method<InitialEstimateRelaxation> // True;
+                my $partitioning = $method<partitioning> // Whatever;
+                my $initial-estimate-relaxation = $method<initial-estimate-relaxation> // True;
 
                 Math::NIntegrate::Strategy::LocalAdaptive.new(
                         :$min-recursion,
@@ -318,8 +319,8 @@ class Math::NIntegrate::Builder {
 
             when $_<name> eq 'MonteCarlo' {
                 # Specific local adaptive options
-                my $partitioning = $method<Partitioning> // Whatever;
-                my $random-seed = $method<RandomSeed> // Whatever;
+                my $partitioning = $method<partitioning> // Whatever;
+                my $random-seed = $method<random-seed> // Whatever;
                 $max-points = 50_000 without $max-points;
 
                 Math::NIntegrate::Strategy::MonteCarlo.new(
