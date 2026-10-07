@@ -30,6 +30,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 multidimensionalrule => 'MultiDimensionalRule',
                 maxpoints => 'max-points', maxrecursion => 'max-recursion', minrecursion => 'min-recursion',
                 singularitydepth => 'singularity-depth', singularityhandler => 'singularity-handler',
+                romberg => 'romberg-quadrature', rombergquadrature => 'romberg-quadrature',
                 symbolicprocessing => 'symbolic-processing', nosingularityhandler => 'None',
                 partitioning => 'Partitioning', initialestimaterelaxation => 'InitialSstimateRelaxation', randomseed => 'RandomSeed',
                 duffycoordinates => 'DuffyCoordinates', imt => 'IMT', irimorigutitakesawa => 'IMT',
@@ -41,7 +42,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
     }
 
     method !merge-options(%spec is copy, $/ --> Hash:D) {
-        for flat $<method-option>, $<numeric-option-spec>, $<singularity-handler-option>,
+        for flat $<method-option>, $<numeric-option-spec>, $<boolean-option-spec>, $<singularity-handler-option>,
                 $<cartesian-rule-method>, $<method-rule-spec>, $<method-strategy-spec>, $<partitioning-option>, $<option>
         -> $option {
             next unless $option.defined;
@@ -49,6 +50,10 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
             %spec{$pair.key} = $pair.value;
         }
         %spec.Hash
+    }
+
+    method boolean($/) {
+        make $/.lc eq 'true'
     }
 
     method number($/) {
@@ -73,6 +78,10 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
 
     method method-symbol($/) {
         make $<strategy-symbol> ?? $<strategy-symbol>.made !! $<strategy-decorator-symbol> ?? $<strategy-decorator-symbol>.made !! $<rule-symbol>.made;
+    }
+
+    method boolean-option-spec($/) {
+        make self!canonical-name($<boolean-option-symbol>.Str) => $<boolean> ?? $<boolean>.made !! True;
     }
 
     method numeric-option-spec($/) {

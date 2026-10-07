@@ -9,6 +9,8 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     token symbol { <.quote>? <[\w \- _]>+ <.quote>? }
 
+    token boolean {:i True | False | '!' }
+
     token number { \d+ | <[-+]>? Inf }
 
     rule number-list { <.lb> <number>+ % <.sep> <.rb>}
@@ -127,6 +129,18 @@ grammar Math::NIntegrate::Processing::Grammar {
         | '"' <numeric-option-symbol> '"' \s* ':' \s* <number>
     }
 
+    token boolean-option-symbol {
+        <romberg-quadrature>
+    }
+
+    regex boolean-option-spec {
+        | <boolean-option-symbol> \s* <.arrow> \s* <boolean>
+        | ':' <boolean-option-symbol>
+        | ':' <boolean> <boolean-option-symbol>
+        | ':' <numeric-option-symbol> <.lb> \s* <boolean> \s* <.rb>
+        | '"' <numeric-option-symbol> '"' \s* ':' \s* <boolean>
+    }
+
     token singularity-handler-symbol {
         | <imt>
         | <double-exponential>
@@ -155,7 +169,7 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     regex rule-component-spec {
         || <rule-symbol>
-        || <.lb> \s* <rule-symbol> \s* [ <.sep> \s* <numeric-option-spec>* % [ \s* <.sep> \s*] ]? <.rb>
+        || <.lb> \s* <rule-symbol> \s* [ <.sep> \s* [ <boolean-option-spec> | <numeric-option-spec> ]* % [ \s* <.sep> \s*] ]? <.rb>
     }
 
     regex rule-component-sequence {
