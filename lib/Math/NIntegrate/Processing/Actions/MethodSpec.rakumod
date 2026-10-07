@@ -42,13 +42,21 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
 
     method !merge-options(%spec is copy, $/ --> Hash:D) {
         for flat $<method-option>, $<numeric-option-spec>, $<singularity-handler-option>,
-                $<cartesian-rule-method>, $<method-rule-spec>, $<method-strategy-spec>, $<option>
+                $<cartesian-rule-method>, $<method-rule-spec>, $<method-strategy-spec>, $<partitioning-option>, $<option>
         -> $option {
             next unless $option.defined;
             my $pair = $option.made;
             %spec{$pair.key} = $pair.value;
         }
         %spec.Hash
+    }
+
+    method number($/) {
+        make $/.Int
+    }
+
+    method number-list($/) {
+        make $<number>>>.Int.List
     }
 
     method strategy-symbol($/) {
@@ -75,8 +83,12 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
         make 'singularity-handler' => self!canonical-name($<singularity-handler-symbol>.Str);
     }
 
+    method partitioning-option($/) {
+        make 'partitioning' => $/.values[0].made;
+    }
+
     method option($/) {
-        my $value = ($<option-value> // $<number>).Str;
+        my $value = ($<option-value> // $<number-list> // $<number>).Str;
         make self!canonical-name($<symbol>.Str) => ($value ~~ /^\d+$/ ?? $value.Int !! self!canonical-name($value));
     }
 

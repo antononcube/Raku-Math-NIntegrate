@@ -11,6 +11,8 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     token number { \d+ | <[-+]>? Inf }
 
+    rule number-list { <.lb> <number>+ % <.sep> <.rb>}
+
     # Conditional parsing with different predicates.
     # The regex predicates are probably redundant.
     # Probably it is a good idea to check similarity with known-symbols.
@@ -114,16 +116,8 @@ grammar Math::NIntegrate::Processing::Grammar {
         || <top-level-rule>
     }
 
-    token singularity-handler-symbol {
-        | <imt>
-        | <double-exponential>
-        | <duffy-coordinates>
-        | <no-singularity-handler>
-        | <whatever>
-    }
-
     token numeric-option-symbol {
-        <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> | <generators> | <partitioning> | <random-seed>
+        <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> | <generators> | <random-seed>
     }
 
     regex numeric-option-spec {
@@ -133,15 +127,30 @@ grammar Math::NIntegrate::Processing::Grammar {
         | '"' <numeric-option-symbol> '"' \s* ':' \s* <number>
     }
 
+    token singularity-handler-symbol {
+        | <imt>
+        | <double-exponential>
+        | <duffy-coordinates>
+        | <no-singularity-handler>
+        | <whatever>
+    }
+
     regex singularity-handler-option {
         | <singularity-handler> \s* <.arrow> \s* <.quote>? <singularity-handler-symbol> <.quote>?
         | ':' <singularity-handler> <.lb> \s* <.quote>? <singularity-handler-symbol> <.quote>? \s* <.rb>
         | '"' <singularity-handler> '"' \s* ':' \s* <singularity-handler-symbol>
     }
 
+    regex partitioning-option {
+        | <partitioning> \s* <.arrow> \s* [ <number> | <number-list> ]
+        | ':' <partitioning> <.lb> \s* [ <number> | <number-list> ] \s* <.rb>
+        | ':' <number> <partitioning>
+        | '"' <partitioning> '"' \s* ':' \s* [ <number> | <number-list> ]
+    }
+
     rule strategy-spec {
         || <strategy-symbol>
-        || <.lb> <strategy-symbol> [ <.sep> [ <method-rule-spec> | <numeric-option-spec> | <singularity-handler-option> ]* % <.sep> ]? <.rb>
+        || <.lb> <strategy-symbol> [ <.sep> [ <method-rule-spec> | <partitioning-option> | <numeric-option-spec> | <singularity-handler-option> ]* % <.sep> ]? <.rb>
     }
 
     regex rule-component-spec {
@@ -219,6 +228,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     token partitioning {:i partitioning }
     token points {:i points }
     token random-seed {:i RandomSeed | random <[\-_]> seed }
+    token romberg-quadrature {:i RombergQuadrature | Romberg | romberg <[\-_]> quadrature }
     token singularity-depth { SingularityDepth | singularity <[\-_]> depth }
     token singularity-handler { SingularityHandler | singularity <[\-_]> handler }
     token symbolic-processing { SymbolicProcessing | symbolic <[\-_]> processing }
