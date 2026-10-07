@@ -26,6 +26,12 @@ subtest {
             '(GlobalAdaptive, max-recursion => 10, singularity-depth => 4)' =>
                     {name => 'GlobalAdaptive', type => 'strategy', max-recursion => 10, singularity-depth => 4},
 
+            '(MonteCarlo, partitioning => 5)' =>
+                    {name => 'MonteCarlo', type => 'strategy', partitioning => 5},
+
+            '(MonteCarlo, :5partitioning)' =>
+                    {name => 'MonteCarlo', type => 'strategy', partitioning => 5},
+
             '(MonteCarlo, partitioning => (3, 4))' =>
                     {name => 'MonteCarlo', type => 'strategy', partitioning => (3, 4)},
 
