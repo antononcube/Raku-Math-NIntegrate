@@ -1,7 +1,5 @@
 use v6.d;
 
-use v6.d;
-
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::Codes;
@@ -28,30 +26,28 @@ class Math::NIntegrate::VariableTransformer::DoubleExponent
 
             given %parsed<bounds-case> {
                 when VT_FIN_INF {
-                    # min + (1 - x) / x
-                    #self.transforms[$i] = { self.min-original-bounds[$i] + (1 - $_) / $_ }
+                    # min + exp( pi / 2 * sinh(x))
                     self.transforms[$i] = -> $point, $min, $max { self!fin-inf-transform($point, $min, $max) };
 
-                    # 1 / x^2
-                    self.jacobians[$i] = { 1 / $_ ** 2 }
+                    # exp( pi/2 * sinh(x) ) * pi/2 * cosh(x)
+                    self.jacobians[$i] = { exp( pi/2 * sinh($_) ) * pi/2 * cosh($_) }
 
-                    self.min-transform-bounds[$i] = 0;
-                    self.max-transform-bounds[$i] = 1;
+                    self.min-transform-bounds[$i] = -Inf;
+                    self.max-transform-bounds[$i] = Inf;
                     self.max-original-bounds[$i] = %parsed<max-inf-dir>;
 
                     self.jacobian-factors[$i] = %parsed<max-inf-dir>
                 }
 
                 when VT_INF_FIN {
-                    # max - (1 - x) / x
-                    #self.transforms[$i] = { self.max-original-bounds[$i] - (1 - $_) / $_ }
+                    # max + exp( pi / 2 * sinh(-x))
                     self.transforms[$i] = -> $point, $min, $max { self!fin-inf-transform($point, $min, $max) };
 
-                    # 1 / x^2
-                    self.jacobians[$i] = { 1 / $_ ** 2 }
+                    # - exp( - pi/2 * sinh(x) ) * pi/2 * cosh(-x)
+                    self.jacobians[$i] = { - exp( -pi/2 * sinh($_) ) * pi/2 * cosh($_) }
 
-                    self.min-transform-bounds[$i] = 0;
-                    self.max-transform-bounds[$i] = 1;
+                    self.min-transform-bounds[$i] = -Inf;
+                    self.max-transform-bounds[$i] = Inf;
                     self.max-original-bounds[$i] = %parsed<min-inf-dir>;
                     self.min-original-bounds[$i] = %parsed<max>;
 
@@ -59,16 +55,15 @@ class Math::NIntegrate::VariableTransformer::DoubleExponent
                 }
 
                 when VT_INF_INF {
-                    # (1 - x) / x - 1 / x
-                    #self.transforms[$i] = { self.max-original-bounds[$i] - (1 - $_) / $_ }
+                    # sinh( (pi * sinh(x) ) / 2 )
                     self.transforms[$i] = -> $point, $min, $max { self!neg-inf-inf-transform($point, $min, $max) };
 
-                    # x^-2 + (1-x)^-2
-                    self.jacobians[$i] = { 1 / $_ ** 2 + 1 / (1 - $_) ** 2 }
+                    # (pi * cosh(x) * cosh( (pi * sinh(x) ) / 2) ) / 2
+                    self.jacobians[$i] = { (pi * cosh($_) * cosh( (pi * sinh($_) ) / 2) ) / 2 }
                     self.min-transform-bounds[$i] = 0;
                     self.max-transform-bounds[$i] = 1;
 
-                    self.jacobian-factors[$i] = 1
+                    self.jacobian-factors[$i] = %parsed<max-inf-dir>
                 }
 
                 when VT_FIN_FIN {
@@ -91,8 +86,18 @@ class Math::NIntegrate::VariableTransformer::DoubleExponent
 
     method !fin-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
 
-        my $tPoint = 1;
-        my $tJacobian = 1;
+        # This might not work with the regular pi(π) for Rat and FatRat
+        my $pi2 = numerical(pi / 2, self.working-precision);
+
+        my $s = numerical(sinh($point), self.working-precision);
+        my $c = numerical(cosh($point), self.working-precision);
+        my $z = $pi2 * $s;
+        my $v = exp($z);
+
+        my $exp = sign($max) * $v;
+        my $tPoint = $min + $exp;
+        my $tJacobian = $pi2 * $v * $c;
+
         return %(point => $tPoint, jacobian => $tJacobian)
     }
 
@@ -103,8 +108,16 @@ class Math::NIntegrate::VariableTransformer::DoubleExponent
     }
 
     method !neg-inf-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
-        my $tPoint = 1;
-        my $tJacobian = 1;
+        # This might not work with the regular pi(π) for Rat and FatRat
+        my $pi2 = numerical(pi / 2, self.working-precision);
+
+        my $s = numerical(sinh($point), self.working-precision);
+        my $c = numerical(cosh($point), self.working-precision);
+        my $z = sinh( $pi2 * $s );
+
+        my $tPoint = $z;
+
+        my $tJacobian = $pi2 * cosh( $pi2 * $s ) * $c;
 
         return %(point => $tPoint, jacobian => $tJacobian)
     }
