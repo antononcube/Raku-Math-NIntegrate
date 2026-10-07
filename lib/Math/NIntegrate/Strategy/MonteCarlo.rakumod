@@ -74,19 +74,14 @@ class Math::NIntegrate::Strategy::MonteCarlo
         while !($done-tol || $done-accuracy || $done-max-recursion || $done-max-points) {
             $step++;
 
-            #say ('start of loop:', :$integral, :$error, :$step, region-count => $heap.elems);
-            # Delete from heap the region with largest error
+            # Delete from the heap the region with largest error
             $topRegion = $heap.delete-top-element;
-
 
             $error -= $topRegion.error;
             $integral -= $topRegion.integral;
             my $axis = $topRegion.axis;
 
-            #say ('after removing top region:', :$integral, :$error, :$axis, :$step, region-count => $heap.elems);
-
-            # More points to the top region
-
+            # More points to the top region -- see how MonteCarloRule reuses values.
             # Integrate
             try $topRegion.apply-rule;
             if $! { note "{self.msgProbRegion} {$topRegion.levels.max}\n{$!}"; return self.no-result }
@@ -96,7 +91,7 @@ class Math::NIntegrate::Strategy::MonteCarlo
             $integral += $topRegion.integral;
             for ^$dim -> $i { $topRegion.levels[$i] += 1}
 
-            # Add the region with a new variable transformer to the heap
+            # Add the (former) top region to the heap
             $heap.insert($topRegion);
 
             # Integration monitor
@@ -112,8 +107,6 @@ class Math::NIntegrate::Strategy::MonteCarlo
 
             $number-of-points += $topRegion.rule.abscissas.elems;
             $done-max-points = $number-of-points > self.max-points;
-
-            #say ('end of loop:', :$integral, :$error, relative-error => $error/$integral, region-count => $heap.elems, :$step)
         }
 
         # Warning the max recursion was reached
@@ -121,6 +114,7 @@ class Math::NIntegrate::Strategy::MonteCarlo
             note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$topRegion.numerical-function.last-argument-values}."
         }
 
+        # Warning the max points was reached
         if $done-max-points {
             note "Failed to converge to prescribed accuracy after {self.max-points} integrand evaluations."
         }
