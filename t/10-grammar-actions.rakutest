@@ -26,6 +26,9 @@ subtest {
             '(GlobalAdaptive, max-recursion => 10, singularity-depth => 4)' =>
                     {name => 'GlobalAdaptive', type => 'strategy', max-recursion => 10, singularity-depth => 4},
 
+            '(MonteCarlo, partitioning => (3, 4))' =>
+                    {name => 'MonteCarlo', type => 'strategy', partitioning => (3, 4)},
+
             '(local-adaptive, method => (trapezoidal-rule, points => 5))' =>
                     {method => {name => 'TrapezoidalRule', points => 5, type => 'rule'}, name => 'LocalAdaptive', type => 'strategy'},
 
