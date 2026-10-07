@@ -1,8 +1,12 @@
 Changes of the Raku package "Math::NIntegrate".
 
-0.0.6 2026-10-06
+0.0.6 2026-10-07
     - Performance related refactoring, ≈ 25% speed-up
     - MonteCarlo strategy improvements: better error handling, processing partitioning and random seed options
+    - Implemented Romberg quadrature for TrapezoidalRule
+    - Grammar and interpreter enhancements to:
+        - Take a list of integers a value for the "partitioning" option
+        - Process "romberg-quadrature" option
 
 0.0.5 2026-10-05
     - Fixed a bug in the handling of integrals with range (-Inf, Inf)
