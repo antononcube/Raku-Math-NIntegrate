@@ -34,4 +34,16 @@ subtest {
     is ($rule.abscissas».&f <<*>> $rule.error-weights).sum.abs < 0.008, True, 'error estimate';
 }, 'Trapezoidal integration, ad hoc';
 
+# 4
+subtest {
+    isa-ok Math::NIntegrate::Rule::Trapezoidal.new(5, :!romberg), Math::NIntegrate::Rule, 'ok, creation with :!romberg';
+
+    my $rule = Math::NIntegrate::Rule::Trapezoidal.new(5, :!romberg);
+
+    is $rule.Hash<romberg-quadrature>:exists, True, 'representation has "romberg-quadrature" key';
+
+    is $rule.Hash<romberg-quadrature>, False, '<romberg-quadrature> value';
+
+}, 'TrapezoidalRule represntation';
+
 done-testing;

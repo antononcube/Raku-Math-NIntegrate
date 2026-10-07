@@ -7,20 +7,21 @@ class Math::NIntegrate::Rule::Trapezoidal
         is Math::NIntegrate::Rule::General {
 
     has $.points is required;
+    has Bool:D $.romberg-quadrature = True;
 
-    submethod BUILD(UInt:D :$!points, :$working-precision = Num) {
+    submethod BUILD(UInt:D :$!points, :$working-precision = Num, :$!romberg-quadrature = True) {
         my %res = self.make-weights($!points, $working-precision);
         self.abscissas = |%res<abscissas>;
         self.weights = |%res<weights>;
         self.error-weights = |%res<error-weights>;
     }
 
-    multi method new($points, $working-precision = Num) {
-        self.bless(:$points, :$working-precision)
+    multi method new($points, $working-precision = Num, :romberg(:$romberg-quadrature) = True) {
+        self.bless(:$points, :$working-precision, :$romberg-quadrature)
     }
 
-    multi method new(:$points, :$working-precision = Num) {
-        self.bless(:$points, :$working-precision)
+    multi method new(:$points, :$working-precision = Num, :romberg(:$romberg-quadrature) = True) {
+        self.bless(:$points, :$working-precision, :$romberg-quadrature)
     }
 
     method make-weights(UInt:D $points, $working-precision = Num) {
@@ -58,5 +59,14 @@ class Math::NIntegrate::Rule::Trapezoidal
         @error-weights = @weights Z- @error-weights;
 
         return %(:@abscissas, :@weights, :@error-weights);
+    }
+
+    #======================================================
+    # Representation
+    #======================================================
+    multi method Hash(::?CLASS:D:-->Map:D) {
+        my %h = self.Math::NIntegrate::Rule::General::Hash;
+        %h = |%h, :$!romberg-quadrature;
+        return %h
     }
 }
