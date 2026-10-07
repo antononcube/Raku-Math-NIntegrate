@@ -20,14 +20,14 @@
 - [ ] Process goals to tolerances
 - [ ] Process method option
   - See "Abstract Factory"
-** TODO Integration Rules [36%] [4/11]
+** TODO Integration Rules [45%] [5/11]
 *** DONE General rule 1D [100%] [2/2]
 - [X] Attributes: abscissas, weights, error-weights
 - [X] Integration
-*** TODO Trapezoidal rule [66%] [2/3]
+*** DONE Trapezoidal rule [100%] [3/3]
 - [X] Abscissas & weights
 - [X] Any precision
-- [ ] Romberg integration
+- [X] Romberg integration
 *** TODO Clenshaw-Curtis rule [33%] [1/3]
 - [X] Abscissas & weights
 - [C] Any precision
@@ -238,9 +238,29 @@
   - [X] Integration 2D with a 1D custom rule
   - [ ] Integration with a custom strategy
 ** TODO Documentation [0%] [0/5]
+*** TODO General
 - [ ] Design
   - [ ] Initial version
 - [ ] Methodology
 - [ ] Design notes
-- [ ] Functionality page
-- [ ] Advanced documentation
+- [ ] Performance notes
+- [ ] Mind-map 
+  - Shows the structure and state of development
+*** TODO Functionality page
+*** TODO Advanced documentation
+**** TODO Rules [16%] [1/6]
+- [X] Trapezoidal
+- [ ] Newton-Cotes
+- [ ] Clenshaw-Curtis
+- [ ] Gauss-Kronrod
+- [ ] Cartesian
+- [ ] Multidimensional
+**** TODO Strategies [0%] [0/6]
+- [ ] Global adaptive
+- [ ] Local adaptive
+- [ ] Crude Monte Carlo and Quasi Monte Carlo
+- [ ] Adaptive Monte Carlo
+- [ ] Double exponential
+- [ ] Trapezoidal
+**** TODO Pathological cases
+**** TODO Example applications
