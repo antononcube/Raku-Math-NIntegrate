@@ -1,7 +1,7 @@
 {
     "name": "Math::NIntegrate",
     "description": "Raku package for numerical integration.",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "raku": "6.d",
     "authors": [
         "Anton Antonov"
@@ -46,6 +46,7 @@
         "Math::NIntegrate::VariableTransformer": "lib/Math/NIntegrate/VariableTransformer.rakumod",
         "Math::NIntegrate::VariableTransformer::Affine": "lib/Math/NIntegrate/VariableTransformer/Affine.rakumod",
         "Math::NIntegrate::VariableTransformer::Composite": "lib/Math/NIntegrate/VariableTransformer/Composite.rakumod",
+        "Math::NIntegrate::VariableTransformer::DoubleExponent": "lib/Math/NIntegrate/VariableTransformer/DoubleExponent.rakumod",
         "Math::NIntegrate::VariableTransformer::IMT": "lib/Math/NIntegrate/VariableTransformer/IMT.rakumod",
         "Math::NIntegrate::VariableTransformer::Infinity": "lib/Math/NIntegrate/VariableTransformer/Infinity.rakumod",
         "Math::NIntegrate::VariableTransformer::Reverse": "lib/Math/NIntegrate/VariableTransformer/Reverse.rakumod",
