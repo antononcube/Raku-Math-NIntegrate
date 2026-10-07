@@ -84,7 +84,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
     }
 
     method partitioning-option($/) {
-        make 'partitioning' => $/.values[0].made;
+        make 'partitioning' => $<number-list> ?? $<number-list>.made !! $<number>.made;
     }
 
     method option($/) {
