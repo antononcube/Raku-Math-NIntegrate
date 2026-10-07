@@ -10,7 +10,7 @@ class Math::NIntegrate::Rule::Trapezoidal
     has Bool:D $.romberg-quadrature = True;
 
     submethod BUILD(UInt:D :$!points, :$working-precision = Num, :$!romberg-quadrature = True) {
-        my %res = self.make-weights($!points, $working-precision);
+        my %res = self.make-weights($!points, $working-precision, $!romberg-quadrature);
         self.abscissas = |%res<abscissas>;
         self.weights = |%res<weights>;
         self.error-weights = |%res<error-weights>;
@@ -24,9 +24,9 @@ class Math::NIntegrate::Rule::Trapezoidal
         self.bless(:$points, :$working-precision, :$romberg-quadrature)
     }
 
-    method make-weights(UInt:D $points, $working-precision = Num) {
-        my $n1 = numerical($points, $working-precision);
+    method make-weights(UInt:D $points, $working-precision = Num, Bool:D $romberg-quadrature = True) {
 
+        my $n1 = numerical($points, $working-precision);
         my $n = numerical(2 * $n1 - 1, $working-precision);
 
         my @abscissas;
@@ -56,7 +56,13 @@ class Math::NIntegrate::Rule::Trapezoidal
         @error-weights[0] = numerical(1 / 2 / ($n1 - 1), $working-precision);
         @error-weights[$n-1] = numerical(1 / 2 / ($n1 - 1), $working-precision);
 
-        @error-weights = @weights Z- @error-weights;
+        if $romberg-quadrature {
+            my @ws = @weights;
+            @weights = (( 4 <<*>> @weights ) Z- @error-weights) <</>> 3;
+            @error-weights = @weights Z- @ws
+        } else {
+            @error-weights = @weights Z- @error-weights;
+        }
 
         return %(:@abscissas, :@weights, :@error-weights);
     }
