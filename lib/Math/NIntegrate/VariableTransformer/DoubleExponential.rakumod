@@ -4,11 +4,11 @@ use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::Codes;
 
-class Math::NIntegrate::VariableTransformer::DoubleExponent
+class Math::NIntegrate::VariableTransformer::DoubleExponential
         is Math::NIntegrate::VariableTransformer {
 
-    method clone(-->Math::NIntegrate::VariableTransformer::DoubleExponent) {
-        Math::NIntegrate::VariableTransformer::DoubleExponent.new(region => self.region).copy(self, :clone)
+    method clone(-->Math::NIntegrate::VariableTransformer::DoubleExponential) {
+        Math::NIntegrate::VariableTransformer::DoubleExponential.new(region => self.region).copy(self, :clone)
     }
 
     # Very similar to TWEAK of Infinity

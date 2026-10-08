@@ -1,7 +1,7 @@
 use Test;
 
 use Math::NIntegrate;
-use Math::NIntegrate::VariableTransformer::DoubleExponent;
+use Math::NIntegrate::VariableTransformer::DoubleExponential;
 
 # 1
 subtest {
@@ -16,14 +16,14 @@ subtest {
                 region => $region,
                 working-precision => Rat;
 
-        ok Math::NIntegrate::VariableTransformer::DoubleExponent.new(
+        ok Math::NIntegrate::VariableTransformer::DoubleExponential.new(
                 :@min-original-bounds,
                 :@max-original-bounds,
                 :@min-transform-bounds,
                 :@max-transform-bounds,
                 |%args), 'DoubleExponent object creation is ok';
 
-        my $vt = Math::NIntegrate::VariableTransformer::DoubleExponent.new(
+        my $vt = Math::NIntegrate::VariableTransformer::DoubleExponential.new(
                 :@min-original-bounds,
                 :@max-original-bounds,
                 :@min-transform-bounds,
@@ -60,7 +60,7 @@ subtest {
                 region => $region,
                 working-precision => Num;
 
-        my $vt = Math::NIntegrate::VariableTransformer::DoubleExponent.new(
+        my $vt = Math::NIntegrate::VariableTransformer::DoubleExponential.new(
                 :@min-original-bounds,
                 :@max-original-bounds,
                 :@min-transform-bounds,
@@ -105,7 +105,7 @@ subtest {
                 region => $region,
                 working-precision => Num;
 
-        my $vt = Math::NIntegrate::VariableTransformer::DoubleExponent.new(
+        my $vt = Math::NIntegrate::VariableTransformer::DoubleExponential.new(
                 :@min-original-bounds,
                 :@max-original-bounds,
                 :@min-transform-bounds,
