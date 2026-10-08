@@ -54,6 +54,7 @@ subtest {
             '( GlobalAdaptive )',
             '(GlobalAdaptive, method => ClenshawCurtisRule)',
             '(GlobalAdaptive, max-recursion => 10, singularity-depth => 4)',
+            '(global-adaptive, singularity-handler => "double-exponent", singularity-depth => 2)',
             '(MonteCarlo, partitioning => 4)',
             '(MonteCarlo, :10partitioning)',
             '(MonteCarlo, partitioning => (4, 3))',

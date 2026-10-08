@@ -143,7 +143,7 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     token singularity-handler-symbol {
         | <imt>
-        | <double-exponential>
+        | <double-exponent>
         | <duffy-coordinates>
         | <no-singularity-handler>
         | <whatever>
@@ -277,6 +277,7 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     # Singularity handler names
     token imt {:i imt | iri <[\-_]> moriguti <[\-_]> takesawa }
+    token double-exponent { DoubleExponent | double <[_\-]> exponent }
     token no-singularity-handler {:i none | no <[\-_]> singularity <[\-_]> handler }
     token duffy-coordinates {:i DuffyCoordinates | duffy <[\-_]> coordinates } # This is, actually, a preprocessor
 }
