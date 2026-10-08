@@ -25,6 +25,7 @@
         "Math::NIntegrate::Rule": "lib/Math/NIntegrate/Rule.rakumod",
         "Math::NIntegrate::Rule::Cartesian": "lib/Math/NIntegrate/Rule/Cartesian.rakumod",
         "Math::NIntegrate::Rule::ClenshawCurtis": "lib/Math/NIntegrate/Rule/ClenshawCurtis.rakumod",
+        "Math::NIntegrate::Rule::DoubleExponential": "lib/Math/NIntegrate/Rule/DoubleExponential.rakumod",
         "Math::NIntegrate::Rule::General": "lib/Math/NIntegrate/Rule/General.rakumod",
         "Math::NIntegrate::Rule::GaussKronrod": "lib/Math/NIntegrate/Rule/GaussKronrod.rakumod",
         "Math::NIntegrate::Rule::MonteCarlo": "lib/Math/NIntegrate/Rule/MonteCarlo.rakumod",
