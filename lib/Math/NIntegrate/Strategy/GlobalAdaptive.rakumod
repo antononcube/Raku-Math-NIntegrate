@@ -72,13 +72,19 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             #say ('after removing top region:', :$integral, :$error, :$axis, :$step, region-count => $heap.elems);
 
             # Application of singularity handler or region splitting
-            if $topRegion.levels[$axis] == self.singularity-depth && $topRegion.range-end-cases[$axis] ne RE_NONE  {
+            if $topRegion.levels[$axis] == self.singularity-depth
+                    && $topRegion.range-end-cases[$axis] ne RE_NONE
+                    && self.singularity-handler ~~ Str:D
+            {
                 # Apply singularity handler
-                if self.singularity-handler ~~ Str:D && self.singularity-handler.lc eq 'imt' {
+                if self.singularity-handler.lc eq 'imt' {
                     $topRegion.add-variable-transformer('imt', :$axis, :$working-precision);
-                    # Prevent another application of a singularity handler on that axis
-                    $topRegion.range-end-cases[$axis] = RE_NONE
+                } elsif $dim == 1 && self.singularity-handler.lc ~~ / double .? exponent / {
+                    $topRegion.add-variable-transformer('double-exponential', :$axis, :$working-precision);
                 }
+
+                # Prevent another application of a singularity handler on that axis
+                $topRegion.range-end-cases[$axis] = RE_NONE;
 
                 # Reset split level
                 $topRegion.levels[$axis] = 0;

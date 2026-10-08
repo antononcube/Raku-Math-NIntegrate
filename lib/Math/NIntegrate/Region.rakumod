@@ -4,6 +4,8 @@ use Math::NIntegrate::Rule::General;
 use Math::NIntegrate::NumericalFunction;
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::IMT;
+use Math::NIntegrate::VariableTransformer::DoubleExponential;
+use Math::NIntegrate::VariableTransformer::Infinity;
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::Codes;
 
@@ -478,6 +480,36 @@ class Math::NIntegrate::Region {
                             |%args);
 
                     $vt.set-transform-axis($axis);
+
+                    $!variable-transformer.add($vt)
+                }
+
+            }
+
+            when 'double-exponential' {
+
+                # Applying this variable transformer requires DoubleExponentialRule.
+
+                # Check if the region is one-dimensional
+                fail 'DIMENSIONS_DO_NOT_MATCH: DoubleExponential variable transformer is only for 1D regions.'
+                unless $!dimension == 1;
+
+                # Check if the last transformer in the Composite stack is Infinity or the stack is empty.
+                # DoubleExponential should replace the Infinity transformer.
+                if $!variable-transformer.stack.elems == 0
+                        || $!variable-transformer.stack.tail ~~ Math::NIntegrate::VariableTransformer::Infinity {
+
+                    my %bounds = self.variable-transformer.tail.get-transform-bounds;
+
+                    @min-original-bounds = |%bounds<min>;
+                    @max-original-bounds = |%bounds<max>;
+
+                    my $vt = Math::NIntegrate::VariableTransformer::DoubleExponential.new(
+                            :@min-original-bounds,
+                            :@max-original-bounds,
+                            :@min-transform-bounds,
+                            :@max-transform-bounds,
+                            |%args);
 
                     $!variable-transformer.add($vt)
                 }
