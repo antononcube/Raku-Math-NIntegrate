@@ -17,7 +17,9 @@ the affine transformations can be sped-up ≈10 times.
 
 A third way is to use memoization for the results of routines that are frequently called with the same arguments.
 See the memoization of `Math::NIntegrate::Utilities::length-calc-md` and corresponding "management call" in
-`Math::NIntegrate::Rule::General.integrate`.
+`Math::NIntegrate::Rule::General.integrate`. 
+Another memoization is for the distinct permutations for the fully symmetric rules.
+See `Math::NIntegrate::Rule::MultiDimensional!distinct-permutations`.
 
 ---
 
