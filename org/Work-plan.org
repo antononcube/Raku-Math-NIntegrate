@@ -20,22 +20,27 @@
 - [ ] Process goals to tolerances
 - [ ] Process method option
   - See "Abstract Factory"
-** TODO Integration Rules [45%] [5/11]
+** TODO Integration Rules [41%] [5/12]
 *** DONE General rule 1D [100%] [2/2]
 - [X] Attributes: abscissas, weights, error-weights
 - [X] Integration
-*** DONE Trapezoidal rule [100%] [3/3]
-- [X] Abscissas & weights
-- [X] Any precision
-- [X] Romberg integration
+*** DONE Cartesian rule [100%] [4/4]
+- [X] Creation
+- [X] Fill-in components if they are less than the dimension
+- [X] Pre-compute rule data 
+- [X] Simple integration
+  - Using the general rule integration method.
+  - Simple and elegant, but does not allow the determination of largest-error axis
+- [X] Integration with error calculation for each axis
+  - In order to determine the largest-error axis.
 *** TODO Clenshaw-Curtis rule [33%] [1/3]
 - [X] Abscissas & weights
 - [C] Any precision
   - Not possible
 - [ ] Large precision with "extra-precision" spec
-*** DONE Newton-Cotes rule [33%] [1/3]
-- [X] Abscissas & weights
-- [X] Any precision (Rat & FatRat)
+*** TODO DoubleExponential rule
+- [ ] Integration 1D
+- [ ] Integration nD
 *** TODO Gauss-Kronrod rule [40%] [2/5]
 - [X] Hard coded (low precision)
 - [X] Abscissas & weights
@@ -50,26 +55,25 @@
 - [ ] Any precision
   - Not possible
 - [ ] Large precision with "extra-precision" spec
-*** DONE Cartesian rule [100%] [4/4]
-- [X] Creation
-- [X] Fill-in components if they are less than the dimension
-- [X] Pre-compute rule data 
-- [X] Simple integration
-  - Using the general rule integration method.
-  - Simple and elegant, but does not allow the determination of largest-error axis
-- [X] Integration with error calculation for each axis
-  - In order to determine the largest-error axis.
-*** DONE MultiDimensional rule [%]
+*** TODO Monte Carlo rule
+- [X] Using a fine point generator
+- [ ] En bloc (rapid) generator
+- [ ] En bloc (rapid) variable transformation
+*** DONE MultiDimensional rule [100%]
 - [C] Genz-Malik
   - Low priority, maybe, at some point to be implemented
 - [X] DCUHRE
   - [X] D07HRE
   - [X] D09HRE
+- [X] Memoization of distinct permutations of generators
 *** TODO Multi-panel rule
-*** TODO Monte Carlo rule
-- [X] Using a fine point generator
-- [ ] En bloc (rapid) generator
-- [ ] En bloc (rapid) variable transformation
+*** DONE Newton-Cotes rule [33%] [1/3]
+- [X] Abscissas & weights
+- [X] Any precision (Rat & FatRat)
+*** DONE Trapezoidal rule [100%] [3/3]
+- [X] Abscissas & weights
+- [X] Any precision
+- [X] Romberg integration
 *** TODO Quasi Monte Carlo rule
 ** TODO Integration Region [87%] [7/8]
 - [X] Design: attributes & methods
@@ -99,7 +103,8 @@
   - By keeping track of transformation derivatives.
 - [ ] High precision computation
   - The current implementation seems under-performing
-*** TODO Double Exponent
+*** TODO Double Exponential
+- Requires DoubleExponentialRule to be implemented.
 - [ ] Constant ranges
 - [ ] Functional ranges
 *** DONE Reverse (class)
