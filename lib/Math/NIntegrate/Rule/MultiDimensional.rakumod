@@ -427,9 +427,8 @@ class Math::NIntegrate::Rule::MultiDimensional
         my @result;
 
         # Memoization
-        my $key = @generators.join('::');
+        my $key = @generators>>.WHICH.join('|');
         if %!permutations{$key}:exists {
-            #say "retrieved for $key";
             my @res = |%!permutations{$key};
             return @res;
         }
@@ -465,7 +464,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         }
 
         visit(@generators.Array, []);
-        #%!permutations{$key} = @result;
+        %!permutations{$key} = @result;
         return @result;
     }
 
