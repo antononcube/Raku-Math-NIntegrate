@@ -11,6 +11,8 @@ class Math::NIntegrate::Rule::DoubleExponential
     # Should the class have a step attribute?
     # Or "just" a step argument for method integrate?
     # What is a good default value of the integration step? (E.g. 1.)
+    # Should take working precision or tolerance as an argument --
+    # in order to figure out when to stop accumulating the terms sum.
 
     method integrate($region, Numeric:D $step = 1) {
 
@@ -19,4 +21,9 @@ class Math::NIntegrate::Rule::DoubleExponential
         # ASCII: int_{-infty}^{+infty} f(phi(t)) phi'(t) dx
         # where phi is one of the transformations in ::VariableTransform::DoubleExponential
     }
+
+    method integrate-dim1($region, Numeric:D $step = 1) {!!!}
+
+    # Essentially, dynamic Cartesian rule application
+    method integrate-dimN($region, Numeric:D $step = 1) {!!!}
 }
