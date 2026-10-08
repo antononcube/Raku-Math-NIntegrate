@@ -57,3 +57,4 @@ See ["Profiling-MonteCarlo.raku](../../examples/Profiling-MonteCarlo.raku).
 - AA: At least in Rakupp that was obvious and gave results. :)
 - AA: Another thing I noticed in Rakupp — the evaluation of the integrand function is / was faster than the variable transformation.
 - AA: Integrands look like `{$^x + $^y ** 2}`.
+- AA: Long way to go speed wise. For numerical integration WL is 100 and 50 times faster than Rakudo and Rakupp, respectively.
