@@ -33,7 +33,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 romberg => 'romberg-quadrature', rombergquadrature => 'romberg-quadrature',
                 symbolicprocessing => 'symbolic-processing', nosingularityhandler => 'None',
                 partitioning => 'Partitioning', initialestimaterelaxation => 'InitialSstimateRelaxation', randomseed => 'RandomSeed',
-                duffycoordinates => 'DuffyCoordinates', imt => 'IMT', irimorigutitakesawa => 'IMT', doubleexponent => 'DoubleExponent',
+                duffycoordinates => 'DuffyCoordinates', imt => 'IMT', irimorigutitakesawa => 'IMT',
                 unitcuberescaling => 'UnitCubeRescaling',
                 whatever => Whatever
                 ;

@@ -26,8 +26,8 @@ subtest {
             '(GlobalAdaptive, max-recursion => 10, singularity-depth => 4)' =>
                     {name => 'GlobalAdaptive', type => 'strategy', max-recursion => 10, singularity-depth => 4},
 
-            '(global-adaptive, singularity-handler => "double-exponent", singularity-depth => 2)' =>
-                    {name => 'GlobalAdaptive', type => 'strategy', singularity-depth => 2, singularity-handler => 'DoubleExponent'},
+            '(global-adaptive, singularity-handler => "double-exponential", singularity-depth => 2)' =>
+                    {name => 'GlobalAdaptive', type => 'strategy', singularity-depth => 2, singularity-handler => 'DoubleExponential'},
 
             '(MonteCarlo, partitioning => 5)' =>
                     {name => 'MonteCarlo', type => 'strategy', partitioning => 5},
