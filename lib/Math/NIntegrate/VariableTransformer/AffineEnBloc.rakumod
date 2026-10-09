@@ -3,11 +3,21 @@ use v6.d;
 use Math::NIntegrate::VariableTransformer::Affine;
 use Math::NIntegrate::Utilities;
 
+# Is a separate class needed?
+# The class ::VariableTransformer::Affine can just have a method transform-en-bloc(...).
+
 class Math::NIntegrate::VariableTransformer::AffineEnBloc
         is Math::NIntegrate::VariableTransformer::Affine {
 
-    method clone(-->Math::NIntegrate::VariableTransformer::AffineEnBloc) {
-        Math::NIntegrate::VariableTransformer::AffineEnBloc.new(region => self.region).copy(self, :clone)
+    method new(Math::NIntegrate::VariableTransformer::Affine:D $vt) {
+        self.bless(
+                min-original-bounds => $vt.min-original-bounds,
+                max-original-bounds => $vt.max-original-bounds,
+                min-transform-bounds => $vt.min-transform-bounds,
+                max-transform-bounds => $vt.max-transform-bounds,
+                working-precision => $vt.working-precision,
+                region => $vt.region
+                )
     }
 
     method transform(
