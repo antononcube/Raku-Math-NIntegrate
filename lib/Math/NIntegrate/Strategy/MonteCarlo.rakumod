@@ -111,7 +111,9 @@ class Math::NIntegrate::Strategy::MonteCarlo
 
         # Warning the max recursion was reached
         if $done-max-recursion {
-            note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$topRegion.numerical-function.last-argument-values}."
+            my @range-info = |($topRegion.min>>.Numeric Z $topRegion.max>>.Numeric).map({ "[{$_.head}, {$_.tail}]" });
+            note "Failed to converge to prescribed accuracy after {self.max-recursion}" ~
+                    "recursive refinements in region with range{ @range-info == 1 ?? '' !! 's' } {@range-info.join(' x ')}."
         }
 
         # Warning the max points was reached
