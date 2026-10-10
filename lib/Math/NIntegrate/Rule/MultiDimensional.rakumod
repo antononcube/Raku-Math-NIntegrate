@@ -663,6 +663,10 @@ class Math::NIntegrate::Rule::MultiDimensional
             $region,
             Bool:D :$roundoff-guard = False
             --> Math::NIntegrate::Rule::MultiDimensional:D) {
+
+        # Manage memoization / caching
+        Math::NIntegrate::Utilities::empty-jacobians-cache;
+
         my %result = self.derlhr($region, :$roundoff-guard);
         self.integral = %result<basval>;
         self.error = %result<rgnerr>;
