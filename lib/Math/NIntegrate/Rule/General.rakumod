@@ -53,7 +53,7 @@ class Math::NIntegrate::Rule::General
 
     method integrate($region) {
 
-        return self!integrate-en-bloc($region) if $region.is-en-bloc-ready;
+        return self.integrate-en-bloc($region) if $region.is-en-bloc-ready;
 
         my $integralLocal = 0;
         my $errorLocal = 0;
@@ -96,7 +96,7 @@ class Math::NIntegrate::Rule::General
     # Initially I considered to have a separate class, ::Rule::GeneralEnBloc.
     # See the comment next to method ::Rule::MonteCarlo!integrate-en-bloc.
 
-    method !integrate-en-bloc($region) {
+    method integrate-en-bloc($region) {
 
         my $integralLocal = 0;
         my $errorLocal = 0;
