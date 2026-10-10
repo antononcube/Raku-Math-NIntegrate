@@ -183,7 +183,7 @@ class Math::NIntegrate::Region {
                         ( $!variable-transformer.stack.elems == 0 ||
                                 $!variable-transformer.stack.elems == 1 &&
                                         ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinity:D) &&
-                                !($!.variable-transformer.stack.head.transforms.any ~~ Callable:D)
+                                !($!variable-transformer.stack.head.transforms.any ~~ Callable:D)
                         )
                 && $noFuncBounds
     }
