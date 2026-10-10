@@ -100,6 +100,10 @@ class Math::NIntegrate::Rule::General
     # Initially I considered to have a separate class, ::Rule::GeneralEnBloc.
     # See the comment next to method ::Rule::MonteCarlo!integrate-en-bloc.
 
+    # Initially this method was private, during the en bloc implementation of Cartesian rule was made public.
+    # But after simplifying the code of Cartesian rule integrate method this method can be made private again.
+    # Leaving it for now public -- it might be needed in some other rules.
+
     method integrate-en-bloc($region) {
 
         my $integralLocal = 0;
