@@ -92,7 +92,7 @@
 - [X] Functional ranges
 - [X] En-bloc constant ranges
 - [ ] En-bloc functional ranges
-*** DONE Infinity
+*** DONE Infinite
 - [X] Constant ranges
 - [X] Functional ranges 
 *** DONE Composite
