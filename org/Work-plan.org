@@ -191,12 +191,30 @@
 *** TODO Parallel Crude Monte Carlo
 - This is almost an embarrassingly parallel algorithm
 *** TODO Parallel Heap
-** ONGOING Performance improvements
-*** TODO Faster ~transform~ [100%] [3/3]
+** ONGOING Performance improvements [60%] [3/5]
+*** DONE Faster ~transform~ by memoization [100%] [3/3]
 - [X] Make the method ~length-calc-md~ and ~length-calc~ to be subs in "::Utiltiies".
 - [X] Memoization of ~length-calc-md~ results
 - [X] Jacobians cache reset in every integration by the rule object
   - In "::Rule::General" only for now
+*** DONE ~AffineEnBloc~ class
+- Used that class initially exploratory profiling and POC implementation.
+- Since it provided only one method ~transform~ over a list of lists
+  decided that is better to have that method in the class ~Affine~ as
+  ~transform-en-bloc~.
+  - I.e. the class ~AffineEnBloc~ is not used.
+*** DONE En bloc Monte Carlo rule integration
+- For constant ranges
+- Provides approx. 5 times speed up
+*** TODO En bloc General rule integration [50%] [2/4]
+- [X] For constant ranges
+- [X] Keeping track for last abscissas and last values
+  - To reuse in Cartesian rule or others
+  - To trace/track the integration process
+- [ ] For functional ranges
+*** TODO En bloc Cartesian rule integration [50%] [1/2]
+- [X] For constant ranges
+- [ ] For functional ranges
 ** TODO Unit tests [71%] [10/14]
 - [X] Numerical function
 - [X] Trapezoidal rule
