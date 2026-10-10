@@ -36,11 +36,10 @@ See ["Profiling-MonteCarlo.raku](../../examples/Profiling-MonteCarlo.raku).
 
 ## En bloc affine transformations (2026-10-09 ÷ 2026-10-10)
 
-In version 0.0.7 en bloc affine transformations were implemented for constant ranges -- see the method 
+In version 0.0.7 en bloc affine transformations were implemented for constant, finite ranges -- see the method 
 `Math::NIntegrate::VariableTransformation::Affine.transform-en-bloc`.
 
-Corresponding en bloc integration method 
-`integrate-en-bloc` in
+There is a corresponding en bloc integration method `integrate-en-bloc` in the classes
 `Math::NIntegrate::Rule::MonteCarlo` and `Math::NIntegrate::Rule::General`.
 
 Initially `Math::NIntegrate::Rule::General::Cartsian` had its own method `integrate-en-bloc`, but after
@@ -51,6 +50,13 @@ Those implementations gave:
 - ≈ 5 times speed up on multidimensional crude Monte Carlo integration
 - ≈ 4.5 times speed up for Cartesian rules
 - ≈ 2 times speed up for one-dimensional integrals
+
+In principle, for infinite ranges the same transformation pipeline can be applied 
+for `::VariableTransform::Infinity`, but requires some additional verifications and restrictions.
+
+Having the en bloc optimization for "just" constant, finite ranges, though, is probably good enough, 
+since the symbolic strategy decorator `Math::NIntegrate::Strategy::UnitCubeRescaling` can be put both infinite and 
+functional ranges into constant, finite ones.
 
 ---
 
