@@ -130,6 +130,9 @@ class Math::NIntegrate::Rule::Cartesian
         # Simple and elegant, but cannot be used to derive the axis with largest error
         # self.Math::NIntegrate::Rule::General::integrate($region);
 
+        # Manage memoization / caching
+        Math::NIntegrate::Utilities::empty-jacobians-cache;
+
         my @values;
 
         for ^self.abscissas.elems -> $i {
