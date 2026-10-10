@@ -166,6 +166,28 @@ class Math::NIntegrate::Region {
         return numerical($volume, $!variable-transformer.working-precision)
     }
 
+    #| Is a region and its variable transformer en bloc computations ready.
+    method is-en-bloc-ready(-->Bool:D) {
+
+        # Constant ranges
+        my $noFuncBounds = ! $!variable-transformer.has-functional-bounds;
+
+        # Next check that the region has a Composite variable transformer with only
+        # an Infinity transformer in its stack that has no concrete transformers Callable:D -- i.e. all ranges are finite.
+
+        # This check cannot be used because of circular dependencies
+        # $!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D
+
+        return
+                ($!variable-transformer.^name ~~ / Composite / ) &&
+                        ( $!variable-transformer.stack.elems == 0 ||
+                                $!variable-transformer.stack.elems == 1 &&
+                                        ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinity:D) &&
+                                !($!.variable-transformer.stack.head.transforms.any ~~ Callable:D)
+                        )
+                && $noFuncBounds
+    }
+
     #--------------------------------------
     # Split
     #--------------------------------------

@@ -3,9 +3,6 @@ use v6.d;
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::Rule::General;
 
-use Math::NIntegrate::VariableTransformer::Composite;
-use Math::NIntegrate::VariableTransformer::Infinity;
-
 class Math::NIntegrate::Rule::MonteCarlo
         is Math::NIntegrate::Rule::General {
 
@@ -65,33 +62,13 @@ class Math::NIntegrate::Rule::MonteCarlo
         Math::NIntegrate::Rule::MonteCarlo.new(:$!points, dimension => self.dimension, :&!point-generator).copy(self, :clone)
     }
 
-    #==========================================================
-    # En bloc ready check
-    #==========================================================
-
-    #| Is a region and its variable transformer en bloc computations ready.
-    sub is-en-bloc-ready($region) {
-        # Constant ranges
-        my $noFuncBounds = !$region.variable-transformer.has-functional-bounds;
-        # Composite variable transformer with only an Infinity transformer in the stack
-        # that has no concrete transformers Callable:D -- i.e. all ranges are finite.
-        return
-                ($region.variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D) &&
-                        ( $region.variable-transformer.stack.elems == 0 ||
-                                $region.variable-transformer.stack.elems == 1 &&
-                                        ($region.variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinity:D) &&
-                                !($region.variable-transformer.stack.head.transforms.any ~~ Callable:D)
-                        )
-                && $noFuncBounds
-    }
-
     #======================================================
     # Integration
     #======================================================
 
     method integrate($region) {
 
-        return self!integrate-en-bloc($region) if is-en-bloc-ready($region);
+        return self!integrate-en-bloc($region) if $region.is-en-bloc-ready;
 
         my ($sum, $sqsum, $n);
         $sum = $region.reuse-values<sum> // 0;
