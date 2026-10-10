@@ -86,10 +86,12 @@
   - This is order to process user specified "singular points". 
     - E.g. ~nintegrate({1/(1-$^x).abs.sqrt}, <x 0 1 2>)~
 - [X] Facilitate stepping away from singular points
-** TODO Variable Transformers [71%] [5/7]
-*** DONE Affine
+** TODO Variable Transformers [57%] [4/7]
+*** TODO Affine [75%] [3/4]
 - [X] Constant ranges
-- [X] Functional ranges 
+- [X] Functional ranges
+- [X] En-bloc constant ranges
+- [ ] En-bloc functional ranges
 *** DONE Infinity
 - [X] Constant ranges
 - [X] Functional ranges 
