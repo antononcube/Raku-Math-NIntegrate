@@ -1,5 +1,11 @@
 Changes of the Raku package "Math::NIntegrate".
 
+0.0.7 2026-10-10
+    - Performance related implementations and refactoring:
+        - ≈ 5 times speed up on multidimensional crude Monte Carlo integration
+        - ≈ 4.5 times speed up for Cartesian rules
+        - ≈ 2 times speed up for one-dimensional integrals
+
 0.0.6 2026-10-07
     - Performance related refactoring, ≈ 25% speed-up
     - MonteCarlo strategy improvements: better error handling, processing partitioning and random seed options
