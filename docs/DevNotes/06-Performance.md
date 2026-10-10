@@ -52,7 +52,7 @@ Those implementations gave:
 - ≈ 2 times speed up for one-dimensional integrals
 
 In principle, for infinite ranges the same transformation pipeline can be applied 
-for `::VariableTransform::Infinity`, but requires some additional verifications and restrictions.
+for `::VariableTransform::Infinite`, but requires some additional verifications and restrictions.
 
 Having the en bloc optimization for "just" constant, finite ranges, though, is probably good enough, 
 since the symbolic strategy decorator `Math::NIntegrate::Strategy::UnitCubeRescaling` can be put both infinite and 

@@ -63,7 +63,7 @@ Or when like this in a dedicated `Math::NIntegerate::Builder` method of `Math::N
 
         my @min-original-bounds = $region.min;
         my @max-original-bounds = $region.max;
-        my $vtInf = Math::NIntegrate::VariableTransformer::Infinity.new(:@min-original-bounds, :@max-original-bounds);
+        my $vtInf = Math::NIntegrate::VariableTransformer::Infinite.new(:@min-original-bounds, :@max-original-bounds);
         $obj.add($vtInf);
         return $obj
     }
