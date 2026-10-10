@@ -3,6 +3,9 @@ use v6.d;
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::Rule::General;
 
+use Math::NIntegrate::VariableTransformer::Composite;
+use Math::NIntegrate::VariableTransformer::Infinity;
+
 class Math::NIntegrate::Rule::MonteCarlo
         is Math::NIntegrate::Rule::General {
 
@@ -62,11 +65,33 @@ class Math::NIntegrate::Rule::MonteCarlo
         Math::NIntegrate::Rule::MonteCarlo.new(:$!points, dimension => self.dimension, :&!point-generator).copy(self, :clone)
     }
 
+    #==========================================================
+    # En bloc ready check
+    #==========================================================
+
+    #| Is a region and its variable transformer en bloc computations ready.
+    sub is-en-bloc-ready($region) {
+        # Constant ranges
+        my $noFuncBounds = !$region.variable-transformer.has-functional-bounds;
+        # Composite variable transformer with only an Infinity transformer in the stack
+        # that has no concrete transformers Callable:D -- i.e. all ranges are finite.
+        return
+                ($region.variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D) &&
+                        ( $region.variable-transformer.stack.elems == 0 ||
+                                $region.variable-transformer.stack.elems == 1 &&
+                                        ($region.variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinity:D) &&
+                                !($region.variable-transformer.stack.head.transforms.any ~~ Callable:D)
+                        )
+                && $noFuncBounds
+    }
+
     #======================================================
     # Integration
     #======================================================
 
     method integrate($region) {
+
+        return self!integrate-en-bloc($region) if is-en-bloc-ready($region);
 
         my ($sum, $sqsum, $n);
         $sum = $region.reuse-values<sum> // 0;
@@ -92,6 +117,56 @@ class Math::NIntegrate::Rule::MonteCarlo
         self.integral = $sum / $n;
         self.error = sqrt( ($sqsum / $n - ($sum / $n) ** 2) / $n );
         self.largest-error-axis = &!axis-selector ?? &!axis-selector(self.abscissas) !! 0;
+
+        return self;
+    }
+
+    #======================================================
+    # Integration En Bloc
+    #======================================================
+
+    # Initially I considered to have a separate class, ::Rule::MonteCarloEnBloc.
+    # But it is better for ::Rule::MonteCarlo can have a method integrate-en-bloc
+    # to which the method integrate delegates to if:
+    # (i) region's variable transformer is Composite and
+    # (ii) it has only a ::VariableTransformer::Infinity object in its stack.
+
+    method !integrate-en-bloc($region) {
+
+        my ($sum, $sqsum, $n);
+        $sum = $region.reuse-values<sum> // 0;
+        $sqsum = $region.reuse-values<sqsum> // 0;
+        $n = $region.reuse-values<n> // 0;
+
+        my $dim = $region.dimension;
+
+        # Generate all points
+        my @points = |(^self.points).map( -> $n { (^$dim).map({ self.point-generator.($n, $_, $dim, self.points) }) });
+
+        # Transform abscissas
+        my %rescaled = |$region.variable-transformer.vtAffine.transform-en-bloc(:@points, jacobian => 1, context => $region.variable-transformer);
+        @points = |%rescaled<points>;
+
+        # Prevent variable transformation
+        my $vt = $region.variable-transformer;
+        $region.variable-transformer = Nil;
+
+        # Integrand evaluation without variable transformation
+        my @values = @points.map({ $region.eval-integrand($_) }) <<*>> %rescaled<jacobian>;
+
+        # Recover the variable transformer
+        $region.variable-transformer = $vt;
+
+        # Update estimates
+        $sum += @values.sum;
+        $sqsum += @values.map(* ** 2).sum;
+        $n += self.points;
+
+        $region.reuse-values = %(:$sum, :$sqsum, :$n);
+
+        self.integral = $sum / $n;
+        self.error = sqrt( ($sqsum / $n - ($sum / $n) ** 2) / $n );
+        self.largest-error-axis = self.axis-selector ?? self.axis-selector(self.abscissas) !! 0;
 
         return self;
     }
