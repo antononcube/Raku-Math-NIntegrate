@@ -120,6 +120,13 @@ class Math::NIntegrate::VariableTransformer {
         return self
     }
 
+    #| Functional boundaries determination
+    method has-functional-bounds(:$context = Nil -->Bool:D) {
+        my %bounds = self.get-transform-bounds(:$context);
+        my %orig-bounds = self.get-original-bounds(:$context);
+        return %bounds.values.flat(:hammer).any ~~ Callable:D || %orig-bounds.values.flat(:hammer).any ~~ Callable:D;
+    }
+
     #| Abstract transform method
     method transform(
             :@point is copy,

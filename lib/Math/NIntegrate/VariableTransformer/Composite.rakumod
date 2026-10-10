@@ -142,8 +142,11 @@ class Math::NIntegrate::VariableTransformer::Composite
             :$axis = Whatever
             --> Map:D) {
 
+        # The boundaries are not needed per se -- just the dimension.
+        # The dimension can be taken from the region object, but then
+        # any variable transformers would be expected to have a region object.
+        # Using the boundaries length makes the code more universal.
         my %bounds = self.get-transform-bounds(:$context);
-        my %orig-bounds = self.get-original-bounds(:$context);
 
         $jacobian = 1;
 
@@ -156,7 +159,7 @@ class Math::NIntegrate::VariableTransformer::Composite
         # This probably means using NumericalFunction objects for callable boundaries.
 
         # Special treatment is needed for functional boundaries
-        $functional-bounds = %bounds.values.flat(:hammer).any ~~ Callable:D || %orig-bounds.values.flat(:hammer).any ~~ Callable:D;
+        $functional-bounds = self.has-functional-bounds;
         if $functional-bounds {
 
             # Should it be imposed that $variable-index is Whatever or Nil for Composite?
