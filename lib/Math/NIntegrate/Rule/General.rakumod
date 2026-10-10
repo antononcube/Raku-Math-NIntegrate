@@ -64,6 +64,10 @@ class Math::NIntegrate::Rule::General
         # Hence, manage cache size.
         Math::NIntegrate::Utilities::empty-jacobians-cache;
 
+        # In order to be able to use Cartesian rules.
+        # In Cartesian rule @!error-weights is list of lists for the errors of the different dimensions.
+        my Bool:D $use-error-weights = @!error-weights[0] ~~ Numeric:D;
+
         @!last-abscissas = [];
         @!last-values = [];
         for ^@!abscissas.elems -> $i {
@@ -77,7 +81,7 @@ class Math::NIntegrate::Rule::General
                 # Warnings for NaN and Inf should be given
                 @!last-values.push($value);
                 $integralLocal += @!weights[$i] * $value;
-                $errorLocal += @!error-weights[$i] * $value;
+                $errorLocal += @!error-weights[$i] * $value if $use-error-weights;
             }
         }
 
@@ -107,7 +111,7 @@ class Math::NIntegrate::Rule::General
         my $dim = $region.dimension;
 
         # Assign the 1D abscissas as a list -- this probably should be done beforehand
-        my @points = @!abscissas.map({ [$_, ]});
+        my @points = @!abscissas.map({ $_ ~~ Numeric:D ?? [$_, ] !! $_ });
 
         # Transform abscissas
         my %rescaled = |$region.variable-transformer.vtAffine.transform-en-bloc(:@points, jacobian => 1, context => $region.variable-transformer);
@@ -124,6 +128,10 @@ class Math::NIntegrate::Rule::General
         my $vt = $region.variable-transformer;
         $region.variable-transformer = Nil;
 
+        # In order to be able to use Cartesian rules.
+        # In Cartesian rule @!error-weights is list of lists for the errors of the different dimensions.
+        my Bool:D $use-error-weights = @!error-weights[0] ~~ Numeric:D;
+
         # Integrand evaluation without variable transformation
         @!last-values = [];
         for @points.kv -> $i, @a {
@@ -132,7 +140,7 @@ class Math::NIntegrate::Rule::General
                 # Warnings for NaN and Inf should be given
                 @!last-values.push($value);
                 $integralLocal += @!weights[$i] * $value;
-                $errorLocal += @!error-weights[$i] * $value;
+                $errorLocal += @!error-weights[$i] * $value if $use-error-weights;
             }
         }
 
