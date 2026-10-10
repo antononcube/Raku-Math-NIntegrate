@@ -403,9 +403,14 @@ class Math::NIntegrate::Builder {
         # Integration rule
         # At this point $method is normalized with :full-spec
 
-        # We have to assign proper default rule of Monte-Carlo strategies
+        # We have to assign proper default rule of Monte-Carlo strategies.
+        # Should this check-&-assigment be done in the:
+        # (i) Interpreter/actions class, ::Processing::Grammar::MethodSpec, or
+        # (ii) method make-rule ?
+        # This seems to be more of an AbstractFactory type of processing. (Hence, option (i).)
         my $rule-spec = $method<method><method> // Whatever;
-        $rule-spec = 'MonteCarloRule' if $rule-spec.isa(Whatever) && $method<method><name>.contains('MonteCarlo');
+        $rule-spec = %(name => 'MonteCarloRule', type => 'rule')
+        if ($rule-spec.isa(Whatever) || $rule-spec<name>.isa(Whatever)) && $method<method><name>.contains('MonteCarlo');
 
         my $rule = self.make-rule(
                 method => $rule-spec,
