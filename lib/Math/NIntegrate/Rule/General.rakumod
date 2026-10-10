@@ -120,22 +120,22 @@ class Math::NIntegrate::Rule::General
         $region.variable-transformer = Nil;
 
         # Integrand evaluation without variable transformation
-        @values = @points.kv.map(-> $i, @a {
+        for @points.kv -> $i, @a {
             my $value = $region.eval-integrand(@a);
             if $value ~~ Numeric:D && !($value.isNaN || $value ~~ Inf | -Inf) {
                 # Warnings for NaN and Inf should be given
-                $value *= %rescaled<jacobian>;
                 @values.push($value);
                 $integralLocal += @!weights[$i] * $value;
                 $errorLocal += @!error-weights[$i] * $value;
             }
-        });
+        }
 
+        @values = @values <<*>> %rescaled<jacobian>;
         # Recover the variable transformer
         $region.variable-transformer = $vt;
 
-        $!integral = $integralLocal;
-        $!error = $errorLocal.abs;
+        $!integral = $integralLocal * %rescaled<jacobian>;
+        $!error = $errorLocal.abs * %rescaled<jacobian>;
         $!largest-error-axis = 0;
 
         return self;
