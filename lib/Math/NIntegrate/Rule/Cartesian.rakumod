@@ -127,6 +127,8 @@ class Math::NIntegrate::Rule::Cartesian
 
         self.make-rule-data();
 
+        return self.integrate-en-bloc($region) if $region.is-en-bloc-ready;
+
         # Simple and elegant, but cannot be used to derive the axis with largest error
         # self.Math::NIntegrate::Rule::General::integrate($region);
 
@@ -150,6 +152,25 @@ class Math::NIntegrate::Rule::Cartesian
         my @errors = self.error-weights.map({ sum(@values <<*>> $_).abs });
 
         self.integral = $integralLocal;
+        self.error = @errors.head;
+        self.largest-error-axis = @errors.max(:k).head;
+
+        return self;
+    }
+
+    #======================================================
+    # Integration En Bloc
+    #======================================================
+
+    method integrate-en-bloc($region) {
+
+        self.Math::NIntegrate::Rule::General::integrate-en-bloc($region);
+
+        # This already computed and stored in self.integral
+        # my $integralLocal = sum(self.last-values <<*>> self.weights);
+        my @errors = self.error-weights.map({ sum(self.last-values <<*>> $_).abs });
+
+        #self.integral = $integralLocal;
         self.error = @errors.head;
         self.largest-error-axis = @errors.max(:k).head;
 
