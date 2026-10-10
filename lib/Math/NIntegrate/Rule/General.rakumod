@@ -50,6 +50,9 @@ class Math::NIntegrate::Rule::General
     #======================================================
 
     method integrate($region) {
+
+        return self!integrate-en-bloc($region) if $region.is-en-bloc-ready;
+
         my $integralLocal = 0;
         my $errorLocal = 0;
         my @values;
@@ -71,6 +74,65 @@ class Math::NIntegrate::Rule::General
                 $errorLocal += @!error-weights[$i] * $value;
             }
         }
+
+        $!integral = $integralLocal;
+        $!error = $errorLocal.abs;
+        $!largest-error-axis = 0;
+
+        return self;
+    }
+
+
+    #======================================================
+    # Integration En Bloc
+    #======================================================
+
+    # Initially I considered to have a separate class, ::Rule::GeneralEnBloc.
+    # See the comment next to method ::Rule::MonteCarlo!integrate-en-bloc.
+
+    method !integrate-en-bloc($region) {
+
+        my $integralLocal = 0;
+        my $errorLocal = 0;
+        my @values;
+
+        # Also has to be done in this method
+        Math::NIntegrate::Utilities::empty-jacobians-cache;
+
+        my $dim = $region.dimension;
+
+        # Assign the 1D abscissas as a list -- this probably should be done beforehand
+        my @points = @!abscissas.map({ [$_, ]});
+
+        # Transform abscissas
+        my %rescaled = |$region.variable-transformer.vtAffine.transform-en-bloc(:@points, jacobian => 1, context => $region.variable-transformer);
+        @points = |%rescaled<points>;
+
+        # This has to be done here -- region splitting reverses the range boundaries for regions with end points,
+        # hence, the variable transformer factors would reflect that.
+        # Since there is no variable transformer below when $region.eval-integrand is called that Jacobian
+        # adjustment factor has to be computed here.
+        my $factor = [*] |$region.variable-transformer.jacobian-factors;
+        %rescaled<jacobian> *= $factor;
+
+        # Prevent variable transformation
+        my $vt = $region.variable-transformer;
+        $region.variable-transformer = Nil;
+
+        # Integrand evaluation without variable transformation
+        @values = @points.kv.map(-> $i, @a {
+            my $value = $region.eval-integrand(@a);
+            if $value ~~ Numeric:D && !($value.isNaN || $value ~~ Inf | -Inf) {
+                # Warnings for NaN and Inf should be given
+                $value *= %rescaled<jacobian>;
+                @values.push($value);
+                $integralLocal += @!weights[$i] * $value;
+                $errorLocal += @!error-weights[$i] * $value;
+            }
+        });
+
+        # Recover the variable transformer
+        $region.variable-transformer = $vt;
 
         $!integral = $integralLocal;
         $!error = $errorLocal.abs;
