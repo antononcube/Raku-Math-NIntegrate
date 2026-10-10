@@ -15,6 +15,8 @@ class Math::NIntegrate::Rule::General
     has Numeric $.integral is rw;
     has Numeric $.error is rw;
     has UInt $.largest-error-axis is rw;
+    has @.last-abscissas;
+    has @.last-values;
 
     #======================================================
     # Creators
@@ -62,14 +64,18 @@ class Math::NIntegrate::Rule::General
         # Hence, manage cache size.
         Math::NIntegrate::Utilities::empty-jacobians-cache;
 
+        @!last-abscissas = [];
+        @!last-values = [];
         for ^@!abscissas.elems -> $i {
             my @point = @!abscissas[$i] ~~ Numeric:D ?? @!abscissas[$i] !! |@!abscissas[$i];
+            @!last-abscissas.push(@point);
+
             my $value = $region.eval-integrand(@point);
 
             # Ignoring non-numerical results
             if $value ~~ Numeric:D && !($value.isNaN || $value ~~ Inf | -Inf) {
                 # Warnings for NaN and Inf should be given
-                @values.push($value);
+                @!last-values.push($value);
                 $integralLocal += @!weights[$i] * $value;
                 $errorLocal += @!error-weights[$i] * $value;
             }
@@ -94,7 +100,6 @@ class Math::NIntegrate::Rule::General
 
         my $integralLocal = 0;
         my $errorLocal = 0;
-        my @values;
 
         # Also has to be done in this method
         Math::NIntegrate::Utilities::empty-jacobians-cache;
@@ -120,23 +125,26 @@ class Math::NIntegrate::Rule::General
         $region.variable-transformer = Nil;
 
         # Integrand evaluation without variable transformation
+        @!last-values = [];
         for @points.kv -> $i, @a {
             my $value = $region.eval-integrand(@a);
             if $value ~~ Numeric:D && !($value.isNaN || $value ~~ Inf | -Inf) {
                 # Warnings for NaN and Inf should be given
-                @values.push($value);
+                @!last-values.push($value);
                 $integralLocal += @!weights[$i] * $value;
                 $errorLocal += @!error-weights[$i] * $value;
             }
         }
 
-        @values = @values <<*>> %rescaled<jacobian>;
+        @!last-values = @!last-values <<*>> %rescaled<jacobian>;
+
         # Recover the variable transformer
         $region.variable-transformer = $vt;
 
         $!integral = $integralLocal * %rescaled<jacobian>;
         $!error = $errorLocal.abs * %rescaled<jacobian>;
         $!largest-error-axis = 0;
+        @!last-abscissas = |@points;
 
         return self;
     }
