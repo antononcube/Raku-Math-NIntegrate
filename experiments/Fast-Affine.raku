@@ -116,6 +116,9 @@ sub MAIN(
         }
 
         when 'AffineEnBloc' {
+            # The initial version used the class Math::NIntegrate::VariableTransformer::AffineEnBloc
+            # but that class was refactored and now Math::NIntegrate::VariableTransformer::Affine has
+            # the method transform-en-bloc.
             my $region = Math::NIntegrate::Region.new(min => [$a1, $a2], max => [$b1, $b2], dimension => 2);
 
             my @min-transform-bounds = $a1, $a2;
@@ -128,7 +131,7 @@ sub MAIN(
                     working-precision => Rat,
                     ;
 
-            my $vt = Math::NIntegrate::VariableTransformer::AffineEnBloc.new(
+            my $vt = Math::NIntegrate::VariableTransformer::Affine.new(
                     :@min-original-bounds, :@max-original-bounds, :@min-transform-bounds, :@max-transform-bounds,
                     |%args
                     );
@@ -136,7 +139,7 @@ sub MAIN(
             my @points = |$matrix1.transpose.Array;
             say deduce-type(@points) if $echo;
             for ^$n {
-                @result = |$vt.transform(:@points, jacobian => 1, :!functional-bounds)<points>;
+                @result = |$vt.transform-en-bloc(:@points, jacobian => 1, :!functional-bounds)<points>;
             }
         }
     }
