@@ -127,44 +127,7 @@ class Math::NIntegrate::Rule::Cartesian
 
         self.make-rule-data();
 
-        return self.integrate-en-bloc($region) if $region.is-en-bloc-ready;
-
-        # Simple and elegant, but cannot be used to derive the axis with largest error
-        # self.Math::NIntegrate::Rule::General::integrate($region);
-
-        # Manage memoization / caching
-        Math::NIntegrate::Utilities::empty-jacobians-cache;
-
-        my @values;
-
-        for ^self.abscissas.elems -> $i {
-            my @point = |self.abscissas[$i];
-            my $value = $region.eval-integrand(@point);
-
-            # Ignoring non-numerical results
-            if $value ~~ Numeric:D && !($value.isNaN || $value ~~ Inf | -Inf) {
-                # Warnings for NaN and Inf should be given
-                @values.push($value);
-            }
-        }
-
-        my $integralLocal = sum(@values <<*>> self.weights);
-        my @errors = self.error-weights.map({ sum(@values <<*>> $_).abs });
-
-        self.integral = $integralLocal;
-        self.error = @errors.head;
-        self.largest-error-axis = @errors.max(:k).head;
-
-        return self;
-    }
-
-    #======================================================
-    # Integration En Bloc
-    #======================================================
-
-    method integrate-en-bloc($region) {
-
-        self.Math::NIntegrate::Rule::General::integrate-en-bloc($region);
+        self.Math::NIntegrate::Rule::General::integrate($region);
 
         # This already computed and stored in self.integral
         # my $integralLocal = sum(self.last-values <<*>> self.weights);
