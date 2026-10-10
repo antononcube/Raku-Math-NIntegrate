@@ -49,7 +49,7 @@
         "Math::NIntegrate::VariableTransformer::Composite": "lib/Math/NIntegrate/VariableTransformer/Composite.rakumod",
         "Math::NIntegrate::VariableTransformer::DoubleExponential": "lib/Math/NIntegrate/VariableTransformer/DoubleExponential.rakumod",
         "Math::NIntegrate::VariableTransformer::IMT": "lib/Math/NIntegrate/VariableTransformer/IMT.rakumod",
-        "Math::NIntegrate::VariableTransformer::Infinity": "lib/Math/NIntegrate/VariableTransformer/Infinity.rakumod",
+        "Math::NIntegrate::VariableTransformer::Infinite": "lib/Math/NIntegrate/VariableTransformer/Infinite.rakumod",
         "Math::NIntegrate::VariableTransformer::Reverse": "lib/Math/NIntegrate/VariableTransformer/Reverse.rakumod",
         "Math::NIntegrate::Utilities": "lib/Math/NIntegrate/Utilities.rakumod"
     },

@@ -11,7 +11,7 @@ class Math::NIntegrate::VariableTransformer::DoubleExponential
         Math::NIntegrate::VariableTransformer::DoubleExponential.new(region => self.region).copy(self, :clone)
     }
 
-    # Very similar to TWEAK of Infinity
+    # Very similar to TWEAK of Infinite
     submethod TWEAK(*%args) {
 
         # For each dimension
@@ -165,7 +165,7 @@ class Math::NIntegrate::VariableTransformer::DoubleExponential
             die 'For functional boundaries computations $axis is expected to be a non-negative integer within the integral dimensions.'
             unless $axis ~~ Int:D && 0 ≤ $axis < %orig-bounds<min>.elems;
 
-            # Infinity transformation for a single axis
+            # Infinite transformation for a single axis
             my %res = :@point, :$jacobian;
             with self.transforms[$axis] {
 

@@ -106,7 +106,7 @@ class Math::NIntegrate::Rule::MonteCarlo
     # But it is better for ::Rule::MonteCarlo can have a method integrate-en-bloc
     # to which the method integrate delegates to if:
     # (i) region's variable transformer is Composite and
-    # (ii) it has only a ::VariableTransformer::Infinity object in its stack.
+    # (ii) it has only a ::VariableTransformer::Infinite object in its stack.
 
     method !integrate-en-bloc($region) {
 

@@ -55,7 +55,7 @@ class Math::NIntegrate::NumericalFunction {
         # It seems it is a better to keep argument values with which the function failed to evaluate
         @!last-argument-values = @args;
 
-        # When the Infinity or IMT variable transforms are used it can happen that the @args is at a singular point.
+        # When the Infinite or IMT variable transforms are used it can happen that the @args is at a singular point.
         # Hence a very small step inside the integration region has to be taken.
         # The code below requires the directions to be specified for each axis.
         # I.e. instead of <<±>> to have <<->>, or <<+>>, or a full array of signs, like, [-1, 0, 0, 1, 0],

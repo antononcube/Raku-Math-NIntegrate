@@ -9,7 +9,7 @@ use Math::NIntegrate::VariableTransformer;
 # In principle @!transformers can be used but using @!indexes is cleaner.
 
 # This class is for top-level integration region usage/manipulation.
-# The internal variable inversion is handled by Infinity and Region.
+# The internal variable inversion is handled by Infinite and Region.
 
 class Math::NIntegrate::VariableTransformer::Reverse
         is Math::NIntegrate::VariableTransformer {

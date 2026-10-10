@@ -2,7 +2,7 @@ use v6.d;
 
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::Affine;
-use Math::NIntegrate::VariableTransformer::Infinity;
+use Math::NIntegrate::VariableTransformer::Infinite;
 use Math::NIntegrate::Region;
 
 class Math::NIntegrate::VariableTransformer::Composite

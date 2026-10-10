@@ -63,12 +63,12 @@ class Math::NIntegrate::Builder {
         my $obj = Math::NIntegrate::VariableTransformer::Composite.new(:$region);
 
         # Should the stack have at least one variable transformer?
-        # The Infinity transform can be seen as finite-range proxy of the region.
+        # The Infinite transform can be seen as finite-range proxy of the region.
         # The Affine transform is for mapping or the finite boundaries to integration rules [0, 1] abscissas ranges.
 
         my @min-original-bounds = $region.min;
         my @max-original-bounds = $region.max;
-        my $vtInf = Math::NIntegrate::VariableTransformer::Infinity.new(:@min-original-bounds, :@max-original-bounds);
+        my $vtInf = Math::NIntegrate::VariableTransformer::Infinite.new(:@min-original-bounds, :@max-original-bounds);
         $obj.add($vtInf);
         return $obj
     }

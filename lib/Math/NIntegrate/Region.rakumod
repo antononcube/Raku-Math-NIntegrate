@@ -5,7 +5,7 @@ use Math::NIntegrate::NumericalFunction;
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::IMT;
 use Math::NIntegrate::VariableTransformer::DoubleExponential;
-use Math::NIntegrate::VariableTransformer::Infinity;
+use Math::NIntegrate::VariableTransformer::Infinite;
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::Codes;
 
@@ -173,7 +173,7 @@ class Math::NIntegrate::Region {
         my $noFuncBounds = ! $!variable-transformer.has-functional-bounds;
 
         # Next check that the region has a Composite variable transformer with only
-        # an Infinity transformer in its stack that has no concrete transformers Callable:D -- i.e. all ranges are finite.
+        # an Infinite transformer in its stack that has no concrete transformers Callable:D -- i.e. all ranges are finite.
 
         # This check cannot be used because of circular dependencies
         # $!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D
@@ -182,7 +182,7 @@ class Math::NIntegrate::Region {
                 ($!variable-transformer.^name ~~ / Composite / ) &&
                         ( $!variable-transformer.stack.elems == 0 ||
                                 $!variable-transformer.stack.elems == 1 &&
-                                        ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinity:D) &&
+                                        ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinite:D) &&
                                 !($!variable-transformer.stack.head.transforms.any ~~ Callable:D)
                         )
                 && $noFuncBounds
@@ -516,10 +516,10 @@ class Math::NIntegrate::Region {
                 fail 'DIMENSIONS_DO_NOT_MATCH: DoubleExponential variable transformer is only for 1D regions.'
                 unless $!dimension == 1;
 
-                # Check if the last transformer in the Composite stack is Infinity or the stack is empty.
-                # DoubleExponential should replace the Infinity transformer.
+                # Check if the last transformer in the Composite stack is Infinite or the stack is empty.
+                # DoubleExponential should replace the Infinite transformer.
                 if $!variable-transformer.stack.elems == 0
-                        || $!variable-transformer.stack.tail ~~ Math::NIntegrate::VariableTransformer::Infinity {
+                        || $!variable-transformer.stack.tail ~~ Math::NIntegrate::VariableTransformer::Infinite {
 
                     my %bounds = self.variable-transformer.tail.get-transform-bounds;
 

@@ -4,11 +4,11 @@ use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::Codes;
 
-class Math::NIntegrate::VariableTransformer::Infinity
+class Math::NIntegrate::VariableTransformer::Infinite
         is Math::NIntegrate::VariableTransformer {
 
-    method clone(-->Math::NIntegrate::VariableTransformer::Infinity) {
-        Math::NIntegrate::VariableTransformer::Infinity.new(region => self.region).copy(self, :clone)
+    method clone(-->Math::NIntegrate::VariableTransformer::Infinite) {
+        Math::NIntegrate::VariableTransformer::Infinite.new(region => self.region).copy(self, :clone)
     }
 
     submethod TWEAK(*%args) {
@@ -139,7 +139,7 @@ class Math::NIntegrate::VariableTransformer::Infinity
             die 'For functional boundaries computations $axis is expected to be a non-negative integer within the integral dimensions.'
             unless $axis ~~ Int:D && 0 ≤ $axis < %orig-bounds<min>.elems;
 
-            # Infinity transformation for a single axis
+            # Infinite transformation for a single axis
             my %res = :@point, :$jacobian;
             with self.transforms[$axis] {
 

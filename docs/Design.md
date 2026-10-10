@@ -86,7 +86,7 @@ For a given IReg object, `R`:
 
 The Variable Transformer (VT) hierarchy of classes implements the [Composite design pattern](https://en.wikipedia.org/wiki/Composite_pattern).
 
-The fundamental classes `Math::NIntegrate::Infinity` and `Math::NIntegrate::Affine`. 
+The fundamental classes `Math::NIntegrate::Infinite` and `Math::NIntegrate::Affine`. 
 Some singularity handlers are implemented VT classes. Some integration rules must be paired with corresponding variable transformers.
 
 ```mermaid
@@ -108,7 +108,7 @@ classDiagram
     class Affine["Math::NIntegrate::VariableTransformer::Affine"] {
         +transform()
     }
-    class Infinity["Math::NIntegrate::VariableTransformer::Infinity"] {
+    class Infinite["Math::NIntegrate::VariableTransformer::Infinite"] {
         +transform()
     }
     class IMT["Math::NIntegrate::VariableTransformer::IMT"] {
@@ -123,7 +123,7 @@ classDiagram
 
     Component <|-- Composite
     Component <|-- Affine
-    Component <|-- Infinity
+    Component <|-- Infinite
     Component <|-- IMT
     Component <|-- DoubleExponential
     Component <|-- Reverse
@@ -133,7 +133,7 @@ classDiagram
 
 An Integration Region (IReg) object would most likely have a `Math::NItegrate::VariableTransformer::Composite` as a VT.
 Every VT Composite (VTC) has an `Math::NItegrate::VariableTransformer::Affine` VT. Also, by default, the first VT object 
-in VTC's stack is a `Math::NItegrate::VariableTransformer::Infinity` object (VTInf). The reasons for this are:
+in VTC's stack is a `Math::NItegrate::VariableTransformer::Infinite` object (VTInf). The reasons for this are:
 
 - VTInf is a must when at least one of the integration ranges is infinite
 - VTInf is very fast on finite ranges

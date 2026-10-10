@@ -49,7 +49,7 @@ class Math::NIntegrate::VariableTransformer::IMT
 
     method !singfin-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {!!!}
 
-    # Similar as Infinity.
+    # Similar as Infinite.
     # When IMT is added to the Composite stack, the axis for which IMT is applied is specified.
     # Additional IMT applications (for other axes) use that stack object.
     method transform(
