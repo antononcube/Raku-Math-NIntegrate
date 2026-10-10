@@ -14,11 +14,26 @@ class Math::NIntegrate::Rule::DoubleExponential
     # Should take working precision or tolerance as an argument --
     # in order to figure out when to stop accumulating the terms sum.
 
+    sub fixed-point(&F, $start, $h, $increment) {
+        my $i = $start;
+        my $sum = 0;
+
+        loop {
+            my $next = $sum + &F($i * $h);
+            $i += $increment;
+            last if $next == $sum;
+            $sum = $next;
+        }
+
+        $sum
+    }
+
+
     method integrate($region, Numeric:D $step = 1) {
 
         # Computing terms of the infinite range trapezoidal formula in both directions:
         # LaTeX: \int_{-\infty }^{+\infty } f(\phi (t)) \phi '(t) \, dx
-        # ASCII: int_{-infty}^{+infty} f(phi(t)) phi'(t) dx
+        # ASCII: ∫ [-∞,+∞] f(φ(t)) φ'(t) dx
         # where phi is one of the transformations in ::VariableTransform::DoubleExponential
     }
 
