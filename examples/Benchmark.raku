@@ -16,7 +16,7 @@ use Math::NIntegrate::Rule::MonteCarlo;
 
 my @one-d =
         ('x²',        -> $x { $x ** 2 },       ['x', 0, 1]),
-        ('1/√x',      -> $x { 1 / sqrt($x) },  ['x', 0, 2]),
+        ('1/√x',      -> $x { $x ?? 1 / sqrt($x) !! 0 },  ['x', 0, 2]),
         ('exp(-x²)',  -> $x { exp(-$x ** 2) }, ['x', 0, Inf]),
         ('sin²x',     -> $x { sin($x) ** 2 },  ['x', 0, 10]);
 
