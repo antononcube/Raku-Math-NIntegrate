@@ -34,6 +34,26 @@ See ["Profiling-MonteCarlo.raku](../../examples/Profiling-MonteCarlo.raku).
 
 ---
 
+## En bloc affine transformations (2026-10-09 ÷ 2026-10-10)
+
+In version 0.0.7 en bloc affine transformations were implemented for constant ranges -- see the method 
+`Math::NIntegrate::VariableTransformation::Affine.transform-en-bloc`.
+
+Corresponding en bloc integration method 
+`integrate-en-bloc` in
+`Math::NIntegrate::Rule::MonteCarlo` and `Math::NIntegrate::Rule::General`.
+
+Initially `Math::NIntegrate::Rule::General::Cartsian` had its own method `integrate-en-bloc`, but after
+adding the attributes `@!last-abscissas` and `@!last-values` to `::Rule::General` the integration code of
+`::Rule::Cartesian` was greatly simplified.
+
+Those implementations gave:
+- ≈ 5 times speed up on multidimensional crude Monte Carlo integration
+- ≈ 4.5 times speed up for Cartesian rules
+- ≈ 2 times speed up for one-dimensional integrals
+
+---
+
 
 ## Additional notes
 
