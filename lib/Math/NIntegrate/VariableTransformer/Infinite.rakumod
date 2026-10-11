@@ -27,7 +27,7 @@ class Math::NIntegrate::VariableTransformer::Infinite
                 when VT_FIN_INF {
                     # min + (1 - x) / x
                     #self.transforms[$i] = { self.min-original-bounds[$i] + (1 - $_) / $_ }
-                    self.transforms[$i] = -> $point, $min, $max { self!fin-inf-transform($point, $min, $max) };
+                    self.transforms[$i] = -> $point, $min, $max { self.fin-inf-transform($point, $min, $max) };
 
                     # 1 / x^2
                     self.jacobians[$i] = { 1 / $_ ** 2 }
@@ -42,7 +42,7 @@ class Math::NIntegrate::VariableTransformer::Infinite
                 when VT_INF_FIN {
                     # max - (1 - x) / x
                     #self.transforms[$i] = { self.max-original-bounds[$i] - (1 - $_) / $_ }
-                    self.transforms[$i] = -> $point, $min, $max { self!fin-inf-transform($point, $min, $max) };
+                    self.transforms[$i] = -> $point, $min, $max { self.fin-inf-transform($point, $min, $max) };
 
                     # 1 / x^2
                     self.jacobians[$i] = { 1 / $_ ** 2 }
@@ -58,7 +58,7 @@ class Math::NIntegrate::VariableTransformer::Infinite
                 when VT_INF_INF {
                     # (1 - x) / x - 1 / x
                     #self.transforms[$i] = { self.max-original-bounds[$i] - (1 - $_) / $_ }
-                    self.transforms[$i] = -> $point, $min, $max { self!neg-inf-inf-transform($point, $min, $max) };
+                    self.transforms[$i] = -> $point, $min, $max { self.neg-inf-inf-transform($point, $min, $max) };
 
                     # x^-2 + (1-x)^-2
                     self.jacobians[$i] = { 1 / $_ ** 2 + 1 / (1 - $_) ** 2 }
@@ -87,7 +87,7 @@ class Math::NIntegrate::VariableTransformer::Infinite
     #------------------------------------------------------
     # [finite-min, Inf)
     #------------------------------------------------------
-    method !fin-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
+    multi method fin-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
 
         my $tPoint;
         my $tJacobian;
@@ -103,19 +103,36 @@ class Math::NIntegrate::VariableTransformer::Infinite
         return %(point => $tPoint, jacobian => $tJacobian)
     }
 
+    # En bloc transformation
+    multi method fin-inf-transform(@points where @points.all ~~ Numeric:D, Numeric:D $min, Numeric:D $max -->Map) {
+
+        my @pInvs = @points.map({ is-zero($_) ?? 0 !! numerical(1 / $_, self.working-precision) });
+        my @tJacobians = @pInvs <<*>> @pInvs;
+        my @tPoints = $min <<+>> ($max <<*>> (@pInvs <<->> 1));
+
+        return %(points => @tPoints, jacobian => [*] |@tJacobians)
+    }
+
     #------------------------------------------------------
     # (-Inf, finite-max]
     #------------------------------------------------------
-    method !neg-inf-fin-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
-        my %res = self!fin-inf-transform($point, -1 * $max, $min);
+    multi method neg-inf-fin-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
+        my %res = self.fin-inf-transform($point, -1 * $max, $min);
         %res<point> = -1 * %res<point>;
+        return %res
+    }
+
+    # En bloc transformation
+    multi method neg-inf-fin-transform(@points where @points.all ~~ Numeric:D, Numeric:D $min, Numeric:D $max -->Map) {
+        my %res = self.fin-inf-transform(@points, -1 * $max, $min);
+        %res<points> = -1 <<*>> %res<points>;
         return %res
     }
 
     #------------------------------------------------------
     # (-Inf, Inf)
     #------------------------------------------------------
-    method !neg-inf-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
+    multi method neg-inf-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
         my $tPoint;
         my $tJacobian;
         my $pInv;
@@ -130,6 +147,17 @@ class Math::NIntegrate::VariableTransformer::Infinite
             $tJacobian = $pInv * $pInv + $pInv1 * $pInv1;
         }
         return %(point => $tPoint, jacobian => $tJacobian)
+    }
+
+    # En bloc transformation
+    multi method neg-inf-inf-transform(@points where @points.all ~~ Numeric:D , Numeric:D $min, Numeric:D $max -->Map) {
+
+        my @pInvs = @points.map({ is-zero($_) ?? 0 !! numerical(1 / $_, self.working-precision) });
+        my @pInvs1 = @points.map({ is-zero($_) ?? 0 !! numerical(1 / (1 -$_), self.working-precision) });
+        my @tJacobians = (@pInvs <<*>> @pInvs) <<+>> (@pInvs1 <<*>> @pInvs1);
+        my @tPoints = @pInvs1 <<->> @pInvs;
+
+        return %(points => @tPoints, jacobian => [*] |@tJacobians)
     }
 
     #------------------------------------------------------
@@ -185,4 +213,39 @@ class Math::NIntegrate::VariableTransformer::Infinite
         }
     }
 
+    method transform-en-bloc(
+            :@points where @points.all ~~ (Array:D | List:D | Seq:D),
+            :$jacobian is copy,
+            Bool:D :fb(:$functional-bounds) = False,
+            :$context = Nil,
+            :$axis= Nil
+            --> Map:D) {
+
+        # Not using context
+        # my %orig-bounds = self.get-original-bounds(:context);
+        my %orig-bounds = self.get-original-bounds();
+
+        # Should all points be checked?
+        fail 'DIMENSIONS_DO_NOT_MATCH: for point argument and boundary' if @points.head.elems != %orig-bounds<min>.elems;
+
+        if $functional-bounds || (%orig-bounds.values.flat(:hammer).any ~~ Callable:D) {
+            die 'INCORRECT_ARGUMENTS: Affine en bloc works only with constant ranges.'
+        } else {
+            # Infinite range transformation for each axes separately
+            my %res = points => ([] xx %orig-bounds<min>.elems).Array, :$jacobian;
+            for ^self.min-original-bounds.elems -> $i {
+                with self.transforms[$i] {
+                    my @pointsLocal = @points.map(*[$i]);
+                    my %h = self.transforms[$i](@pointsLocal, %orig-bounds<min>[$i], %orig-bounds<max>[$i]);
+                    %res<points>[$i] = %h<points>;
+                    %res<jacobian> = %res<jacobian> * %h<jacobian>;
+                }
+            }
+
+            # Transpose the points
+            %res<points> = |cross(|%res<points>);
+
+            return %res
+        }
+    }
 }
