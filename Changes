@@ -1,5 +1,8 @@
 Changes of the Raku package "Math::NIntegrate".
 
+0.0.8 2026-10-11
+    - Performance related implementations and refactoring using Infinite variable transform
+
 0.0.7 2026-10-10
     - Performance related implementations and refactoring:
         - ≈ 5 times speed up on multidimensional crude Monte Carlo integration
