@@ -57,7 +57,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
     }
 
     method number($/) {
-        make $/.Int
+        make $/.Str eq 'Inf' ?? Inf !! $/.Int
     }
 
     method number-list($/) {
