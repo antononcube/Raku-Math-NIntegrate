@@ -106,9 +106,11 @@ class Math::NIntegrate::VariableTransformer::Infinite
     # En bloc transformation
     multi method fin-inf-transform(@points where @points.all ~~ Numeric:D, Numeric:D $min, Numeric:D $max -->Map) {
 
-        my @pInvs = @points.map({ is-zero($_) ?? 0 !! numerical(1 / $_, self.working-precision) });
-        my @tJacobians = @pInvs <<*>> @pInvs;
+        my @zeroes = @points.map({ is-zero($_) ?? 0 !! 1 });
+        my @pInvs = @points.kv.map( -> $i, $v { @zeroes[$i] ?? $max.sign * Inf !! numerical(1 / $v, self.working-precision) });
         my @tPoints = $min <<+>> ($max <<*>> (@pInvs <<->> 1));
+        @pInvs = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
+        my @tJacobians = @pInvs <<*>> @pInvs;
 
         return %(points => @tPoints, jacobian => [*] |@tJacobians)
     }
@@ -137,8 +139,11 @@ class Math::NIntegrate::VariableTransformer::Infinite
         my $tJacobian;
         my $pInv;
         my $pInv1;
-        if is-zero($point) || is-zero(1 - $point) {
-            $tPoint = 0;
+        if is-zero($point) {
+            $tPoint = $min.sign * Inf;
+            $tJacobian = 0;
+        } elsif is-zero(1 - $point) {
+            $tPoint = $max.sign * Inf;
             $tJacobian = 0;
         } else {
             $pInv = numerical(1 / $point, self.working-precision);
@@ -152,10 +157,14 @@ class Math::NIntegrate::VariableTransformer::Infinite
     # En bloc transformation
     multi method neg-inf-inf-transform(@points where @points.all ~~ Numeric:D , Numeric:D $min, Numeric:D $max -->Map) {
 
-        my @pInvs = @points.map({ is-zero($_) ?? 0 !! numerical(1 / $_, self.working-precision) });
-        my @pInvs1 = @points.map({ is-zero($_) ?? 0 !! numerical(1 / (1 -$_), self.working-precision) });
-        my @tJacobians = (@pInvs <<*>> @pInvs) <<+>> (@pInvs1 <<*>> @pInvs1);
+        my @zeroes = @points.map({ is-zero($_) ?? 0 !! 1 });
+        my @pInvs = @points.map(-> $i, $v { @zeroes[$i] ?? $min.sign * Inf !! numerical(1 / $v, self.working-precision) });
+        my @pInvs1 = @points.map(-> $i, $v { @zeroes[$i] ?? $max.sign * Inf !! numerical(1 / (1 - $v), self.working-precision) });
         my @tPoints = @pInvs1 <<->> @pInvs;
+
+        @pInvs = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
+        @pInvs1 = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
+        my @tJacobians = (@pInvs <<*>> @pInvs) <<+>> (@pInvs1 <<*>> @pInvs1);
 
         return %(points => @tPoints, jacobian => [*] |@tJacobians)
     }
