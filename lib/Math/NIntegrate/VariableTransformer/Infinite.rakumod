@@ -84,6 +84,9 @@ class Math::NIntegrate::VariableTransformer::Infinite
         }
     }
 
+    #------------------------------------------------------
+    # [finite-min, Inf)
+    #------------------------------------------------------
     method !fin-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
 
         my $tPoint;
@@ -100,12 +103,18 @@ class Math::NIntegrate::VariableTransformer::Infinite
         return %(point => $tPoint, jacobian => $tJacobian)
     }
 
+    #------------------------------------------------------
+    # (-Inf, finite-max]
+    #------------------------------------------------------
     method !neg-inf-fin-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
         my %res = self!fin-inf-transform($point, -1 * $max, $min);
         %res<point> = -1 * %res<point>;
         return %res
     }
 
+    #------------------------------------------------------
+    # (-Inf, Inf)
+    #------------------------------------------------------
     method !neg-inf-inf-transform(Numeric:D $point, Numeric:D $min, Numeric:D $max -->Map) {
         my $tPoint;
         my $tJacobian;
@@ -123,6 +132,14 @@ class Math::NIntegrate::VariableTransformer::Infinite
         return %(point => $tPoint, jacobian => $tJacobian)
     }
 
+    #------------------------------------------------------
+    # [finite-min, finite-max]
+    #------------------------------------------------------
+    # No need
+
+    #------------------------------------------------------
+    # Transform point-wise
+    #------------------------------------------------------
     method transform(
             :@point is copy,
             :$jacobian is copy,
