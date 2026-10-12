@@ -252,7 +252,7 @@ class Math::NIntegrate::VariableTransformer::Infinite
             }
 
             # Transpose the points
-            %res<points> = |cross(|%res<points>);
+            %res<points> = |zip(|%res<points>);
 
             return %res
         }
