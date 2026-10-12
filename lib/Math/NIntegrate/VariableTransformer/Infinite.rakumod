@@ -109,10 +109,10 @@ class Math::NIntegrate::VariableTransformer::Infinite
         my @zeroes = @points.map({ is-zero($_) ?? 1 !! 0 });
         my @pInvs = @points.kv.map( -> $i, $v { @zeroes[$i] ?? $max.sign * Inf !! numerical(1 / $v, self.working-precision) });
         my @tPoints = $min <<+>> ($max <<*>> (@pInvs <<->> 1));
-        @pInvs = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
+        @pInvs = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 0 !! $v });
         my @tJacobians = @pInvs <<*>> @pInvs;
 
-        return %(points => @tPoints, jacobian => [*] |@tJacobians)
+        return %(points => @tPoints, jacobians => @tJacobians)
     }
 
     #------------------------------------------------------
@@ -158,15 +158,14 @@ class Math::NIntegrate::VariableTransformer::Infinite
     multi method neg-inf-inf-transform(@points where @points.all ~~ Numeric:D , Numeric:D $min, Numeric:D $max -->Map) {
 
         my @zeroes = @points.map({ is-zero($_) ?? 1 !! 0 });
-        my @pInvs = @points.map(-> $i, $v { @zeroes[$i] ?? $min.sign * Inf !! numerical(1 / $v, self.working-precision) });
-        my @pInvs1 = @points.map(-> $i, $v { @zeroes[$i] ?? $max.sign * Inf !! numerical(1 / (1 - $v), self.working-precision) });
+        my @pInvs = @points.kv.map(-> $i, $v { @zeroes[$i] ?? $min.sign * Inf !! numerical(1 / $v, self.working-precision) });
+        my @pInvs1 = @points.kv.map(-> $i, $v { @zeroes[$i] ?? $max.sign * Inf !! numerical(1 / (1 - $v), self.working-precision) });
         my @tPoints = @pInvs1 <<->> @pInvs;
-
-        @pInvs = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
-        @pInvs1 = @pInvs1.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
+        @pInvs = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 0 !! $v });
+        @pInvs1 = @pInvs1.kv.map( -> $i, $v { @zeroes[$i] ?? 0 !! $v });
         my @tJacobians = (@pInvs <<*>> @pInvs) <<+>> (@pInvs1 <<*>> @pInvs1);
 
-        return %(points => @tPoints, jacobian => [*] |@tJacobians)
+        return %(points => @tPoints, jacobians => @tJacobians)
     }
 
     #------------------------------------------------------
@@ -241,19 +240,24 @@ class Math::NIntegrate::VariableTransformer::Infinite
             die 'INCORRECT_ARGUMENTS: Affine en bloc works only with constant ranges.'
         } else {
             # Infinite range transformation for each axes separately
-            my %res = points => ([] xx %orig-bounds<min>.elems).Array, :$jacobian;
+            my %res = points => ([] xx %orig-bounds<min>.elems).Array, jacobians => 1 xx @points.elems;
             for ^self.min-original-bounds.elems -> $i {
                 with self.transforms[$i] {
                     my @pointsLocal = @points.map(*[$i]);
                     my %h = self.transforms[$i](@pointsLocal, %orig-bounds<min>[$i], %orig-bounds<max>[$i]);
                     %res<points>[$i] = %h<points>;
-                    %res<jacobian> = %res<jacobian> * %h<jacobian>;
+                    %res<jacobians> = %res<jacobians> <<*>> %h<jacobians>;
                 }
             }
 
             # Transpose the points
-            %res<points> = |zip(|%res<points>);
-
+            if %res<points>.elems == 1 {
+                my @res =  %res<points>[0].map({ [$_, ] });
+                %res<points> = @res
+            } else {
+                my @res = |zip(|%res<points>.Array);
+                %res<points> = @res
+            }
             return %res
         }
     }
