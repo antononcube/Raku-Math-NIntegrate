@@ -114,7 +114,7 @@ class Math::NIntegrate::Rule::General
 
         my $dim = $region.dimension;
 
-        # Assign the 1D abscissas as a list -- this probably should be done beforehand
+        # Assign the 1D abscissas as a list -- this probably should be done beforehand, at object creation
         my @points = @!abscissas.map({ $_ ~~ Numeric:D ?? [$_, ] !! $_ });
 
         # Transform abscissas
