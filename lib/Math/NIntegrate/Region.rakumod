@@ -167,7 +167,7 @@ class Math::NIntegrate::Region {
     }
 
     #| Is a region and its variable transformer en bloc computations ready.
-    method is-en-bloc-ready(:$finite-only=False-->Bool:D) {
+    method is-en-bloc-ready(:$finite-only=True-->Bool:D) {
 
         # Constant ranges
         my $noFuncBounds = ! $!variable-transformer.has-functional-bounds;
@@ -181,13 +181,13 @@ class Math::NIntegrate::Region {
         # $!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D
 
         return do if $finite-only {
-            ($!variable-transformer.^name ~~ / Composite /) &&
+            ($!variable-transformer.^name ~~ / Composite /).Bool &&
                     ($!variable-transformer.stack.elems == 0 ||
                             $!variable-transformer.stack.elems == 1 &&
-                                    ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinite:D) &&
-                            !($!variable-transformer.stack.head.transforms.any ~~ Callable:D)
+                                    ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinite:D).Bool &&
+                            !($!variable-transformer.stack.head.transforms.any ~~ Callable:D).Bool
                     )
-                    && $noFuncBounds
+                    && $noFuncBounds.Bool
         } else {
             # Infinite range transformers are allowed
             ($!variable-transformer.^name ~~ / Composite /) &&
