@@ -163,7 +163,7 @@ class Math::NIntegrate::VariableTransformer::Infinite
         my @tPoints = @pInvs1 <<->> @pInvs;
 
         @pInvs = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
-        @pInvs1 = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
+        @pInvs1 = @pInvs1.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
         my @tJacobians = (@pInvs <<*>> @pInvs) <<+>> (@pInvs1 <<*>> @pInvs1);
 
         return %(points => @tPoints, jacobian => [*] |@tJacobians)
