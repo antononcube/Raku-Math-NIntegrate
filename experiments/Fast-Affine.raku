@@ -6,7 +6,6 @@ my %*SUB-MAIN-OPTS = :named-anywhere;
 use Math::NIntegrate::Utilities;
 use Math::NIntegrate::VariableTransformer;
 use Math::NIntegrate::VariableTransformer::Affine;
-use Math::NIntegrate::VariableTransformer::AffineEnBloc;
 use Math::NIntegrate::Region;
 
 use Math::SparseMatrix;
@@ -18,19 +17,19 @@ use Data::TypeSystem;
 
 sub MAIN(
         Str:D $type = 'dot', #= One of: "dot", "separate", "Affine", "AffineEnBloc"
-        Int:D :$n = 100,        #= Number of benchmarking computation runs,
-        Int:D :$ncol = 1_000,   #= Number of points (columns of the representation matrix)
-        Int:D :$nrow = 2,       #= Dimension of the points (rows of the representation matrix)
-        Int:D :$seed = 3234,    #= Random seed
-        Bool:D :$echo = False,  #= Should intermediate results be printed out or not?
+        Int:D :$repeat = 100,     #= Number of benchmarking computation runs,
+        Int:D :$n = 1_000,        #= Number of points
+        Int:D :$dim = 2,          #= Dimension of the points
+        Int:D :$seed = 3234,      #= Random seed
+        Bool:D :$echo = False,    #= Should intermediate results be printed out or not?
          ) {
 
     # Emulating MonteCarloRule for a 2D integral.
     my $density = 1;
-    my $nnz = ($nrow * $ncol * $density).Int;
+    my $nnz = ($n * $dim * $density).Int;
     my $working-precision = Num;
 
-    my $matrix1 = Math::SparseMatrix::Native::CSRStruct.new.random(:$nrow, :$ncol, :$nnz, :$seed);
+    my $matrix1 = Math::SparseMatrix::Native::CSRStruct.new.random(nrow => $dim, ncol => $n, :$nnz, :$seed);
     say (:$matrix1) if $echo;
 
     my ($a1, $b1) = 10, 15;
@@ -43,7 +42,7 @@ sub MAIN(
             # Same/similar timings with both "dot" and "separate" if no row-binding for "separate".
             # This only works for 2D
             my $res1;
-            for ^$n {
+            for ^$repeat {
                 $a1 = numerical($a1, $working-precision);
                 $b1 = numerical($b1, $working-precision);
                 $a2 = numerical($a2, $working-precision);
@@ -65,7 +64,7 @@ sub MAIN(
 
         when 'dot' {
             my $res1;
-            for ^$n {
+            for ^$repeat {
                 $a1 = numerical($a1, $working-precision);
                 $b1 = numerical($b1, $working-precision);
                 $a2 = numerical($a2, $working-precision);
@@ -74,7 +73,7 @@ sub MAIN(
                 my $eye = Math::SparseMatrix::Native::CSRStruct.new(dense-matrix => [[$b1 - $a1, 0], [0, $b2 - $a2]]);
 
                 my $scaled1 = $eye.dot($matrix1);
-                my $offset1 = Math::SparseMatrix::Native::CSRStruct.new(dense-matrix => [$a1 xx $ncol, $a2 xx $ncol]>>.Array.Array);
+                my $offset1 = Math::SparseMatrix::Native::CSRStruct.new(dense-matrix => [$a1 xx $n, $a2 xx $n]>>.Array.Array);
 
                 $res1 = $scaled1.add($offset1);
             }
@@ -106,7 +105,7 @@ sub MAIN(
 
             my @points = |$matrix1.transpose.Array;
             say deduce-type(@points) if $echo;
-            for ^$n {
+            for ^$repeat {
                 @result = [];
                 for @points -> @point {
                     my $p = $vt.transform(:@point, jacobian => 1, :!functional-bounds);
@@ -138,7 +137,7 @@ sub MAIN(
 
             my @points = |$matrix1.transpose.Array;
             say deduce-type(@points) if $echo;
-            for ^$n {
+            for ^$repeat {
                 @result = |$vt.transform-en-bloc(:@points, jacobian => 1, :!functional-bounds)<points>;
             }
         }
@@ -146,7 +145,7 @@ sub MAIN(
     my $tend = now;
 
     say "Total time : { $tend - $tstart }";
-    say "Mean time  : { ($tend - $tstart) / $n }";
+    say "Mean time  : { ($tend - $tstart) / $repeat }";
 
     if $echo { .say for @result }
 }
