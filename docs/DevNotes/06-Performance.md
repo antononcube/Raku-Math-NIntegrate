@@ -60,6 +60,67 @@ functional ranges into constant, finite ones.
 
 ---
 
+## En bloc infinite transformations (2026-10-10 2026-10-12)
+
+The implementation of Infinite en bloc transformers is in the file [Infinite.rakumod]().
+
+[This gist](https://gist.github.com/antononcube/abb7a0db691f76f830bcd8db1e64e82c) shows how use Infinite en-bloc transform
+in the `::Rule::General` class.
+
+Comments / observations:
+- Similar to Affine en bloc, the Infinite en bloc transform functions are implemented in the `::VariableTransformer::Infinite` class.
+  - Not in a separate class, like, `::VariableTransformer::InfiniteEnBloc`.
+  - Having the code in one place makes the implementation, studying, (and debugging) much easier.
+- After the implementation of Infinite en bloc the benchmark comparison script ["Fast-Infinite.raku"](../../experiments/Fast-Infinite.raku) was implemented.
+  - To compare Infinite Pointwise (InfPw) and Infinite En Block (InfEB) for different number of points and dimensions.
+- The script runs show that:
+  - InfPw and InfEB have similar timings for small number of points (abscissas), say, 10 points
+  - InfPw is twice slower than InfEB for large number of points (abscissas), say, 1000 points
+- This means that using InfEB is beneficial for Cartesian rules and Monte Carlo rules.
+  - Monte Carlo typically has a few hundred points.
+  - An $n$-dimensional Cartesian rule based on $k=11$ point 1D rule have $k^n$ points.
+- As [the gist](https://gist.github.com/antononcube/abb7a0db691f76f830bcd8db1e64e82c) shows, the hook-up to General rule of InfEB is messy.
+  - The messiness comes from the need to track the Jacobian values for each point.
+  - (And it is probably better the hook-up to be done in `::VariableTrasnformer::Composite` than `::Rule::General`.)
+- So, the conclusion is:
+  - Do not implement InfEB inside `::Rule::General.integrate-en-bloc` (as in the gist)
+  - Nevertheless, invoke InfPE for the Composite variable transformer of the region
+- *Alternatively, do not implement anything InfEB-related.* 
+
+
+### Benchmark results
+
+Here is a table of the total timings:
+
+|                | N=10        | N=100       | N=1000      |
+|----------------|-------------|-------------|-------------|
+| InfiniteEnBloc | 0.103186169 | 0.416289721 | 3.869166217 |
+| Infinite       | 0.100238417 | 0.67659452  | 6.574853842 |
+
+Here are the benchmark script results (summarized in the table above):
+
+```
+> Fast-Infinite.raku InfiniteEnBloc --repeat=100 -n=10 --dim=2
+Total time : 0.103186169
+Mean time  : 0.0010318616899999999
+> Fast-Infinite.raku Infinite --repeat=100 -n=10 --dim=2
+Total time : 0.100238417
+Mean time  : 0.00100238417
+> Fast-Infinite.raku InfiniteEnBloc --repeat=100 -n=100 --dim=2
+Total time : 0.416289721
+Mean time  : 0.00416289721
+> Fast-Infinite.raku Infinite --repeat=100 -n=100 --dim=2
+Total time : 0.67659452
+Mean time  : 0.0067659452
+> Fast-Infinite.raku InfiniteEnBloc --repeat=100 -n=1000 --dim=2
+Total time : 3.869166217
+Mean time  : 0.03869166217
+> Fast-Infinite.raku Infinite --repeat=100 -n=1000 --dim=2
+Total time : 6.574853842
+Mean time  : 0.06574853842
+```
+
+---
 
 ## Additional notes
 
