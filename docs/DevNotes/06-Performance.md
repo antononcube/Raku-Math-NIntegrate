@@ -92,8 +92,8 @@ Comments / observations:
      - This also requires Jacobian value tracking .
   3. Implement the en bloc transformations in the Composite variable transformer, `::VariableTransformer::Composite`
   4. Do not use InfEB functionalities in `::Rule::General.integrate-en-bloc`
-     - I.e. for infinite ranges the (slow) pointwise variable transformation is used. 
-
+     - I.e. for infinite ranges the (slow) pointwise variable transformation is used.
+     - This is good enough, since, if the strategy decorator `::Strategy::UnitCubeRescaling` is implemented then infinite ranges are transformed into finite ranges (with corresponding integrand modification with the Jacobian). 
 
 ### Benchmark results
 
