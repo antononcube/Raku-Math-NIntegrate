@@ -93,7 +93,14 @@ Comments / observations:
   3. Implement the en bloc transformations in the Composite variable transformer, `::VariableTransformer::Composite`
   4. Do not use InfEB functionalities in `::Rule::General.integrate-en-bloc`
      - I.e. for infinite ranges the (slow) pointwise variable transformation is used.
-     - This is good enough, since, if the strategy decorator `::Strategy::UnitCubeRescaling` is implemented then infinite ranges are transformed into finite ranges (with corresponding integrand modification with the Jacobian). 
+     - This is good enough, since, if the strategy decorator `::Strategy::UnitCubeRescaling` is implemented then infinite ranges are transformed into finite ranges (with corresponding integrand modification with the Jacobian).
+
+**Remark:** The general mission of `::Strategy::UnitCubeRescaling` requires symbolic programming abilities 
+if functional range boundaries are given. (Since variable replacement and the derivatives of the boundaries are needed.)
+But of infinite ranges those can be done with function composition since the variable transformation functions are known.
+
+**Remark:** Of course, it is best to support Infinite En bloc fully. 
+The alternatives above are more about prioritization (ROI) of the development effort.
 
 ### Benchmark results
 
