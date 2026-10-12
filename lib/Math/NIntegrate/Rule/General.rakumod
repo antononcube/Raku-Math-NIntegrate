@@ -53,7 +53,7 @@ class Math::NIntegrate::Rule::General
 
     method integrate($region) {
 
-        return self.integrate-en-bloc($region) if $region.is-en-bloc-ready;
+        return self.integrate-en-bloc($region) if $region.is-en-bloc-ready(:finite-only);
 
         my $integralLocal = 0;
         my $errorLocal = 0;
