@@ -181,11 +181,11 @@ class Math::NIntegrate::Region {
         # $!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D
 
         return do if $finite-only {
-            ($!variable-transformer.^name ~~ / Composite /).Bool &&
+            ($!variable-transformer.^name ~~ / Composite /) &&
                     ($!variable-transformer.stack.elems == 0 ||
                             $!variable-transformer.stack.elems == 1 &&
-                                    ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinite:D).Bool &&
-                            !($!variable-transformer.stack.head.transforms.any ~~ Callable:D).Bool
+                                    ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinite:D) &&
+                            !($!variable-transformer.stack.head.transforms.any ~~ Callable:D)
                     )
                     && $noFuncBounds.Bool
         } else {
