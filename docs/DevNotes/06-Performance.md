@@ -82,10 +82,17 @@ Comments / observations:
 - As [the gist](https://gist.github.com/antononcube/abb7a0db691f76f830bcd8db1e64e82c) shows, the hook-up to General rule of InfEB is messy.
   - The messiness comes from the need to track the Jacobian values for each point.
   - (And it is probably better the hook-up to be done in `::VariableTrasnformer::Composite` than `::Rule::General`.)
-- So, the conclusion is:
-  - Do not implement InfEB inside `::Rule::General.integrate-en-bloc` (as in the gist)
-  - Nevertheless, invoke InfPE for the Composite variable transformer of the region
-- *Alternatively, do not implement anything InfEB-related.* 
+- There are several alternatives to choose from:
+  1. Full support InfEB `::Rule::General`
+     - Implement InfEB inside `::Rule::General.integrate-en-bloc` (as in the gist).
+       - Special, pointwise tracking and use of the Jacobian values.
+       - Simpler code if the Infinite transform is "empty", i.e. for finite ranges.
+  2. Use InfPw
+     - Do not implement InfEB inside `::Rule::General.integrate-en-bloc`.
+     - This also requires Jacobian value tracking .
+  3. Implement the en bloc transformations in the Composite variable transformer, `::VariableTransformer::Composite`
+  4. Do not use InfEB functionalities in `::Rule::General.integrate-en-bloc`
+     - I.e. for infinite ranges the (slow) pointwise variable transformation is used. 
 
 
 ### Benchmark results
