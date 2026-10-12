@@ -184,8 +184,7 @@ class Math::NIntegrate::Region {
             ($!variable-transformer.^name ~~ / Composite /) &&
                     ($!variable-transformer.stack.elems == 0 ||
                             $!variable-transformer.stack.elems == 1 &&
-                                    ($!variable-transformer.stack
-                                            .head ~~ Math::NIntegrate::VariableTransformer::Infinite:D) &&
+                                    ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinite:D) &&
                             !($!variable-transformer.stack.head.transforms.any ~~ Callable:D)
                     )
                     && $noFuncBounds
@@ -194,8 +193,7 @@ class Math::NIntegrate::Region {
             ($!variable-transformer.^name ~~ / Composite /) &&
                     ($!variable-transformer.stack.elems == 0 ||
                             $!variable-transformer.stack.elems == 1 &&
-                                    ($!variable-transformer.stack
-                                    .head ~~ Math::NIntegrate::VariableTransformer::Infinite:D)
+                                    ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinite:D)
                     )
                     && $noFuncBounds
         }
