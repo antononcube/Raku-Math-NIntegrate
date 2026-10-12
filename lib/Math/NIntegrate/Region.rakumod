@@ -167,25 +167,38 @@ class Math::NIntegrate::Region {
     }
 
     #| Is a region and its variable transformer en bloc computations ready.
-    method is-en-bloc-ready(-->Bool:D) {
+    method is-en-bloc-ready(:$finite-only=False-->Bool:D) {
 
         # Constant ranges
         my $noFuncBounds = ! $!variable-transformer.has-functional-bounds;
 
         # Next check that the region has a Composite variable transformer with only
-        # an Infinite transformer in its stack that has no concrete transformers Callable:D -- i.e. all ranges are finite.
+        # an Infinite transformer in its stack and that Infinite transformer (wrt :$finite-only):
+        # (i) has no concrete transformers Callable:D -- i.e. all ranges are finite, or
+        # (ii) has concrete transformers Callable:D -- i.e. some ranges are infinite.
 
         # This check cannot be used because of circular dependencies
         # $!variable-transformer ~~ Math::NIntegrate::VariableTransformer::Composite:D
 
-        return
-                ($!variable-transformer.^name ~~ / Composite / ) &&
-                        ( $!variable-transformer.stack.elems == 0 ||
-                                $!variable-transformer.stack.elems == 1 &&
-                                        ($!variable-transformer.stack.head ~~ Math::NIntegrate::VariableTransformer::Infinite:D) &&
-                                !($!variable-transformer.stack.head.transforms.any ~~ Callable:D)
-                        )
-                && $noFuncBounds
+        return do if $finite-only {
+            ($!variable-transformer.^name ~~ / Composite /) &&
+                    ($!variable-transformer.stack.elems == 0 ||
+                            $!variable-transformer.stack.elems == 1 &&
+                                    ($!variable-transformer.stack
+                                            .head ~~ Math::NIntegrate::VariableTransformer::Infinite:D) &&
+                            !($!variable-transformer.stack.head.transforms.any ~~ Callable:D)
+                    )
+                    && $noFuncBounds
+        } else {
+            # Infinite range transformers are allowed
+            ($!variable-transformer.^name ~~ / Composite /) &&
+                    ($!variable-transformer.stack.elems == 0 ||
+                            $!variable-transformer.stack.elems == 1 &&
+                                    ($!variable-transformer.stack
+                                    .head ~~ Math::NIntegrate::VariableTransformer::Infinite:D)
+                    )
+                    && $noFuncBounds
+        }
     }
 
     #--------------------------------------
