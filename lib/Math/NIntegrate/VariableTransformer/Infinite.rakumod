@@ -106,7 +106,7 @@ class Math::NIntegrate::VariableTransformer::Infinite
     # En bloc transformation
     multi method fin-inf-transform(@points where @points.all ~~ Numeric:D, Numeric:D $min, Numeric:D $max -->Map) {
 
-        my @zeroes = @points.map({ is-zero($_) ?? 0 !! 1 });
+        my @zeroes = @points.map({ is-zero($_) ?? 1 !! 0 });
         my @pInvs = @points.kv.map( -> $i, $v { @zeroes[$i] ?? $max.sign * Inf !! numerical(1 / $v, self.working-precision) });
         my @tPoints = $min <<+>> ($max <<*>> (@pInvs <<->> 1));
         @pInvs = @pInvs.kv.map( -> $i, $v { @zeroes[$i] ?? 1 !! $v });
@@ -157,7 +157,7 @@ class Math::NIntegrate::VariableTransformer::Infinite
     # En bloc transformation
     multi method neg-inf-inf-transform(@points where @points.all ~~ Numeric:D , Numeric:D $min, Numeric:D $max -->Map) {
 
-        my @zeroes = @points.map({ is-zero($_) ?? 0 !! 1 });
+        my @zeroes = @points.map({ is-zero($_) ?? 1 !! 0 });
         my @pInvs = @points.map(-> $i, $v { @zeroes[$i] ?? $min.sign * Inf !! numerical(1 / $v, self.working-precision) });
         my @pInvs1 = @points.map(-> $i, $v { @zeroes[$i] ?? $max.sign * Inf !! numerical(1 / (1 - $v), self.working-precision) });
         my @tPoints = @pInvs1 <<->> @pInvs;
