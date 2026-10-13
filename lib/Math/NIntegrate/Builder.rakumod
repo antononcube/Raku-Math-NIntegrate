@@ -10,6 +10,7 @@ use Math::NIntegrate::VariableTransformer::Composite;
 
 # Strategies
 use Math::NIntegrate::Strategy;
+use Math::NIntegrate::Strategy::AdaptiveMonteCarlo;
 use Math::NIntegrate::Strategy::GlobalAdaptive;
 use Math::NIntegrate::Strategy::LocalAdaptive;
 use Math::NIntegrate::Strategy::MonteCarlo;
@@ -336,18 +337,24 @@ class Math::NIntegrate::Builder {
             }
 
             when $_<name> eq 'AdaptiveMonteCarlo' {
-                die 'The AdaptiveMonteCarlo strategy is not implemented yet.'
-                #                Math::NIntegrate::Strategy::LocalAdaptive.new(
-                #                        :$min-recursion,
-                #                        :$max-recursion,
-                #                        :$singularity-depth,   # does not apply
-                #                        :$singularity-handler, # does not apply
-                #                        :$max-points
-                #                        );
+                # Specific adaptive monte carlo options
+                my $bisection-dithering = $method<bisection-dithering> // 0;
+                my $partitioning = $method<partitioning> // Whatever;
+                my $random-seed = $method<random-seed> // Whatever;
+                $max-points = 50_000 without $max-points;
+
+                Math::NIntegrate::Strategy::AdaptiveMonteCarlo.new(
+                        :$min-recursion,
+                        :$max-recursion,
+                        :$max-points,
+                        :$bisection-dithering
+                        :$partitioning,
+                        :$random-seed
+                        );
             }
 
             when $_<name> eq 'MonteCarlo' {
-                # Specific local adaptive options
+                # Specific monte carlo options
                 my $partitioning = $method<partitioning> // Whatever;
                 my $random-seed = $method<random-seed> // Whatever;
                 $max-points = 50_000 without $max-points;
@@ -355,8 +362,6 @@ class Math::NIntegrate::Builder {
                 Math::NIntegrate::Strategy::MonteCarlo.new(
                         :$min-recursion,
                         :$max-recursion,
-                        :$singularity-depth,
-                        :$singularity-handler,
                         :$max-points,
                         :$partitioning,
                         :$random-seed
