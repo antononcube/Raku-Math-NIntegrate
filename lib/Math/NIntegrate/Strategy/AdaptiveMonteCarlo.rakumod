@@ -12,14 +12,17 @@ class Math::NIntegrate::Strategy::AdaptiveMonteCarlo
 
     has $.partitioning = Whatever;
     has $.random-seed = Whatever;
-    has $.bisection-dithering = 0;
+    has $.bisection-dithering = 1/10;
 
     submethod TWEAK(:$!partitioning, :$!random-seed, *%args) {
+
+        die 'The value of $bisection-dithering is expected to be a number between [-1/4, 1/4].'
+        unless $!bisection-dithering ~~ Numeric:D || -1/4 ≤ $!bisection-dithering ≤ 1/4;
 
         die 'The value of $random-seed is expected to be an integer or Whatever.'
         unless $!random-seed ~~ Int:D || $!random-seed.isa(Whatever);
 
-        note 'The (crude) Monte Carlo strategy does not use min-recursion.'
+        note 'The Adaptive Monte Carlo strategy does not use min-recursion.'
         unless %args<min-recursion>.isa(Whatever) || %args<min-recursion> ~~ Numeric:D && %args<min-recursion> == 0;
     }
 
@@ -96,7 +99,7 @@ class Math::NIntegrate::Strategy::AdaptiveMonteCarlo
             #say ('after removing top region:', :$integral, :$error, :$axis, :$step, region-count => $heap.elems);
 
             # Split the region
-            my $newRegion = $topRegion.split(:$axis);
+            my $newRegion = $topRegion.split(:$axis, dithering => $!bisection-dithering);
 
             # No reuse
             $topRegion.reuse-values = %();
