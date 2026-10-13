@@ -56,8 +56,11 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
         make $/.lc eq 'true'
     }
 
+    method integer($/) { make $/.Int }
+    method real($/) { make $/.Numeric }
+
     method number($/) {
-        make $/.Str eq 'Inf' ?? Inf !! $/.Int
+        make $/.Str eq 'Inf' ?? Inf !! $/.values.head.made
     }
 
     method number-list($/) {

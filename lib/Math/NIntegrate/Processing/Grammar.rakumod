@@ -11,7 +11,9 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     token boolean {:i True | False | '!' }
 
-    token number { \d+ | <[-+]>? Inf }
+    token integer { \d+ }
+    token real { <[+\-]>? \d+ <[.e]> <[+\-]>? \d+ }
+    token number { <real> | <integer> | <[-+]>? Inf }
 
     rule number-list { <.lb> <number>+ % <.sep> <.rb>}
 
