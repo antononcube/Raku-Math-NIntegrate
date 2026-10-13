@@ -3,8 +3,6 @@ use Test;
 
 use Math::NIntegrate;
 
-# Currently MonteCarlo is slow -- most likely because of MonteCarlo rule.
-
 subtest {
         isa-ok
                 nintegrate({ $^x }, <x 0 1>,
