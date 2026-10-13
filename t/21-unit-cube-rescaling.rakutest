@@ -50,8 +50,17 @@ subtest {
             method => 'UnitCubeRescaling',
             max-recursion => 3):pairs;
 
-    # Num
-    is abs(%res<integral> - $exact) ≤ 1e-6, True, 'expected Num result';
+    is-approx %res<integral>, $exact, 'expected finite integral result';
+
+    is-approx
+            nintegrate({1/($^x ** 2 + $^y ** 2)}, <x 1 Inf>, <y 0 1>, method => 'UnitCubeRescaling'),
+            0.91596559417721901505,
+            'Catalan constant, <x 1 Inf>, <y 0 1>';
+
+    is-approx
+            nintegrate({exp(-($^x ** 2 + $^y ** 2))}, <x -Inf Inf>, <y 2 Inf>, method => 'UnitCubeRescaling'),
+            0.00734777,
+            'π Erfc(2), <x -Inf Inf>, <y 2 Inf>';
 
 }, 'UnitCubeRescaling for 2D constant ranges region';
 
