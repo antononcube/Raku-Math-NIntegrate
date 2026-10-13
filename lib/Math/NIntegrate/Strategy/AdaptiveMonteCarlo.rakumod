@@ -41,8 +41,6 @@ class Math::NIntegrate::Strategy::AdaptiveMonteCarlo
         # Integral dimension shortcut
         my $dim = self.regions.head.dimension;
 
-        say (:$dim, :$!partitioning, :$!bisection-dithering);
-
         # The min-recursion option is has to be taken into account.
         # Should min-recursion be applied first and then partitioning or the other way around?
         # Is only one of them applied?
