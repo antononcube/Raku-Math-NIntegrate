@@ -57,9 +57,10 @@ subtest {
             0.91596559417721901505,
             'Catalan constant, <x 1 Inf>, <y 0 1>';
 
+    # The exact result is 1/2 * Pi * Erfc(2)
     is-approx
             nintegrate({exp(-($^x ** 2 + $^y ** 2))}, <x -Inf Inf>, <y 2 Inf>, method => 'UnitCubeRescaling'),
-            0.00734777,
+            0.0073477689259490405327,
             'π Erfc(2), <x -Inf Inf>, <y 2 Inf>';
 
 }, 'UnitCubeRescaling for 2D constant ranges region';
