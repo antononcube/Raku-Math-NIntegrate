@@ -93,7 +93,7 @@ class Math::NIntegrate::Rule::MonteCarlo
 
         self.integral = $sum / $n;
         self.error = sqrt( ($sqsum / $n - ($sum / $n) ** 2) / $n );
-        self.largest-error-axis = &!axis-selector ?? &!axis-selector(self.abscissas) !! 0;
+        self.largest-error-axis = &!axis-selector ?? &!axis-selector(self.abscissas) !! (^$dim).pick;
 
         return self;
     }
@@ -143,7 +143,7 @@ class Math::NIntegrate::Rule::MonteCarlo
 
         self.integral = $sum / $n;
         self.error = sqrt( ($sqsum / $n - ($sum / $n) ** 2) / $n );
-        self.largest-error-axis = self.axis-selector ?? self.axis-selector(self.abscissas) !! 0;
+        self.largest-error-axis = self.axis-selector ?? self.axis-selector(self.abscissas) !! (^$dim).pick;
 
         return self;
     }
