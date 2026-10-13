@@ -21,9 +21,6 @@ class Math::NIntegrate::Strategy::AdaptiveMonteCarlo
 
         die 'The value of $random-seed is expected to be an integer or Whatever.'
         unless $!random-seed ~~ Int:D || $!random-seed.isa(Whatever);
-
-        note 'The Adaptive Monte Carlo strategy does not use min-recursion.'
-        unless %args<min-recursion>.isa(Whatever) || %args<min-recursion> ~~ Numeric:D && %args<min-recursion> == 0;
     }
 
     #| GlobalAdaptive strategy's algorithm
