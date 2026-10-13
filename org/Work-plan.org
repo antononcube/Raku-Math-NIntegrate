@@ -62,13 +62,15 @@
 - [X] Using a fine point generator
 - [ ] En bloc (rapid) generator
 - [ ] En bloc (rapid) variable transformation
-*** TODO MultiDimensional rule [66%] [2/3]
+*** TODO MultiDimensional rule [40%] [2/5]
 - [C] Genz-Malik
   - Low priority, maybe, at some point to be implemented
 - [X] DCUHRE
   - [X] D07HRE
   - [X] D09HRE
 - [X] Memoization of distinct permutations of generators
+- [ ] Special 2D rule D132RE
+- [ ] Special 3D rule D113RE
 - [ ] En bloc Affine transform application
 *** TODO Multi-panel rule
 *** DONE Newton-Cotes rule [33%] [1/3]
@@ -168,10 +170,15 @@
   - Programmed "full method spec" interpretation
 - [X] Refactor ~Math::NIntegrate::Spec~ to use the full method spec
 - [X] Implement decorator builder method in ~Math::NIntegrate::Builder~
-*** TODO UnitCubeRescaling
-- [ ] The simplest way is to use textual functional boundaries and
+*** TODO UnitCubeRescaling [50%] [1/2]
+**** DONE Numeric ranges [100%] [2/2]
+- This includes finite and infinite numbers
+- [X] Process infinite ranges into superposition of functions
+- [X] Make Builder method that produces new regions with their rescaled
+  integrands and [0,1] ranges
+**** TODO Functional boundaries
+- The simplest way is to use textual functional boundaries and
   produce callables with RakuAST
-- [ ] Process infinite ranges into superposition of functions
 - [ ] Using closures?
 - [ ] Using function composition?
 - [ ] Using lookup
@@ -235,7 +242,7 @@
 - [ ] Confirm that using distinct permutations can be used in en bloc
 - [ ] Implement the en bloc delegation
 - [ ] Tests and verifications
-** TODO Unit tests [71%] [10/14]
+** TODO Unit tests [73%] [11/15]
 - [X] Numerical function
 - [X] Trapezoidal rule
   - [X] Creation
@@ -280,6 +287,15 @@
   - [X] Integration 1D with a custom rule
   - [X] Integration 2D with a 1D custom rule
   - [ ] Integration with a custom strategy
+- [X] Unit Cube Rescaling decorator strategy
+  - [X] New integrand formation with replacements and a Jacobian
+  - [X] Top-level call with specification to ~nintegrate~
+    - [X] Dry run without actual computations
+    - [X] Precision runs
+      - [X] Finite ranges
+      - [X] Infinite ranges
+        - [X] Catalan
+        - [X] Erfc
 ** TODO Documentation [0%] [0/5]
 *** TODO General
 - [ ] Design
