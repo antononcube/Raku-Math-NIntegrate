@@ -112,6 +112,35 @@ class Math::NIntegrate::Builder {
     }
 
     #-------------------------------------------------------------------------
+    #| Rescale regions to unit cubes
+    method rescale-to-unit-cubes(
+            Math::NIntegrate::Strategy::UnitCubeRescaling:D $decorator
+            -->Math::NIntegrate::Strategy::UnitCubeRescaling) {
+        # Ideally this method should be in ::Strategy::UnitCubeRescaling.
+        # but that would introduce circular references.
+        # In any case, it is a good "building part" method.
+
+        # For each region transform the integrand and ranges
+        my @newRegions = do for $decorator.component.regions -> $reg {
+            my &integrand = $reg.numerical-function.function;
+            my @ranges = zip($reg.numerical-function.argument-names, $reg.min, $reg.max);
+
+            my %res = $decorator.ranges-to-cube(:&integrand, :@ranges, :eval);
+
+            my $nf = Math::NIntegrate::NumericalFunction.new(%res<integrand>);
+            my @min = %res<ranges>.map(*.head);
+            my @max = %res<ranges>.map(*.tail);
+            my $working-precision = $reg.variable-transformer.working-precision;
+
+            # Doing this in ::Strategy::UnitCubeRescaling would introduce a circular dependency.
+            my $newReg = self.make-region($nf, @min, @max, rule => $reg.rule, :$working-precision);
+        }
+
+        $decorator.component.regions = |@newRegions;
+        return $decorator
+    }
+
+    #-------------------------------------------------------------------------
     #| Make an integration rule object according to method-spec and dimension.
     method make-rule(
             UInt:D :dim(:$dimension)!,
@@ -365,7 +394,7 @@ class Math::NIntegrate::Builder {
         # Create strategy decorator by spec
         my $decorated = do given $method {
             when $_<name> eq 'UnitCubeRescaling' {
-                Math::NIntegrate::Strategy::UnitCubeRescaling.new(component => $strategy)
+                self.rescale-to-unit-cubes(Math::NIntegrate::Strategy::UnitCubeRescaling.new(component => $strategy))
             }
 
             default {
