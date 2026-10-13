@@ -125,7 +125,7 @@
   - It is just a swap of range/boundary values.
   - It is tested when multi-dimensional integrals with functional ranges.
     - Without singularity handling (like, IMT).
-** TODO Integration Strategies [12%] [1/8]
+** TODO Integration Strategies [25%] [2/8]
 *** TODO Global Adaptive [66%] [4/6]
 - [X] Initial regions by min-recursion
   - With Leftist Heap
@@ -161,7 +161,10 @@
 - [X] Simple loop saturation with a heap
 - [X] Processing "RandomSeed" option
 - [X] Processing "Partitioning" option
-*** TODO Adaptive Monte Carlo
+*** DONE Adaptive Monte Carlo [100%] [3/3]
+- [X] Simple adaptive algorithm
+- [X] Passing and processing options
+- [X] Treating bisection dithering
 *** TODO Importance Sampling
 ** DONE Integration Strategy Decorators
 *** DONE Facilitation
@@ -270,6 +273,10 @@
   - [X] Integration 1D
   - [X] Integration 2D
 - [X] Monte Carlo strategy
+  - [X] Creation
+  - [X] Integration 1D
+  - [X] Integration 2D
+- [X] Adaptive Monte Carlo strategy
   - [X] Creation
   - [X] Integration 1D
   - [X] Integration 2D
