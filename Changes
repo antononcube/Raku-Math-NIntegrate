@@ -1,5 +1,8 @@
 Changes of the Raku package "Math::NIntegrate".
 
+0.0.9 2026-10-13
+    - Implemented Adaptive Monte Carlo integration strategy.
+
 0.0.8 2026-10-13
     - Performance related implementations and refactoring using Infinite variable transform
         - Not hooked-up yet in main integration process; only profiled and documented
