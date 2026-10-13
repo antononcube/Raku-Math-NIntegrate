@@ -119,7 +119,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     token numeric-option-symbol {
-        <max-recursion> | <max-points> | <min-recursion> | <singularity-depth> | <points> | <generators> | <random-seed>
+        <bisection-dithering> | <generators> | <max-recursion> | <max-points> | <min-recursion> | <points>  | <random-seed> | <singularity-depth>
     }
 
     regex numeric-option-spec {
@@ -233,6 +233,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     token quote { <["']> }
 
     # Option names
+    token bisection-dithering { BisectionDithering | bisection <[\-_]> dithering }
     token generators {:i generators }
     token initial-estimate-relaxation { InitialEstimateRelaxation | initial <[\-_]> estimate <[\-_]> relaxation }
     token max-points { MaxPoints | max <[\-_]> points }
