@@ -2,8 +2,36 @@ use v6.d;
 use Test;
 
 use Math::NIntegrate;
+use Math::NIntegrate::Strategy::UnitCubeRescaling;
+
 
 # 1
+subtest {
+    my &f = { 1 / ($^x ** 2 + $^y ** 2) };
+    my @ranges = <x 1 Inf>, <y Inf -Inf>;
+
+    my $strategy = Math::NIntegrate::Strategy::GlobalAdaptive.new();
+    my $decorator = Math::NIntegrate::Strategy::UnitCubeRescaling.new($strategy);
+
+    isa-ok
+            $decorator.ranges-to-cube(&f, @ranges),
+            Map:D,
+            'ok to call ranges-to-cube';
+
+    my %res = $decorator.ranges-to-cube(&f, @ranges);
+
+    is-deeply %res<ranges>, ([0, 1] xx @ranges.elems).Array, 'expected ranges';
+
+    isa-ok %res<integrand>(0.3, 1000), Numeric:D, 'expected numerical result from the new integrand';
+
+    my %res2 = $decorator.ranges-to-cube(&f, @ranges):!eval;
+
+    isa-ok %res2<integrand>, Str:D, 'expected string result for the new integrand';
+
+}, 'Recaling';
+
+
+# 2
 subtest {
     my &f = {$^x + $^y ** 2};
     # The undefined integral of &f is (x^2 y)/2 + (x y^3)/3.
@@ -26,6 +54,5 @@ subtest {
     is abs(%res<integral> - $exact) ≤ 1e-6, True, 'expected Num result';
 
 }, 'UnitCubeRescaling for 2D constant ranges region';
-
 
 done-testing;
