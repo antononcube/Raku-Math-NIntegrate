@@ -1,7 +1,11 @@
 Changes of the Raku package "Math::NIntegrate".
 
-0.0.8 2026-10-11
+0.0.8 2026-10-13
     - Performance related implementations and refactoring using Infinite variable transform
+        - Not hooked-up yet in main integration process; only profiled and documented
+    - Unit cube rescaling strategy decorator implementation for numeric ranges (finite and infinite)
+        - For example: <x 10 Inf>, <y -Inf Inf>
+        - Can provide between 1.5 to 5 times speedup for both 1D and nD integrals
 
 0.0.7 2026-10-10
     - Performance related implementations and refactoring:
