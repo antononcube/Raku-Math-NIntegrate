@@ -136,6 +136,45 @@ Mean time  : 0.06574853842
 
 ---
 
+## Unit cube rescaling 2026-10-11 ÷ 2026-10-13
+
+Since affine transformations are optimized it is natural to consider the possibility to transform the integrand
+and ranges to be in unit (hyper-)cube. That Unit Cube Rescaling (UCR) transformation is, of course, interesting on its own right.
+
+In its most general form the UCR transformation is _easier_ to do with a (symbolic) Computer Algebra System (CAS).
+For example, a mixture of finite, infinite, and functional boundaries is done with variable replacements and 
+differentiation the corresponding substitution functions in order to obtain UCR's Jacobian.    
+
+But by CAS is not necessary, the variable transformation and Jacobian calculation can be done with a 
+programmatic superposition of functions. The case of numeric ranges -- both finite and infinite -- is easier and
+implemented first.
+
+### Benchmark results
+
+Special benchmarking CLI script, ["Fast-UnitCubeRescaling.raku"](../../experiments/Fast-UnitCubeRescaling.raku),
+was created to compare the timings different integral and method combinations:
+using or not UCR, using Cartesian rule or Multidimensional rule, over 1D or 2D integrals.
+
+Here are the results with "Math::NIntegrate:ver<0.0.8>":
+
+| integral                                               | method                                            | mean-time | total-time |
+|--------------------------------------------------------|---------------------------------------------------|----------:|-----------:|
+| 1 / (1 + x ** 2), x ∈ (-Inf, Inf)                      | unit-cube-rescaling                               |     0.039 |      0.388 |
+| 1 / (1 + x ** 2), x ∈ (-Inf, Inf)                      | gauss-kronrod-rule                                |     0.047 |      0.465 |
+| 1 / (1 + x ** 2), x ∈ (-Inf, Inf)                      | unit-cube-rescaling, method => gauss-kronrod-rule |     0.029 |      0.288 |
+| 1 / (x ** 2 + y ** 2), x ∈ (1, Inf), y ∈ (0, 1)        | multidimensional-rule                             |     0.144 |      1.443 |
+| 1 / (x ** 2 + y ** 2), x ∈ (1, Inf), y ∈ (0, 1)        | unit-cube-rescaling                               |     0.138 |      1.384 |
+| 1 / (x ** 2 + y ** 2), x ∈ (1, Inf), y ∈ (0, 1)        | gauss-kronrod-rule                                |     0.047 |      0.465 |
+| 1 / (x ** 2 + y ** 2), x ∈ (1, Inf), y ∈ (0, 1)        | unit-cube-rescaling, method => gauss-kronrod-rule |     0.029 |      0.285 |
+| exp(-(x ** 2 + y ** 2)), x ∈ (-Inf, Inf), y ∈ (2, Inf) | multidimensional-rule                             |     1.116 |     11.156 |
+| exp(-(x ** 2 + y ** 2)), x ∈ (-Inf, Inf), y ∈ (2, Inf) | unit-cube-rescaling                               |     1.063 |     10.635 |
+| exp(-(x ** 2 + y ** 2)), x ∈ (-Inf, Inf), y ∈ (2, Inf) | gauss-kronrod-rule                                |     0.697 |      6.973 |
+| exp(-(x ** 2 + y ** 2)), x ∈ (-Inf, Inf), y ∈ (2, Inf) | unit-cube-rescaling, method => gauss-kronrod-rule |     0.175 |      1.748 |
+
+It can be seen with UCR with Cartesian rule can be ≈ 8 times faster the Multidimensional rule. 
+
+---
+
 ## Additional notes
 
 ### Chat with Andrew Shitov on 2026-10-07
