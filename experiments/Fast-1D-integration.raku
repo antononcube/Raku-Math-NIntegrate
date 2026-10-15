@@ -53,12 +53,28 @@ sub MAIN(
                 value => 'clenshaw-curtis-rule',
             },
             {
-                method => 'global-adaptive, singularit-depth => Inf',
-                value => ('global-adaptive', singularity-depth => Inf),
+                method => "local-adaptive, method => 'gauss-kronrod-rule'",
+                value => ('local-adaptive', method => 'gauss-kronrod-rule'),
             },
             {
-                method => 'local-adaptive, singularit-depth => Inf',
-                value => ('local-adaptive', singularity-depth => Inf),
+                method => "local-adaptive, method => 'clenshaw-curtis-rule'",
+                value => ('local-adaptive', method => 'clenshaw-curtis-rule'),
+            },
+            {
+                method => "global-adaptive, method => 'gauss-kronrod-rule', singularity-depth => Inf",
+                value => ('global-adaptive', method => 'gauss-kronrod-rule', singularity-depth => Inf),
+            },
+            {
+                method => "global-adaptive, method => 'clenshaw-curtis-rule', singularity-depth => Inf",
+                value => ('global-adaptive', method => 'clenshaw-curtis-rule', singularity-depth => Inf),
+            },
+            {
+                method => "local-adaptive, method => 'gauss-kronrod-rule', singularity-depth => Inf",
+                value => ('local-adaptive', method => 'gauss-kronrod-rule', singularity-depth => Inf),
+            },
+            {
+                method => "local-adaptive, method => 'clenshaw-curtis-rule', singularity-depth => Inf",
+                value => ('local-adaptive', method => 'clenshaw-curtis-rule', singularity-depth => Inf),
             },
             ;
 
