@@ -12,6 +12,13 @@ class Math::NIntegrate::Rule::MultiDimensional
     has @.scales;
     has @.norms;
 
+    # Memoization
+    has %.permutations;
+
+    # For en bloc computations
+    has %!abscissas;
+    has %.rule-abscissas;
+
     #======================================================
     # Creators
     #======================================================
@@ -98,6 +105,9 @@ class Math::NIntegrate::Rule::MultiDimensional
         @!rule-points = $clone ?? $from.rule-points !! $from.rule-points.clone;
         @!scales = $clone ?? $from.scales !! $from.scales.clone;
         @!norms = $clone ?? $from.norms !! $from.norms.clone;
+
+        %!permutations = $clone ?? $from.permutations !! $from.permutations.clone;
+        %!rule-abscissas = $clone ?? $from.rule-abscissas !! $from.rule-abscissas.clone;
 
         return self
     }
@@ -419,7 +429,10 @@ class Math::NIntegrate::Rule::MultiDimensional
     #======================================================
     # The memoization did not produce noticeable time changes for the 2D integral
     # nintegrate({ 1 / ($^x + $^y).sqrt }, <x 0 1>, <y 0 1>)
-    has %!permutations;
+
+    method !make-generator-key(@generators) {
+      @generators>>.WHICH.join('|');
+    }
 
     #| Generate the distinct points in the fully symmetric orbit of a
     #| non-negative generator.
@@ -427,7 +440,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         my @result;
 
         # Memoization
-        my $key = @generators>>.WHICH.join('|');
+        my $key = self!make-generator-key(@generators);
         if %!permutations{$key}:exists {
             my @res = |%!permutations{$key};
             return @res;
@@ -484,7 +497,7 @@ class Math::NIntegrate::Rule::MultiDimensional
 
         for self!distinct-permutations(@generators) -> @g {
             my @point = @g.map(* + $offset);
-            $funvls = $region.eval-integrand(@point);
+            $funvls = self!eval-integrand($region, @point);
             die 'DEFSHR obtained a non-numeric integrand value.'
             unless $funvls ~~ Numeric:D;
             $fulsms += $funvls;
@@ -530,7 +543,7 @@ class Math::NIntegrate::Rule::MultiDimensional
         my @x = @center.Array;
 
         my UInt:D $division-axis = 0;
-        my Numeric $center-value = $region.eval-integrand(@x);
+        my Numeric $center-value = self!eval-integrand($region, @x);
         die 'DERLHR obtained a non-numeric integrand value at the center.'
         unless $center-value ~~ Numeric:D;
 
@@ -550,33 +563,29 @@ class Math::NIntegrate::Rule::MultiDimensional
         for ^self.dimension -> $axis {
             @x = @center.Array;
             @x[$axis] = $center-coordinate - @g[0][1];
-            my Numeric $near-minus = $region.eval-integrand(@x);
+            my Numeric $near-minus = self!eval-integrand($region, @x);
             @x[$axis] = $center-coordinate + @g[0][1];
-            my Numeric $near-plus = $region.eval-integrand(@x);
+            my Numeric $near-plus = self!eval-integrand($region, @x);
             @x[$axis] = $center-coordinate - @g[0][2];
-            my Numeric $far-minus = $region.eval-integrand(@x);
+            my Numeric $far-minus = self!eval-integrand($region, @x);
             @x[$axis] = $center-coordinate + @g[0][2];
-            my Numeric $far-plus = $region.eval-integrand(@x);
+            my Numeric $far-plus = self!eval-integrand($region, @x);
 
             die 'DERLHR obtained a non-numeric axial integrand value.'
-            unless ($near-minus, $near-plus, $far-minus, $far-plus).all
-                    ~~ Numeric:D;
+            unless ($near-minus, $near-plus, $far-minus, $far-plus).all ~~ Numeric:D;
 
             my Numeric:D $near-sum = $near-minus + $near-plus;
             my Numeric:D $far-sum = $far-minus + $far-plus;
             my Numeric:D $fourth-difference =
-                    (2e0 * (1e0 - $ratio) * $center-value
-                            - $far-sum + $ratio * $near-sum).abs;
+                    (2e0 * (1e0 - $ratio) * $center-value - $far-sum + $ratio * $near-sum).abs;
             my Numeric $difference-sum = 0e0;
 
             # Match DERLHR's roundoff guard.
             $difference-sum += $fourth-difference
-            if $center-value.abs + $fourth-difference / 4e0
-                    > $center-value.abs;
+            if $center-value.abs + $fourth-difference / 4e0 > $center-value.abs;
 
             for ^4 -> $null-rule {
-                @null[$null-rule] += @w[$null-rule + 1][1] * $near-sum
-                        + @w[$null-rule + 1][2] * $far-sum;
+                @null[$null-rule] += @w[$null-rule + 1][1] * $near-sum + @w[$null-rule + 1][2] * $far-sum;
             }
             $basval += @w[0][1] * $near-sum + @w[0][2] * $far-sum;
             $absolute-rule-sum += @w[0][1].abs
@@ -658,11 +667,26 @@ class Math::NIntegrate::Rule::MultiDimensional
     # Integration
     #======================================================
 
+    #| Eval the integrand with optimization
+    method !eval-integrand($region, @x) {
+        my $key = self!make-generator-key(@x);
+
+        if %!abscissas{$key}:exists {
+            $region.eval-integrand(%!abscissas{$key})
+        } else {
+            %!rule-abscissas{$key} = @x.clone;
+            $region.eval-integrand(@x)
+        }
+    }
+
     #| Apply the selected fully symmetric rule to a region.
     method integrate(
             $region,
             Bool:D :$roundoff-guard = False
             --> Math::NIntegrate::Rule::MultiDimensional:D) {
+
+        return self.integrate-en-bloc($region, :$roundoff-guard)
+        if $region.is-en-bloc-ready(:finite-only) && %!rule-abscissas;
 
         # Manage memoization / caching
         Math::NIntegrate::Utilities::empty-jacobians-cache;
@@ -671,6 +695,42 @@ class Math::NIntegrate::Rule::MultiDimensional
         self.integral = %result<basval>;
         self.error = %result<rgnerr>;
         self.largest-error-axis = %result<direct>;
+
+        return self;
+    }
+
+    method integrate-en-bloc(
+            $region,
+            Bool:D :$roundoff-guard = False
+            --> Math::NIntegrate::Rule::MultiDimensional:D) {
+
+        # Manage memoization / caching
+        Math::NIntegrate::Utilities::empty-jacobians-cache;
+
+        # Transform rule abscissas
+        my @points = %!rule-abscissas.values;
+        my @keys = %!rule-abscissas.keys;
+        #%!rule-abscissas.map({ @points.push($_.value); @keys.push($_.key) });
+
+        my %rescaled = |$region.variable-transformer.vtAffine.transform-en-bloc(:@points, jacobian => 1, context => $region.variable-transformer);
+
+        %!abscissas = @keys Z=> %rescaled<points>.Array;
+
+        # Take variable reversing factors into account
+        my $factor = [*] |$region.variable-transformer.jacobian-factors;
+        %rescaled<jacobian> *= $factor;
+
+        # Prevent variable transformation
+        my $vt = $region.variable-transformer;
+        $region.variable-transformer = Nil;
+
+        my %result = self.derlhr($region, :$roundoff-guard);
+        self.integral = %result<basval> * %rescaled<jacobian>;
+        self.error = %result<rgnerr> * %rescaled<jacobian>;
+        self.largest-error-axis = %result<direct>;
+
+        # Recover the variable transformer
+        $region.variable-transformer = $vt;
 
         return self;
     }
