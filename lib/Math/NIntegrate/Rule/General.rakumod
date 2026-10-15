@@ -10,6 +10,7 @@ class Math::NIntegrate::Rule::General
     has @.weights is rw;
     has @.error-weights is rw;
     has UInt:D $.dimension is rw = 1;
+    has $.working-precision is rw = Num;
 
     # Evaluation data
     has Numeric $.integral is rw;
@@ -22,14 +23,14 @@ class Math::NIntegrate::Rule::General
     # Creators
     #======================================================
 
-    submethod BUILD(:@!abscissas = Empty, :@!weights = Empty, :@!error-weights = Empty) {}
+    submethod BUILD(:@!abscissas = Empty, :@!weights = Empty, :@!error-weights = Empty, :$!working-precision = Num) {}
 
-    multi method new(@abscissas, @weights, @error-weights) {
-        self.bless(:@abscissas, :@weights, :@error-weights);
+    multi method new(@abscissas, @weights, @error-weights, :$working-precision = Num) {
+        self.bless(:@abscissas, :@weights, :@error-weights, :$working-precision);
     }
 
-    multi method new(:@abscissas, :@weights, :@error-weights) {
-        self.bless(:@abscissas, :@weights, :@error-weights);
+    multi method new(:@abscissas, :@weights, :@error-weights, :$working-precision = Num) {
+        self.bless(:@abscissas, :@weights, :@error-weights, :$working-precision);
     }
 
     #| Copy attributes from an object
@@ -38,6 +39,8 @@ class Math::NIntegrate::Rule::General
         @!abscissas = $clone ?? $from.abscissas.clone !! $from.abscissas;
         @!weights = $clone ?? $from.weights.clone !! $from.weights;
         @!error-weights = $clone ?? $from.error-weights.clone !! $from.error-weights;
+        $!dimension = $from.dimension;
+        $!working-precision = $from.working-precision;
 
         return self
     }
