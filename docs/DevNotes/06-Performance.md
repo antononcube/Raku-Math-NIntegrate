@@ -175,6 +175,34 @@ It can be seen with UCR with Cartesian rule can be ≈ 8 times faster the Multid
 
 ---
 
+## Speeding up of Multidimensional rule 2026-10-13 ÷ 2026-10-15 
+
+The Unit Cube Rescaling benchmark showed MultiDimensional Rule (MDR) as being way too slow.
+So, certain studies of the computational process of MDR were made and en bloc computations were investigated.
+
+In order to speed up MDR several steps are taken:
+
+- Store and retrieve the rule orbits (distinct permutations)
+- Store the abscissas of the rule for given number of generators (points) and dimension
+- En bloc computation of affine transformation (as with the 1D- and Cartesian rules)
+- Avoiding the computation of orbit generators and weights at object creation time
+
+### Storing of abscissas
+
+*TBD..*
+
+### En bloc 
+
+*TBD..*
+
+### Creation 
+
+Approximately, 25% was achieved by moving the computation of the orbits and weights when rule integration is invoked 
+for a first time, not at creation. 
+Most objects of the class are created by cloning, hence no computation of orbits and weights is needed.
+
+---
+
 ## Additional notes
 
 ### Chat with Andrew Shitov on 2026-10-07
