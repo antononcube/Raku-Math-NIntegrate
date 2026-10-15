@@ -36,9 +36,10 @@ class Math::NIntegrate::Rule::MultiDimensional
     }
 
     submethod TWEAK(:$!generators, :$dimension!, :$working-precision = Num) {
-        # The dimension attribute is inherited from Rule::General, so assign it before
-        # creating dimension-dependent DCUHRE rule data.
         self.dimension = $dimension;
+    }
+
+    method make-weights(:$generators!, :$dimension!, :$working-precision = Num) {
 
         my %data = do given $!generators {
             when $_ == 7 {
@@ -684,6 +685,13 @@ class Math::NIntegrate::Rule::MultiDimensional
             $region,
             Bool:D :$roundoff-guard = False
             --> Math::NIntegrate::Rule::MultiDimensional:D) {
+
+        # The creation of orbits and weights is done here in order to prevent
+        # the those computations every time a new object of this class is created.
+        # New objects are created most likely through cloning.
+        if @!rule-points.elems == 0 {
+            self.make-weights(:$!generators, dimension => self.dimension, working-precision => $region.variable-transformer.working-precision)
+        }
 
         return self.integrate-en-bloc($region, :$roundoff-guard)
         if $region.is-en-bloc-ready(:finite-only) && %!rule-abscissas;
