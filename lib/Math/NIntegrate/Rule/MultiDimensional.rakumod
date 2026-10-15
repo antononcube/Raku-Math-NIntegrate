@@ -16,7 +16,7 @@ class Math::NIntegrate::Rule::MultiDimensional
     has %.permutations;
 
     # For en bloc computations
-    has %!abscissas;
+    has %!region-abscissas;
     has %.rule-abscissas;
 
     #======================================================
@@ -671,8 +671,8 @@ class Math::NIntegrate::Rule::MultiDimensional
     method !eval-integrand($region, @x) {
         my $key = self!make-generator-key(@x);
 
-        if %!abscissas{$key}:exists {
-            $region.eval-integrand(%!abscissas{$key})
+        if %!region-abscissas{$key}:exists {
+            $region.eval-integrand(%!region-abscissas{$key})
         } else {
             %!rule-abscissas{$key} = @x.clone;
             $region.eval-integrand(@x)
@@ -714,7 +714,7 @@ class Math::NIntegrate::Rule::MultiDimensional
 
         my %rescaled = |$region.variable-transformer.vtAffine.transform-en-bloc(:@points, jacobian => 1, context => $region.variable-transformer);
 
-        %!abscissas = @keys Z=> %rescaled<points>.Array;
+        %!region-abscissas = @keys Z=> %rescaled<points>.Array;
 
         # Take variable reversing factors into account
         my $factor = [*] |$region.variable-transformer.jacobian-factors;
