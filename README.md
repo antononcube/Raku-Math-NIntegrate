@@ -89,6 +89,84 @@ Here is a description using the OOP DP language:
 
 ------
 
+## Summary of (current) algorithms
+
+The following mind-map shows the set of algorithms in "Math::NIntegrate".
+The currently available ones are marked with a green-square checkmark; the planned ones are marked with a red empty circle.
+(More details can found in ["WorkPlan.org"](./org/Work-plan.org).)
+
+```mermaid
+mindmap
+  root(**Math::NIntegrate**)
+    Integration Rules
+      ✅ _General rule_
+      **1D**  
+        ✅ Clenshaw-Curtis
+        ✅ Gauss-Kronrod 
+        ⭕️ Lobatto-Kronrod rule
+        ✅ Newton-Cotes rule
+        ✅ Trapezoidal rule
+        ⭕️ Multi-panel rule
+      **nD**  
+        ✅ Cartesian rule
+        ✅ MultiDimensional rule
+        ⭕️ DoubleExponential rule
+        ✅ Monte Carlo rule
+        ⭕️ Quasi Monte Carlo rule
+        ✅ _User defined rule_
+
+    Integration Strategies
+      ✅ Global Adaptive
+      ✅ Local Adaptive
+      ⭕️ Trapezoidal
+      ⭕️ Double Exponential
+      ✅ Monte Carlo
+      ✅ Adaptive Monte Carlo
+      ⭕️ Importance Sampling
+      ✅ _User defined strategy_
+
+    Integration Strategy Decorators
+      ✅ Unit Cube Rescaling
+      ⭕️ Even-Odd Subdivision
+      ⭕️ Symbolic Piecewise Subdivision
+```
+
+The algorithms are nested depending on their type: 
+- A strategy decorator has a strategy
+- A strategy that is not a decorator, has a rule
+- A composite rule (like Cartesian Rule) has one or more component rules
+
+Here is an example in which the method specification illustrates the nesting:
+
+```raku
+use Math::NIntegrate;
+
+nintegrate( { exp(-($^x ** 2 + $^y ** 2)) }, <x -Inf Inf>, <y 2 Inf>, 
+    method => ('unit-cube-rescaling', 
+               method => ('global-adaptive', 
+                          method => ('cartesian-rule', 
+                                     method => ('gauss-kronrod-rule', :7points)
+                          )
+               )
+    ),
+    :4precision-goal 
+)
+```
+```
+# 0.007347769817290595
+```
+
+The framework works with method specification "shortcuts" -- the above method specification can be written as: 
+
+```
+method => ('unit-cube-rescaling', method => ('gauss-kronrod-rule', :7points))
+```
+
+That is because the global adaptive strategy is the default strategy, and for multidimensional integrals Cartesian rule 
+is automatically used if just a one-dimensional integration rule is specified. (Like, the Gauss-Kronrod rule above.) 
+
+------
+
 ## Usage examples
 
 Basic usage examples:
@@ -143,13 +221,13 @@ and a one-dimensional [Trapezoidal rule](https://en.wikipedia.org/wiki/Trapezoid
 ```raku
 nintegrate( { ($^x + $^y ** 2).sqrt }, <x 0 1>, <y 0 1>, 
         method => ('global-adaptive', 
-                   method => ('CartesianRule',
+                   method => ('cartesian-rule',
                               method => (('gauss-kronrod-rule', points => 5), ('trapezoidal-rule', points => 10))
                    )
         )):pairs
 ```
 ```
-# {error => 7.99733950591386e-07, integral => 0.8786535016262365, region-count => 10}
+# {error => 4.208261570325412e-07, integral => 0.8786346480633286, region-count => 8}
 ```
 
 Compare with the Wolfram Language results:
