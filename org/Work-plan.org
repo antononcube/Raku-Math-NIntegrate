@@ -307,12 +307,12 @@
         - [X] Erfc
 ** TODO Documentation [0%] [0/5]
 *** TODO General
-- [ ] Design
-  - [ ] Initial version
-- [ ] Methodology
-- [ ] Design notes
-- [ ] Performance notes
-- [ ] Mind-map 
+- [X] Design
+  - [X] Initial version
+- [o] Methodology
+- [o] Design notes
+- [o] Performance notes
+- [X] Mind-map 
   - Shows the structure and state of development
 *** TODO Functionality page
 *** TODO Advanced documentation
@@ -323,10 +323,10 @@
 - [ ] Gauss-Kronrod
 - [ ] Cartesian
 - [ ] Multidimensional
-**** TODO Strategies [0%] [0/6]
+**** TODO Strategies [16%] [1/6]
 - [ ] Global adaptive
 - [ ] Local adaptive
-- [ ] Crude Monte Carlo and Quasi Monte Carlo
+- [X] Crude Monte Carlo and Quasi Monte Carlo
 - [ ] Adaptive Monte Carlo
 - [ ] Double exponential
 - [ ] Trapezoidal
