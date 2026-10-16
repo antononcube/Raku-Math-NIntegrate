@@ -3,6 +3,7 @@ use Test;
 
 use Math::NIntegrate;
 use Math::NIntegrate::Processing::Grammar;
+use Math::NIntegrate::Processing::Actions::MethodSpec;
 
 plan *;
 
@@ -14,11 +15,13 @@ subtest {
     is nintegrate({ $^x }, <x 1e-12 1>) < 1, True, 'strings range result';
 }, 'allmorth was treated as Inf';
 
+
 ## 2
 subtest {
     # Fixed
     ok nintegrate(sub ($x, $y) { 1 / sqrt($x + $y) }, ('x', 0, 1), ('y', 0, 1), method => 'gauss-kronrod-rule')
 }, 'dimensions do not match in a variable transformer';
+
 
 ## 3
 subtest {
@@ -42,11 +45,65 @@ subtest {
 
 }, 'singularity handler parsing';
 
+
 # 5
 subtest {
     # Fixed
     ok nintegrate({ sin($^x) / $^x }, ['x', -Inf, Inf], max-recurtion => 20);
 
 }, 'nintegrate(sin(x)/x, <x -Inf Inf>)';
+
+
+## 6
+subtest {
+    # Fixed
+    my $gr = Math::NIntegrate::Processing::Grammar.new;
+    my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new;
+
+    my $spec = method => ('unit-cube-rescaling',
+                          method => ('global-adaptive',
+                                     method => ('cartesian-rule',
+                                                method => ('clenshaw-curtis-rule', :5points)
+                                     )));
+
+    ok $gr.parse($spec<method>.raku), 'parsing the spec';
+    ok $gr.parse($spec<method>.raku, :$actions).made, 'interpreting the spec';
+
+    isa-ok
+            nintegrate({ exp(-($^x ** 2 + $^y ** 2)) }, <x -Inf Inf>, <y 2 Inf>, precision-goal => 2,
+                    method => ('global-adaptive',
+                               method => ('cartesian-rule',
+                                          method => ('clenshaw-curtis-rule', :3points)
+                               ))
+                        ),
+            Numeric:D,
+            'no decorator';
+
+    isa-ok
+            nintegrate({ exp(-($^x ** 2 + $^y ** 2)) }, <x -Inf Inf>, <y 2 Inf>, precision-goal => 2,
+                    method => ('unit-cube-rescaling', method => 'gauss-kronrod-rule')
+                       ),
+            Numeric:D,
+            'decorator over rule';
+
+    isa-ok
+            nintegrate({ exp(-($^x ** 2 + $^y ** 2)) }, <x -Inf Inf>, <y 2 Inf>, precision-goal => 2,
+                    method => ('unit-cube-rescaling', method => 'gauss-kronrod-rule')
+                        ),
+            Numeric:D,
+            'decorator over strategy';
+
+    isa-ok
+            nintegrate({ exp(-($^x ** 2 + $^y ** 2)) }, <x -Inf Inf>, <y 2 Inf>, precision-goal => 2,
+                    method => ('unit-cube-rescaling',
+                               method => ('global-adaptive',
+                                          method => ('cartesian-rule',
+                                                     method => ('gauss-kronrod-rule', :3points)
+                                          )))
+                        ),
+            Numeric:D,
+            'decorator over strategy over Cartesian rule over rule';
+
+}, 'Full strategy decorator specs';
 
 done-testing;
