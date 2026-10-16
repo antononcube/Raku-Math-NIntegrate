@@ -212,7 +212,7 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     regex method-strategy-spec {
         | <method> \s* <.arrow> \s* <strategy-spec>
-        | ':' <method> <.lb> \s* <strategy-spec> || <rule-spec> \s* <.rb>
+        | ':' <method> <.lb> \s* <strategy-spec> \s* <.rb>
         | '"' <method> '"' \s* ':' \s* <strategy-spec>
     }
 
