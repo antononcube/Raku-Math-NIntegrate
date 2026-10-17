@@ -218,10 +218,29 @@ Compare with the Wolfram Language results:
 wolframscript -code 'Through[{Integrate, N@*Integrate, NIntegrate}[Sqrt[x+y^2], {x, 0, 1}, {y, 0, 1}]]'
 ```
 
-Utilization through a DSL specification (not implemented yet):
+----
 
-```
-integrate 1/x^2 over the range [1,2] with a local adaptive strategy and precision goal 5
+## Using natural language specifications
+
+Natural language commands for computational integration workflows can be translated to Raku commands via: 
+- The grammar-based parser-interpreter ["DSL::English::IntegrationWorkflows"](https://github.com/antononcube/Raku-DSL-English-IntegrationWorkflows)
+- LLM-based interpreter using "DSL::Examples" (like "LLM::Resources")
+
+Here is full computational pipeline:
+
+```raku
+use DSL::English::IntegrationWorkflows;
+use Math::NIntegrate;
+
+my $cmd = 'integrate 1/x^2 over the range [1,2] with a local adaptive strategy and precision goal 5';
+
+ToIntegrationWorkflowCode($cmd, 'Raku')
+        ==> { say "interpreted: $_"; $_ }()
+        ==> {
+  use MONKEY-SEE-NO-EVAL;
+  my $res = $_.EVAL;
+  say "result: {$! ?? 'N/A' !! $res}"
+}()
 ```
 
 ------
