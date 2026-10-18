@@ -140,7 +140,7 @@ class Math::NIntegrate::VariableTransformer::DoubleExponential
         $v = exp( $v * $pi2 );
 
         $pInv = 1 / ($u + $v);
-        $tJacobian = $w * $u * $v * $pInv * $pInv;
+        $tJacobian = $w * $u * $v * $pInv * $pInv * ($max - $min) * $pi2;
 
         $exp = $point < 0 ?? ($max - $min) * $u * $pInv !! ($min - $max) * $v * $pInv;
 
