@@ -43,6 +43,7 @@
         "Math::NIntegrate::Strategy::MonteCarlo": "lib/Math/NIntegrate/Strategy/MonteCarlo.rakumod",
         "Math::NIntegrate::Strategy::Saturating": "lib/Math/NIntegrate/Strategy/Saturating.rakumod",
         "Math::NIntegrate::Strategy::Trapezoidal": "lib/Math/NIntegrate/Strategy/Trapezoidal.rakumod",
+        "Math::NIntegrate::Strategy::QuasiMonteCarlo": "lib/Math/NIntegrate/Strategy/QuasiMonteCarlo.rakumod",
         "Math::NIntegrate::Strategy::UnitCubeRescaling": "lib/Math/NIntegrate/Strategy/UnitCubeRescaling.rakumod",
         "Math::NIntegrate::VariableTransformer": "lib/Math/NIntegrate/VariableTransformer.rakumod",
         "Math::NIntegrate::VariableTransformer::Affine": "lib/Math/NIntegrate/VariableTransformer/Affine.rakumod",
