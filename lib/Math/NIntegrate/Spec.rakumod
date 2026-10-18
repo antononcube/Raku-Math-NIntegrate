@@ -173,7 +173,8 @@ class Math::NIntegrate::Spec {
         if %options<precision-goal> ~~ Numeric:D {
             die $msg-pg unless %options<precision-goal> > 0;
         } elsif %options<precision-goal>.isa(Whatever) {
-            if %options<method><name>.contains('MonteCarlo') {
+            if %options<method><name>.contains('MonteCarlo') ||
+                    (%options<method><method><name> && %options<method><method><name>.contains('MonteCarlo')) {
                 %options<precision-goal> = 2
             } else {
                 %options<precision-goal> = do given %options<working-precision> {
