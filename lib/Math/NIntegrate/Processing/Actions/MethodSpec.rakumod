@@ -32,7 +32,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 singularitydepth => 'singularity-depth', singularityhandler => 'singularity-handler',
                 romberg => 'romberg-quadrature', rombergquadrature => 'romberg-quadrature', pointgenerator => 'point-generator',
                 symbolicprocessing => 'symbolic-processing', nosingularityhandler => 'None',
-                partitioning => 'Partitioning', initialestimaterelaxation => 'InitialSstimateRelaxation', randomseed => 'RandomSeed',
+                partitioning => 'partitioning', initialestimaterelaxation => 'InitialSstimateRelaxation', randomseed => 'random-seed',
                 duffycoordinates => 'DuffyCoordinates', imt => 'IMT', irimorigutitakesawa => 'IMT',
                 unitcuberescaling => 'UnitCubeRescaling',
                 whatever => Whatever
