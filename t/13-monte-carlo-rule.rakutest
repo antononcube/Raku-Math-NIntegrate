@@ -71,12 +71,12 @@ subtest {
 
     $region.apply-rule;
 
-    say (:$exact, integral => $region.integral, error => $region.error);
+    #say (:$exact, integral => $region.integral, error => $region.error);
 
     is abs($region.integral - $exact) / $exact ≤ 0.3, True, 'expected integral estimate';
 
     # Should not fail as in plain MonteCarlo
-    #is $region.error.abs / $exact ≤ 0.4, True, 'expected error estimate';
+    is $region.error.abs / $exact ≤ 0.4, True, 'expected error estimate';
 
 }, 'Quasy Monte-Carlo integration in a region';
 
