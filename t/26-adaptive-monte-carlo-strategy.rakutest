@@ -23,7 +23,7 @@ subtest {
              rel-tol => 10e-2,
              '-(Pi/4) + ArcTan[10]'
 
-}, '1D integrals';
+}, 'AdaptiveMonteCarlo 1D integrals';
 
 ## 2
 subtest {
@@ -35,6 +35,18 @@ subtest {
                 rel-tol => 10e-2,
         'expected value'
         
-}, '2D integrals';
+}, 'AdaptiveMonteCarlo 2D integrals';
+
+## 3
+subtest {
+
+    is-approx
+            nintegrate({ exp(-($^x ** 4 + $^y **4)) }, ['x', -π, π], ['y', -π, π],
+                    method => 'adaptive-quasi-monte-carlo', :2precision-goal),
+            3.2862618016492186032,
+            rel-tol => 10e-2,
+            'expected value'
+
+}, 'AdaptiveQuasiMonteCarlo 2D integrals';
 
 done-testing;
