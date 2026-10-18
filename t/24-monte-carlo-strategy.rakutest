@@ -3,6 +3,8 @@ use Test;
 
 use Math::NIntegrate;
 
+plan *;
+
 ## 1
 subtest {
         isa-ok
@@ -61,6 +63,7 @@ subtest {
                     precision-goal => 2),
             Numeric:D,
             '1D integral gives a numeric result';
+
 }, 'QuasiMonteCarlo 1D integrals';
 
 ## 4
