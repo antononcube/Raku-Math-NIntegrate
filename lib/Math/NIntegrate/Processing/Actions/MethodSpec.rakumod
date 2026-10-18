@@ -17,7 +17,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
     }
 
     method !canonical-name(Str:D $name --> Str:D) {
-        my $compact = $name.trim.subst(/<[-_\s]>/, '', :g).subst(/ ^ <["\']> | <["\']> $/, :g).lc;
+        my $compact = $name.trim.subst(/<[-_\s]>/, '', :g).subst(/ ^ <["'«»]> | <["'«»]> $/, :g).lc;
 
         my %names =
                 globaladaptive => 'GlobalAdaptive', localadaptive => 'LocalAdaptive', doubleexponential => 'DoubleExponential',
@@ -30,7 +30,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 multidimensionalrule => 'MultiDimensionalRule',
                 maxpoints => 'max-points', maxrecursion => 'max-recursion', minrecursion => 'min-recursion',
                 singularitydepth => 'singularity-depth', singularityhandler => 'singularity-handler',
-                romberg => 'romberg-quadrature', rombergquadrature => 'romberg-quadrature',
+                romberg => 'romberg-quadrature', rombergquadrature => 'romberg-quadrature', pointgenerator => 'point-generator',
                 symbolicprocessing => 'symbolic-processing', nosingularityhandler => 'None',
                 partitioning => 'Partitioning', initialestimaterelaxation => 'InitialSstimateRelaxation', randomseed => 'RandomSeed',
                 duffycoordinates => 'DuffyCoordinates', imt => 'IMT', irimorigutitakesawa => 'IMT',
@@ -38,7 +38,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
                 whatever => Whatever
                 ;
 
-        return %names{$compact} // $name.trim
+        return %names{$compact} // $name.trim.subst(/ ^ <["'«»]> | <["'«»]> $/, :g)
     }
 
     method !merge-options(%spec is copy, $/ --> Hash:D) {
@@ -58,6 +58,7 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
 
     method integer($/) { make $/.Int }
     method real($/) { make $/.Numeric }
+    method symbol($/) { make $/.Str.subst(/ ^ <["'«»]> | <["'«»]> $ /):g }
 
     method number($/) {
         make $/.Str eq 'Inf' ?? Inf !! $/.values.head.made
@@ -100,8 +101,8 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
     }
 
     method option($/) {
-        my $value = ($<option-value> // $<number-list> // $<number>).Str;
-        make self!canonical-name($<symbol>.Str) => ($value ~~ /^\d+$/ ?? $value.Int !! self!canonical-name($value));
+        my $value = ($<option-value> // $<number-list> // $<number> // $<symbol>).Str;
+        make self!canonical-name($<symbol>.made) => ($value ~~ /^\d+$/ ?? $value.Int !! self!canonical-name($value));
     }
 
     method method-option-value($/) {

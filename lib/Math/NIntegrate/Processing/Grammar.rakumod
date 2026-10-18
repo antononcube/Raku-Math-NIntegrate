@@ -171,7 +171,7 @@ grammar Math::NIntegrate::Processing::Grammar {
 
     regex rule-component-spec {
         || <rule-symbol>
-        || <.lb> \s* <rule-symbol> \s* [ <.sep> \s* [ <boolean-option-spec> | <numeric-option-spec> ]* % [ \s* <.sep> \s*] ]? <.rb>
+        || <.lb> \s* <rule-symbol> \s* [ <.sep> \s* [ <boolean-option-spec> | <numeric-option-spec> | <option> ]* % [ \s* <.sep> \s*] ]? <.rb>
     }
 
     regex rule-component-sequence {
@@ -232,23 +232,26 @@ grammar Math::NIntegrate::Processing::Grammar {
     token sep { ',' }
 
     # Quote
-    token quote { <["']> }
+    token quote { <["'«»]> }
 
     # Option names
-    token bisection-dithering { BisectionDithering | bisection <[\-_]> dithering }
+    # These can be made simpler with
+    # token name-sep = { <[\-_]> } and <name-sep>?
+    token bisection-dithering {:i BisectionDithering | bisection <[\-_]> dithering }
     token generators {:i generators }
-    token initial-estimate-relaxation { InitialEstimateRelaxation | initial <[\-_]> estimate <[\-_]> relaxation }
-    token max-points { MaxPoints | max <[\-_]> points }
-    token max-recursion { MaxRecursion | max <[\-_]> recursion }
+    token initial-estimate-relaxation {:i InitialEstimateRelaxation | initial <[\-_]> estimate <[\-_]> relaxation }
+    token max-points {:i MaxPoints | max <[\-_]> points }
+    token max-recursion {:i MaxRecursion | max <[\-_]> recursion }
     token method {:i method }
-    token min-recursion { MinRecursion | min <[\-_]> recursion }
+    token min-recursion {:i MinRecursion | min <[\-_]> recursion }
     token partitioning {:i partitioning }
     token points {:i points }
+    token point-generator {:i PointGenerator | point <[\-_]> generator  }
     token random-seed {:i RandomSeed | random <[\-_]> seed }
     token romberg-quadrature {:i RombergQuadrature | Romberg | romberg <[\-_]> quadrature }
-    token singularity-depth { SingularityDepth | singularity <[\-_]> depth }
-    token singularity-handler { SingularityHandler | singularity <[\-_]> handler }
-    token symbolic-processing { SymbolicProcessing | symbolic <[\-_]> processing }
+    token singularity-depth {:i SingularityDepth | singularity <[\-_]> depth }
+    token singularity-handler {:i SingularityHandler | singularity <[\-_]> handler }
+    token symbolic-processing {:i SymbolicProcessing | symbolic <[\-_]> processing }
 
     # Automatic and Whatever
     token whatever { Whatever | WhateverCode }
