@@ -41,8 +41,8 @@
 - [C] Any precision
   - Not possible
 - [ ] Large precision with "extra-precision" spec
-*** TODO DoubleExponential rule
-- [ ] Integration 1D
+*** TODO DoubleExponential rule [50%] [1/2]
+- [X] Integration 1D
 - [ ] Integration nD
 *** TODO Gauss-Kronrod rule [40%] [2/5]
 - [X] Hard coded (low precision)
@@ -58,8 +58,12 @@
 - [ ] Any precision
   - Not possible
 - [ ] Large precision with "extra-precision" spec
-*** TODO Monte Carlo rule
+*** TODO Monte Carlo rule [25%] [1/4]
 - [X] Using a fine point generator
+- [-] Implement several low-discrepancy point generators
+  - [X] Halton
+  - [ ] Hammersley
+  - [ ] Sobol
 - [ ] En bloc (rapid) generator
 - [ ] En bloc (rapid) variable transformation
 *** TODO MultiDimensional rule [40%] [2/5]
@@ -125,7 +129,7 @@
   - It is just a swap of range/boundary values.
   - It is tested when multi-dimensional integrals with functional ranges.
     - Without singularity handling (like, IMT).
-** TODO Integration Strategies [25%] [2/8]
+** TODO Integration Strategies [30%] [3/10]
 *** TODO Global Adaptive [66%] [4/6]
 - [X] Initial regions by min-recursion
   - With Leftist Heap
@@ -152,19 +156,42 @@
 - [ ] Max points stopping criteria?
 - [ ] Relaxation of the integral estimate stopping criteria
 - [X] Integration monitor
-*** TODO Saturating
+*** MAYBE Saturating
+- This can be a common strategy, but I am not sure that is good idea.
+- The underlying algorithm is simple, and it is more important to see
+  the particular different elements for:
+  - MonteCarlo and QuasiMonteCarlo
+  - DoubleExponential
+  - Trapezoidal
 *** TODO Trapezoidal
-*** TODO Double Exponential
+*** TODO Double Exponential [%] [/]
+- [ ] 1D integration
+  - Because the 1D DoubleExponentialRule is/was implemented first
+- [ ] nD integration
+  - Some sort of dynamic Cartesian rule
 *** DONE Monte Carlo [100%] [5/5]
 - [X] Creation from Builder
 - [X] Passing options
 - [X] Simple loop saturation with a heap
 - [X] Processing "RandomSeed" option
 - [X] Processing "Partitioning" option
+*** DONE Quasi Monte Carlo [100%] [5/5]
+- [X] Inheriting from MonteCarlo
+- [X] Facilitation of proper MonteCarloRule options
+  - Have to have, by default low-discrepancy point generators
+  - See MonteCarloRule
+- [X] Creation from Builder
+- [X] Passing options
+- [X] Waring for ignoring "RandomSeed" option
 *** DONE Adaptive Monte Carlo [100%] [3/3]
 - [X] Simple adaptive algorithm
 - [X] Passing and processing options
 - [X] Treating bisection dithering
+*** TODO Adaptive Quasi Monte Carlo [100%] [2/2]
+- [X] Inherits from AdaptiveMonteCarlo
+- [X] Creation from Builder
+- The facilitation of QuasiMonteCarlo should apply
+  - I.e. additional work is no needed 
 *** TODO Importance Sampling
 ** DONE Integration Strategy Decorators
 *** DONE Facilitation
