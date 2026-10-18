@@ -40,7 +40,7 @@ subtest {
 subtest {
 
     isa-ok
-        nintegrate({ $^x }, <x 0 1>, method => 'QuasiMonteCarlo'),
+        nintegrate({ $^x }, <x 0 1>, method => 'quasi-monte-carlo'),
         Numeric:D,
         '1D integral gives a numeric result, simple spec';
 
@@ -68,7 +68,7 @@ subtest {
 
     isa-ok
             nintegrate({ exp(-($^x ** 4 + $^y ** 4)) }, <x -2 2>, <y -2 2>,
-                    method => ('QuasiMonteCarlo', method => ('MonteCarloRule', points => 100), partitioning => 3),
+                    method => ('quasi-monte-carlo', method => ('monte-carlo-rule', points => 100), partitioning => 3),
                     min-recurion => 2,
                     max-points => 1_000,
                     precision-goal => 3.1),
