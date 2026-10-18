@@ -53,7 +53,6 @@ class Math::NIntegrate::Rule::DoubleExponential
 
         loop {
             $h /= 2;
-            say (:$h);
             $temp = de-rule-estimate($region, $h, $previous);
             $k++;
 
