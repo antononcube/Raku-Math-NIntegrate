@@ -36,6 +36,11 @@ class Math::NIntegrate::Rule::MonteCarlo
 
             #when $_ ~~ Str:D && $_.lc eq 'sobol' {}
             #when $_ ~~ Str:D && $_.lc eq 'neiderreiter' {}
+
+            when $_ ~~ Callable:D {
+                &!point-generator = $point-generator
+            }
+
             default {
                 die 'Do not know how to treat the point generator specification.'
             }
