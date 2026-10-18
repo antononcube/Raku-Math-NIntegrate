@@ -112,7 +112,7 @@ mindmap
         ✅ MultiDimensional rule
         ⭕️ DoubleExponential rule
         ✅ Monte Carlo rule
-        ⭕️ Quasi Monte Carlo rule
+        ✅ Quasi Monte Carlo rule
         ✅ _User defined rule_
 
     Integration Strategies
@@ -121,7 +121,9 @@ mindmap
       ⭕️ Trapezoidal
       ⭕️ Double Exponential
       ✅ Monte Carlo
+      ✅ Quasi Monte Carlo
       ✅ Adaptive Monte Carlo
+      ✅ Adaptive Quasi Monte Carlo
       ⭕️ Importance Sampling
       ✅ _User defined strategy_
 
