@@ -14,6 +14,7 @@ use Math::NIntegrate::Strategy::AdaptiveMonteCarlo;
 use Math::NIntegrate::Strategy::GlobalAdaptive;
 use Math::NIntegrate::Strategy::LocalAdaptive;
 use Math::NIntegrate::Strategy::MonteCarlo;
+use Math::NIntegrate::Strategy::QuasiMonteCarlo;
 use Math::NIntegrate::Strategy::UnitCubeRescaling;
 
 # Rules
@@ -210,7 +211,8 @@ class Math::NIntegrate::Builder {
             }
 
             when $_<name> eq 'MonteCarloRule' {
-                Math::NIntegrate::Rule::MonteCarlo.new(points => $_<points> // 100, :$dimension, :$working-precision);
+                my $point-generator =  $method<point-generator> // WhateverCode;
+                Math::NIntegrate::Rule::MonteCarlo.new(points => $_<points> // 100, :$point-generator, :$dimension, :$working-precision);
             }
 
             when $_<name> eq 'CartesianRule' {
@@ -368,6 +370,21 @@ class Math::NIntegrate::Builder {
                         );
             }
 
+            when $_<name> eq 'QuasiMonteCarlo' {
+                # Specific quasi monte carlo options.
+                my $partitioning = $method<partitioning> // Whatever;
+                my $random-seed = $method<random-seed> // Whatever;
+                $max-points = 50_000 without $max-points;
+
+                Math::NIntegrate::Strategy::QuasiMonteCarlo.new(
+                        :$min-recursion,
+                        :$max-recursion,
+                        :$max-points,
+                        :$partitioning,
+                        :$random-seed
+                        );
+            }
+
             # There should be more elegant check here
             when ::($_<name>.subst(/ <["']> /):g) !~~ Failure && ::($_<name>.subst(/ <["']> /):g) ~~ Math::NIntegrate::Strategy {
                 # This does not handle additional options
@@ -443,8 +460,20 @@ class Math::NIntegrate::Builder {
         # (ii) method make-rule ?
         # This seems to be more of an AbstractFactory type of processing. (Hence, option (i).)
         my $rule-spec = $method<method><method> // Whatever;
-        $rule-spec = %(name => 'MonteCarloRule', type => 'rule')
-        if ($rule-spec.isa(Whatever) || $rule-spec<name>.isa(Whatever)) && $method<method><name>.contains('MonteCarlo');
+        if ($rule-spec.isa(Whatever) || $rule-spec<name>.isa(Whatever)) {
+            if $method<method><name>.contains('QuasiMonteCarlo') {
+                $rule-spec = %(name => 'MonteCarloRule', point-generator => 'hammersley', type => 'rule')
+            } elsif $method<method><name>.contains('MonteCarlo') {
+                $rule-spec = %(name => 'MonteCarloRule', type => 'rule')
+            }
+        }
+
+        # Make sure QuasiMonteCarlo has a low-discrepancy point generator
+        if $method<method><name>.contains('QuasiMonteCarlo') && $rule-spec ~~ Map:D {
+            if $rule-spec<name> eq 'MonteCarloRule' {
+                $rule-spec<point-generator> = $rule-spec<point-generator> // 'hammersley'
+            }
+        }
 
         my $rule = self.make-rule(
                 method => $rule-spec,
