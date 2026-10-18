@@ -35,6 +35,7 @@
         "Math::NIntegrate::Spec": "lib/Math/NIntegrate/Spec.rakumod",
         "Math::NIntegrate::Strategy": "lib/Math/NIntegrate/Strategy.rakumod",
         "Math::NIntegrate::Strategy::AdaptiveMonteCarlo": "lib/Math/NIntegrate/Strategy/AdaptiveMonteCarlo.rakumod",
+        "Math::NIntegrate::Strategy::AdaptiveQuasiMonteCarlo": "lib/Math/NIntegrate/Strategy/AdaptiveQuasiMonteCarlo.rakumod",
         "Math::NIntegrate::Strategy::Decorator": "lib/Math/NIntegrate/Strategy/Decorator.rakumod",
         "Math::NIntegrate::Strategy::DoubleExponential": "lib/Math/NIntegrate/Strategy/DoubleExponential.rakumod",
         "Math::NIntegrate::Strategy::ErrorHandlish": "lib/Math/NIntegrate/Strategy/ErrorHandlish.rakumod",
