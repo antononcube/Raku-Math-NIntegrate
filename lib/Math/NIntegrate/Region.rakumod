@@ -429,7 +429,9 @@ class Math::NIntegrate::Region {
 
         # Preparer derivative-signs
         my $derivative-signs = Whatever;
-        if $!variable-transformer && $!variable-transformer.stack.tail ~~ Math::NIntegrate::VariableTransformer::IMT {
+        if $!variable-transformer &&
+                $!variable-transformer !~~ Math::NIntegrate::VariableTransformer::DoubleExponential &&
+                $!variable-transformer.stack.tail ~~ Math::NIntegrate::VariableTransformer::IMT {
             $derivative-signs = $!variable-transformer.stack.tail.derivatives>>.sign;
         }
 
