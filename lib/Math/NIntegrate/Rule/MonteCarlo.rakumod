@@ -142,7 +142,7 @@ class Math::NIntegrate::Rule::MonteCarlo
         my $dim = $region.dimension;
 
         # Generate all points
-        my @points = |(^self.points).map( -> $n { (^$dim).map({ self.point-generator.($n, $_, $dim, self.points) }) });
+        my @points = |(^self.points).map( -> $m { (^$dim).map({ self.point-generator.($n + $m, $_, $dim, self.points) }) });
 
         # Transform abscissas
         my %rescaled = |$region.variable-transformer.vtAffine.transform-en-bloc(:@points, jacobian => 1, context => $region.variable-transformer);
