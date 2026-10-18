@@ -58,7 +58,7 @@ subtest {
     my ($a, $b) = 0, 2;
     my $exact = &fExact($b) - &fExact($a);
 
-    my $rule = Math::NIntegrate::Rule::MonteCarlo.new(100, point-generator => 'hammersley');
+    my $rule = Math::NIntegrate::Rule::MonteCarlo.new(100, point-generator => 'halton');
 
     # Region
     my $region = Math::NIntegrate::Builder.make-region(
