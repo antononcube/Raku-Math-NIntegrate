@@ -14,14 +14,33 @@ class Math::NIntegrate::Rule::MonteCarlo
     # Creators
     #======================================================
 
-    submethod BUILD(UInt:D :$!points, UInt:D :$dimension!, :&!point-generator = WhateverCode, :$working-precision = Num) {
+    submethod BUILD(UInt:D :$!points, UInt:D :$dimension!, :$point-generator = WhateverCode, :$working-precision = Num) {
         # In general, working precision of Monte-Carlo methods does not matter --
         # the precision- and accuracy goals are low.
         # But since all the rule classes take working-precision as an argument it is also present here.
-        without &!point-generator {
-            # The most universal point generator has very fine granularity: one point coordinate per invocation.
-            &!point-generator = -> UInt:D $n, UInt:D $axis, UInt:D $dim, UInt:D $points-per-step {1.rand}
+
+        # Assign a point generator
+        given $point-generator {
+            when $_.isa(Whatever) || $_.isa(WhateverCode) {
+                # The most universal point generator has very fine granularity: one point coordinate per invocation.
+                &!point-generator = -> UInt:D $n, UInt:D $axis, UInt:D $dim, UInt:D $points-per-step {1.rand}
+            }
+
+            when $_ ~~ Str:D && $_.lc ~~ / halton | halton [_\-] generator / {
+                &!point-generator = &halton-generator;
+            }
+
+            when $_ ~~ Str:D && $_.lc ~~ / hammersley | hammersley [_\-] generator / {
+                &!point-generator = &hammersley-generator;
+            }
+
+            #when $_ ~~ Str:D && $_.lc eq 'sobol' {}
+            #when $_ ~~ Str:D && $_.lc eq 'neiderreiter' {}
+            default {
+                die 'Do not know how to treat the point generator specification.'
+            }
         }
+
 
         self.dimension = $dimension;
 
@@ -35,16 +54,16 @@ class Math::NIntegrate::Rule::MonteCarlo
         self.error-weights = |((1/$!points) xx $!points);
     }
 
-    multi method new($points, $working-precision = Num, UInt:D :$dimension = 1, :&point-generator = WhateverCode) {
-        self.bless(:$points, :$dimension, :&point-generator, :$working-precision)
+    multi method new($points, $working-precision = Num, UInt:D :$dimension = 1, :$point-generator = WhateverCode) {
+        self.bless(:$points, :$dimension, :$point-generator, :$working-precision)
     }
 
-    multi method new($points, UInt:D :$dimension = 1, :prec(:$working-precision) = Num, :&point-generator = WhateverCode) {
-        self.bless(:$points, :$dimension, :$working-precision, :&point-generator)
+    multi method new($points, UInt:D :$dimension = 1, :prec(:$working-precision) = Num, :$point-generator = WhateverCode) {
+        self.bless(:$points, :$dimension, :$working-precision, :$point-generator)
     }
 
-    multi method new(:$points, UInt:D :$dimension, :$working-precision = Num, :&point-generator = WhateverCode) {
-        self.bless(:$points, :$dimension, :$working-precision, :&point-generator)
+    multi method new(:$points, UInt:D :$dimension, :$working-precision = Num, :$point-generator = WhateverCode) {
+        self.bless(:$points, :$dimension, :$working-precision, :$point-generator)
     }
 
     #| Copy attributes from an object
@@ -147,4 +166,33 @@ class Math::NIntegrate::Rule::MonteCarlo
 
         return self;
     }
+
+    #======================================================
+    # Point generators
+    #======================================================
+    # Point generators are simple functions, hence implemented in this class.
+    # Might have to be "outsourced" or encapsulated in a class for faster point generation.
+
+    sub radical-inverse(Int $n, Int $b) {
+        my $v = 0.0;
+        my $f = 1.0/$b;
+        my $i = $n;
+        while $i > 0 {
+            $v += $f * ($i % $b);
+            $i = $i div $b;
+            $f /= $b;
+        }
+        $v
+    }
+
+    my @primes = 2,3,5,7,11,13,17,19,23,29,31,37,41,43,47;
+
+    my &halton-generator = sub (UInt:D $n, UInt:D $axis, UInt:D $dim, UInt:D $points-per-step) {
+        radical-inverse($n, @primes[$axis])
+    };
+
+    my &hammersley-generator = sub (UInt:D $n, UInt:D $axis, UInt:D $dim, UInt:D $points-per-step) {
+        $axis == 0 ?? $n / $points-per-step
+        !! radical-inverse($n, @primes[$axis])
+    };
 }
