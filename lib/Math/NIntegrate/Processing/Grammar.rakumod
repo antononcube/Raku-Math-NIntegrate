@@ -62,7 +62,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     regex option {
         # I do not like this conditional chack, but it was quick to do with the generic <method-option>
         # <!{ $<symbol>.Str.lc eq 'method' }>
-        [ <symbol> \s* <.arrow> \s* <option-value> | ':' <number> <symbol> | ':' <symbol> <.lb> \s* <number> \s* <.rb>]
+        [ <symbol> \s* <.arrow> \s* <option-value> | ':' <number> <symbol> | ':' <symbol> <.lb> \s* <option-value> \s* <.rb>]
     }
 
     rule option-sequence { <option>+ % <.sep> }
