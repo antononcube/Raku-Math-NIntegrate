@@ -1,0 +1,44 @@
+use Test;
+
+use Math::NIntegrate::Region;
+use Math::NIntegrate::VariableTransformer::DoubleExponential;
+use Math::NIntegrate::Rule::DoubleExponential;
+
+# 1
+subtest {
+        # Range
+        my ($a, $b) = 2, 7;
+
+        # Integrand
+        sub f($x) { $x ** 2 }
+        my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Rat);
+
+        # Exact
+        my $exact = 335/3;
+
+        # Integration rule
+        my $rule = Math::NIntegrate::Rule::DoubleExponential.new;
+
+        # Region
+        my $region = Math::NIntegrate::Region.new(min => [$a,], max => [$b, ], dimension => 1, :$numerical-function, :$rule);
+
+        my %args =
+                region => $region,
+                min-original-bounds => $region.min.head,
+                max-original-bounds => $region.max.head,
+                min-transform-bounds => -Inf,
+                max-transform-bounds => Inf,
+                working-precision => Num
+                ;
+
+        my $vtDE = Math::NIntegrate::VariableTransformer::DoubleExponential.new(|%args);
+
+        $region.variable-transformer = $vtDE;
+
+        my $res = $rule.integrate($region, tolerance => 10e-12, :10max-recursion);
+
+        is-approx $res, $exact, 'expected integral result';
+
+}, 'Easy integral';
+
+done-testing;
