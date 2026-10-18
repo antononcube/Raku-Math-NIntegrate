@@ -9,7 +9,7 @@ my $gr = Math::NIntegrate::Processing::Grammar.new;
 my $actions = Math::NIntegrate::Processing::Actions::MethodSpec.new;
 
 # 1
-subtest {
+#subtest {
     my @specs =
             'GlobalAdaptive' =>
                     {name => 'GlobalAdaptive', type => 'strategy'},
@@ -41,6 +41,9 @@ subtest {
             '(local-adaptive, method => (trapezoidal-rule, points => 5))' =>
                     {method => {name => 'TrapezoidalRule', points => 5, type => 'rule'}, name => 'LocalAdaptive', type => 'strategy'},
 
+            '(MonteCarlo, method => (MonteCarloRule, points => 100, point-generator => "halton"))' =>
+                    {method => {name => 'MonteCarloRule', points => 100, point-generator => 'halton', type => 'rule'}, name => 'MonteCarlo', type => 'strategy'},
+
             '(local-adaptive, method => (multidimensional-rule, generators => 7))' =>
                     {method => {name => 'MultiDimensionalRule', generators => 7, type => 'rule'}, name => 'LocalAdaptive', type => 'strategy'},
 
@@ -64,7 +67,7 @@ subtest {
                 "failed strategy spec $i, ⎡{$p.key}⎦";
     }
 
-}, 'Strategy method spec';
+#}, 'Strategy method spec';
 
 
 # 2
