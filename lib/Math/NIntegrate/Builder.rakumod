@@ -11,6 +11,7 @@ use Math::NIntegrate::VariableTransformer::Composite;
 # Strategies
 use Math::NIntegrate::Strategy;
 use Math::NIntegrate::Strategy::AdaptiveMonteCarlo;
+use Math::NIntegrate::Strategy::AdaptiveQuasiMonteCarlo;
 use Math::NIntegrate::Strategy::GlobalAdaptive;
 use Math::NIntegrate::Strategy::LocalAdaptive;
 use Math::NIntegrate::Strategy::MonteCarlo;
@@ -346,6 +347,23 @@ class Math::NIntegrate::Builder {
                 $max-points = 50_000 without $max-points;
 
                 Math::NIntegrate::Strategy::AdaptiveMonteCarlo.new(
+                        :$min-recursion,
+                        :$max-recursion,
+                        :$max-points,
+                        :$bisection-dithering
+                        :$partitioning,
+                        :$random-seed
+                        );
+            }
+
+            when $_<name> eq 'AdaptiveQuasiMonteCarlo' {
+                # Specific adaptive monte carlo options
+                my $bisection-dithering = $method<bisection-dithering> // 0;
+                my $partitioning = $method<partitioning> // Whatever;
+                my $random-seed = $method<random-seed> // Whatever;
+                $max-points = 50_000 without $max-points;
+
+                Math::NIntegrate::Strategy::AdaptiveQuasiMonteCarlo.new(
                         :$min-recursion,
                         :$max-recursion,
                         :$max-points,
