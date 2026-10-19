@@ -35,7 +35,7 @@ subtest {
 
         $region.variable-transformer = $vtDE;
 
-        my $res = $rule.integrate($region, tolerance => 10e-12, :10max-recursion);
+        my $res = $rule.integrate-full($region, tolerance => 10e-12, :10max-recursion);
 
         is-approx $res, $exact, 'expected integral result';
 
