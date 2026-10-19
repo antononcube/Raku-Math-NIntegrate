@@ -76,12 +76,11 @@ class Math::NIntegrate::Strategy::DoubleExponential
             # Delete from heap the region with largest error
             $topRegion = $heap.delete-top-element;
 
-
             $error -= $topRegion.error;
             $integral -= $topRegion.integral;
             my $axis = $topRegion.axis;
 
-            #say ('after removing top region:', :$integral, :$error, :$axis, :$step, region-count => $heap.elems);
+            # say ('after removing top region:', :$integral, :$error, :$axis, :$step, region-count => $heap.elems);
 
             # Integrate
             try $topRegion.apply-rule;
@@ -93,6 +92,7 @@ class Math::NIntegrate::Strategy::DoubleExponential
             # Estimate sums
             $error += $topRegion.error;
             $integral += $topRegion.integral;
+            for ^$dim -> $i { $topRegion.levels[$i] += 1}
 
             # Add the split regions to the heap
             $heap.insert($topRegion);
