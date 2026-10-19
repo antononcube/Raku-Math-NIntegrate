@@ -23,14 +23,14 @@ class Math::NIntegrate::Rule::General
     # Creators
     #======================================================
 
-    submethod BUILD(:@!abscissas = Empty, :@!weights = Empty, :@!error-weights = Empty, :$!working-precision = Num) {}
+    submethod BUILD(:@!abscissas = Empty, :@!weights = Empty, :@!error-weights = Empty, :$!working-precision = Num, :$!dimension = 1) {}
 
-    multi method new(@abscissas, @weights, @error-weights, :$working-precision = Num) {
-        self.bless(:@abscissas, :@weights, :@error-weights, :$working-precision);
+    multi method new(@abscissas, @weights, @error-weights, :$working-precision = Num, :$dimension = 1) {
+        self.bless(:@abscissas, :@weights, :@error-weights, :$working-precision, :$dimension);
     }
 
-    multi method new(:@abscissas, :@weights, :@error-weights, :$working-precision = Num) {
-        self.bless(:@abscissas, :@weights, :@error-weights, :$working-precision);
+    multi method new(:@abscissas, :@weights, :@error-weights, :$working-precision = Num, :$dimension = 1) {
+        self.bless(:@abscissas, :@weights, :@error-weights, :$working-precision, :$dimension);
     }
 
     #| Copy attributes from an object
