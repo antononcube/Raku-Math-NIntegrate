@@ -12,6 +12,7 @@ use Math::NIntegrate::VariableTransformer::Composite;
 use Math::NIntegrate::Strategy;
 use Math::NIntegrate::Strategy::AdaptiveMonteCarlo;
 use Math::NIntegrate::Strategy::AdaptiveQuasiMonteCarlo;
+use Math::NIntegrate::Strategy::DoubleExponential;
 use Math::NIntegrate::Strategy::GlobalAdaptive;
 use Math::NIntegrate::Strategy::LocalAdaptive;
 use Math::NIntegrate::Strategy::MonteCarlo;
@@ -22,6 +23,7 @@ use Math::NIntegrate::Strategy::UnitCubeRescaling;
 use Math::NIntegrate::Rule;
 use Math::NIntegrate::Rule::Cartesian;
 use Math::NIntegrate::Rule::ClenshawCurtis;
+use Math::NIntegrate::Rule::DoubleExponential;
 use Math::NIntegrate::Rule::GaussKronrod;
 use Math::NIntegrate::Rule::MonteCarlo;
 use Math::NIntegrate::Rule::MultiDimensional;
@@ -216,6 +218,10 @@ class Math::NIntegrate::Builder {
                 Math::NIntegrate::Rule::MonteCarlo.new(points => $_<points> // 100, :$point-generator, :$dimension, :$working-precision);
             }
 
+            when $_<name> eq 'DoubleExponentialRule' {
+                Math::NIntegrate::Rule::DoubleExponential.new(:$dimension, :$working-precision);
+            }
+
             when $_<name> eq 'CartesianRule' {
                 my @components = do given $_<method> {
                     when Associative {
@@ -403,6 +409,17 @@ class Math::NIntegrate::Builder {
                         );
             }
 
+            when $_<name> eq 'DoubleExponential' {
+                # DoubleExponential must have a DoubleExponentialRule as rule.
+                # See the verification check and assigment before calling method make-rule in method make-integrator.
+
+                Math::NIntegrate::Strategy::DoubleExponential.new(
+                        :$min-recursion,
+                        :$max-recursion,
+                        :$max-points,
+                        );
+            }
+
             # There should be more elegant check here
             when ::($_<name>.subst(/ <["']> /):g) !~~ Failure && ::($_<name>.subst(/ <["']> /):g) ~~ Math::NIntegrate::Strategy {
                 # This does not handle additional options
@@ -492,6 +509,10 @@ class Math::NIntegrate::Builder {
                 $rule-spec<point-generator> = $rule-spec<point-generator> // 'hammersley'
             }
         }
+
+        # DoubleExponential strategy must have DoubleExponentialRule as a rule
+        $rule-spec = %(name => 'DoubleExponentialRule', type => 'rule')
+        if $method<method><name> eq 'DoubleExponential';
 
         my $rule = self.make-rule(
                 method => $rule-spec,
