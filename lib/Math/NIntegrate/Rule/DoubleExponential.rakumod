@@ -11,8 +11,8 @@ class Math::NIntegrate::Rule::DoubleExponential
     # Should the class have a step attribute?
     # Or "just" a step argument for method integrate?
     # What is a good default value of the integration step? (E.g. 1.)
-    # Should take working precision or tolerance as an argument --
-    # in order to figure out when to stop accumulating the terms sum.
+    # The "mini strategy" method integrate-full should take working precision
+    # or tolerance as an argument, in order to figure out when to stop accumulating the terms sum.
 
     sub fixed-point($region, $start, $h, $increment) {
         my $i = $start;
