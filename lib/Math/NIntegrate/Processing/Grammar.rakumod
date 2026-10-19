@@ -109,7 +109,7 @@ grammar Math::NIntegrate::Processing::Grammar {
         | <trapezoidal-rule> | <newton-cotes-rule>
         | <gauss-kronrod-rule> | <lobatto-kronrod-rule>
         | <clenshaw-curtis-rule> | <monte-carlo-rule>
-        | <multidimensional-rule>
+        | <multidimensional-rule> | <double-exponential-rule>
         | <cartesian-rule>
         | <whatever>
     }
@@ -274,6 +274,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     # Integration rule names
     token cartesian-rule { CartesianRule | cartesian <[_\-]> rule }
     token clenshaw-curtis-rule { ClenshawCurtisRule | clenshaw <[_\-]> curtis <[_\-]> rule }
+    token double-exponential-rule { DoubleExponentialRule | double <[_\-]> exponential <[_\-]> rule }
     token gauss-kronrod-rule { GaussKronrodRule | gauss <[_\-]> kronrod <[_\-]> rule }
     token lobatto-kronrod-rule { LobattoKronrodRule | lobatto <[_\-]> kronrod <[_\-]> rule }
     token monte-carlo-rule { MonteCarloRule | monte <[_\-]> carlo <[_\-]> rule }
