@@ -2,6 +2,8 @@ use Test;
 
 use Math::NIntegrate;
 
+my $method = 'double-exponential';
+
 # 1
 subtest {
         is-approx
@@ -17,7 +19,77 @@ subtest {
                 2,
                 '1/sqrt(x) over [0, 1] gives expected result';
 
-}, 'DoubleExponential 1D integrals';
+}, 'DoubleExponential finite 1D integrals';
 
+# 2
+subtest {
+
+    is-approx
+            nintegrate({exp(- $^x ** 2) }, <x -Inf Inf>, :$method),
+            π.sqrt,
+            "nintegrate(e^(-x^2), <x -Inf Inf>";
+
+    is-approx
+            nintegrate({ 1 / (1 + $^x ** 2) }, ['x', -Inf, Inf], :$method),
+            π,
+            "nintegrate(1/(1 + x^2), <x -Inf Inf>";
+
+    is-approx
+            nintegrate({ 1 / (1 + $^x ** 2) }, <x -Inf 0 Inf>, :$method),
+            π,
+            "nintegrate(1/(1 + x^2), <x -Inf 0 Inf>";
+
+}, 'DoubleExponential (-Inf, Inf) 1D integrals';
+
+# 3
+subtest {
+
+    is-approx
+            nintegrate({exp(- $^x ** 2) }, <x 0 Inf>, :$method),
+            π.sqrt / 2,
+            "nintegrate(e^(-x^2), <x 0 Inf>";
+
+    # 1/2 Sqrt[Pi] Erfc[11]
+    # 1.2769343674188300502*10^-54
+    is-approx
+            nintegrate({exp(- $^x ** 2) }, <x 11 Inf>, :$method),
+            1.2769343674188300502e-54,
+            "nintegrate(e^(-x^2), <x 11 Inf>";
+
+    is-approx
+            nintegrate({ 1 / (1 + $^x ** 2) }, ['x', 0, Inf], :$method),
+            π / 2,
+            "nintegrate(1/(1 + x^2), <x 0 Inf>";
+
+}, 'DoubleExponential (0, Inf) 1D integrals';
+
+# 4
+subtest {
+
+    is-approx
+            nintegrate({exp(- $^x ** 2) }, <x -Inf 0>, :$method),
+            π.sqrt / 2,
+            "nintegrate(e^(-x^2), <x Inf 0>";
+
+    # -(1/2) Sqrt[Pi] (1 + Erf[11])
+    # -1.7724538509055160273
+    is-approx
+            nintegrate({exp(- $^x ** 2) }, <x Inf -11>, :$method),
+            -1.7724538509055160273,
+            "nintegrate(e^(-x^2), <x Inf -11>";
+
+    # 1/2 Sqrt[Pi] Erfc[11]
+    # 1.2769343674188300502*10^-54
+    is-approx
+            nintegrate({exp(- $^x ** 2) }, <x -Inf -11>, :$method),
+            1.2769343674188300502e-54,
+            "nintegrate(e^(-x^2), <x -Inf -11>";
+
+    is-approx
+            nintegrate({ 1 / (1 + $^x ** 2) }, ['x', -Inf, 0], :$method),
+            π / 2,
+            "nintegrate(1/(1 + x^2), <x -Inf 0>";
+
+}, 'DoubleExponential (±Inf, 0) 1D integrals';
 
 done-testing;
