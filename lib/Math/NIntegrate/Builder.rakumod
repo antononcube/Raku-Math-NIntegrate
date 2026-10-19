@@ -62,7 +62,8 @@ class Math::NIntegrate::Builder {
     #------------------------------------------------------
     #| Make variable transformer composite
     method make-variable-transformer-composite(
-            :$region
+            :$region,
+            :$working-precision = Num
             --> Math::NIntegrate::VariableTransformer::Composite:D) {
 
         my $obj = Math::NIntegrate::VariableTransformer::Composite.new(:$region);
@@ -73,7 +74,7 @@ class Math::NIntegrate::Builder {
 
         my @min-original-bounds = $region.min;
         my @max-original-bounds = $region.max;
-        my $vtInf = Math::NIntegrate::VariableTransformer::Infinite.new(:@min-original-bounds, :@max-original-bounds);
+        my $vtInf = Math::NIntegrate::VariableTransformer::Infinite.new(:@min-original-bounds, :@max-original-bounds, :$working-precision);
         $obj.add($vtInf);
         return $obj
     }
@@ -81,14 +82,22 @@ class Math::NIntegrate::Builder {
     #------------------------------------------------------
     #| Make variable transformer double exponential
     method make-variable-transformer-double-exponenital(
-            :$region
+            :$region,
+            :$working-precision = Num
             --> Math::NIntegrate::VariableTransformer::DoubleExponential:D) {
 
         my @min-original-bounds = $region.min;
         my @max-original-bounds = $region.max;
         my @min-transform-bounds = -Inf xx $region.min.elems;
         my @max-transform-bounds = Inf xx $region.min.elems;
-        my $obj = Math::NIntegrate::VariableTransformer::DoubleExponential.new(:@min-original-bounds, :@max-original-bounds, :@min-transform-bounds, :@max-transform-bounds);
+        my $obj = Math::NIntegrate::VariableTransformer::DoubleExponential.new(
+                :$region,
+                :@min-original-bounds,
+                :@max-original-bounds,
+                :@min-transform-bounds,
+                :@max-transform-bounds,
+                :$working-precision
+                );
         return $obj
     }
 
