@@ -39,6 +39,10 @@ subtest {
             π,
             "nintegrate(1/(1 + x^2), <x -Inf 0 Inf>";
 
+    my %res = nintegrate({ 1 / (1 + $^x ** 2) }, <x -Inf 0 Inf>, :$method):pairs;
+    is %res<region-count>, 2, 'expected number of regions';
+    is abs(%res<integral> - π) ≤ 10e-14, True, 'expected result precision';
+
 }, 'DoubleExponential (-Inf, Inf) 1D integrals';
 
 # 3
