@@ -132,6 +132,7 @@ class Math::NIntegrate::Strategy::UnitCubeRescaling
     # Algorithm
     #======================================================
 
+    #| UnitCubeRescaling decorator strategy's algorithm
     method algorithm(*%args --> Map:D) {
         # Conditional rescaling should not be used since since the regions are rw in Math::NIntegrate::Strategy.
         # Unit cube rescaling, though, is idempotent, hence it can be bravely applied/invoked.
