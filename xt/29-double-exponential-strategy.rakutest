@@ -7,7 +7,7 @@ subtest {
         is-approx
                 nintegrate({ $^x ** 5 }, <x -1 5>, method => 'DoubleExponential'),
                 2604,
-                'x over [-1, 5] gives a expected result';
+                'x^5 over [-1, 5] gives expected result';
 
         # Rule spec is ignored
         is-approx
