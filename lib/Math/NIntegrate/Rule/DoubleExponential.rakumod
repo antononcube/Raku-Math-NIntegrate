@@ -25,7 +25,7 @@ class Math::NIntegrate::Rule::DoubleExponential
             $sum = $next;
         }
 
-        $sum
+        return $sum
     }
 
     sub de-rule-estimate($region, $h, $oldSum = Nil) {
@@ -34,12 +34,36 @@ class Math::NIntegrate::Rule::DoubleExponential
         my $s1 = fixed-point($region, 1, $h, $step);
         my $s2 = fixed-point($region, -1, $h, -$step);
 
-        $oldSum === Nil
+        return $oldSum === Nil
                 ?? $h * ($s1 + $region.eval-integrand([0,]) + $s2)
                 !! $h * ($s1 + $s2) + $oldSum / 2
     }
 
-    method integrate($region, Numeric:D $step = 1, Numeric:D :$tolerance = 10e-10, UInt:D :$max-recursion = 7) {
+    method integrate($region) {
+
+        my ($sum, $h, $k);
+        $sum = $region.reuse-values<sum> // Nil;
+        $h = $region.reuse-values<h> // 1;
+        $k = $region.reuse-values<k> // 0;
+
+        my $previous = de-rule-estimate($region, $h, Nil);
+        my $new = $previous;
+
+        $h /= 2;
+        $new = de-rule-estimate($region, $h, $previous);
+        $k++;
+
+        $region.reuse-values = %(:$sum, :$h, :$k);
+
+        self.integral = $new;
+        self.error = ($new - $previous).abs;
+        self.largest-error-axis = 0;
+
+        return self
+    }
+
+    #| Full, on the spot integration. (I.e. a "mini" strategy.)
+    method integrate-full($region, Numeric:D $step = 1, Numeric:D :$tolerance = 10e-10, UInt:D :$max-recursion = 7) {
 
         # Computing terms of the infinite range trapezoidal formula in both directions:
         # LaTeX: \int_{-\infty }^{+\infty } f(\phi (t)) \phi '(t) \, dx
