@@ -79,6 +79,20 @@ class Math::NIntegrate::Builder {
     }
 
     #------------------------------------------------------
+    #| Make variable transformer double exponential
+    method make-variable-transformer-double-exponenital(
+            :$region
+            --> Math::NIntegrate::VariableTransformer::DoubleExponential:D) {
+
+        my @min-original-bounds = $region.min;
+        my @max-original-bounds = $region.max;
+        my @min-transform-bounds = -Inf xx $region.min.elems;
+        my @max-transform-bounds = Inf xx $region.min.elems;
+        my $obj = Math::NIntegrate::VariableTransformer::DoubleExponential.new(:@min-original-bounds, :@max-original-bounds, :@min-transform-bounds, :@max-transform-bounds);
+        return $obj
+    }
+
+    #------------------------------------------------------
     #| Make region
     method make-region(
             Math::NIntegrate::NumericalFunction:D $numerical-function,
@@ -94,9 +108,12 @@ class Math::NIntegrate::Builder {
         # First a region object is made
         my $region = Math::NIntegrate::Region.new(:$numerical-function, :@min, :@max, :$rule, dimension => @min.elems);
 
-        # Variable transformer (Composite) is made with $region
-        my $var-trans = self.make-variable-transformer-composite(:$region);
-
+        my $var-trans = do if $rule ~~ Math::NIntegrate::Rule::DoubleExponential {
+            self.make-variable-transformer-double-exponenital(:$region)
+        } else {
+            # Variable transformer (Composite) is made with $region
+            self.make-variable-transformer-composite(:$region);
+        }
         # Variable transformer object is set in $region
         $region.variable-transformer = $var-trans;
 
