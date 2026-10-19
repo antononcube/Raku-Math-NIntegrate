@@ -23,7 +23,7 @@ class Math::NIntegrate::Strategy::AdaptiveMonteCarlo
         unless $!random-seed ~~ Int:D || $!random-seed.isa(Whatever);
     }
 
-    #| GlobalAdaptive strategy's algorithm
+    #| AdaptiveMonteCarlo strategy's algorithm
     method algorithm(
             Numeric:D :tol(:$relative-tolerance) = 1e-2,
             Numeric:D :acc(:$absolute-tolerance) = 0,
