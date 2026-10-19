@@ -1,0 +1,24 @@
+use Test;
+
+use Math::NIntegrate;
+
+# 1
+subtest {
+        isa-ok
+                nintegrate({ $^x }, <x -1 5>,
+                        method => 'DoubleExponential'),
+                Numeric:D,
+                'x over [-1, 5] gives a numeric result';
+
+        # Rule spec is ignored
+        isa-ok
+                nintegrate({ 1 / $^x }, <x 0 1>,
+                        method => ('DoubleExponential', method => 'MonteCarloRule', min-recursion => 0),
+                        precision-goal => 6),
+                Numeric:D,
+                '1/sqrt(x) over [0, 1] gives a numeric result';
+
+}, 'DoubleExponential 1D integrals';
+
+
+done-testing;
