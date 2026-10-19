@@ -119,11 +119,12 @@ mindmap
       ✅ Global Adaptive
       ✅ Local Adaptive
       ⭕️ Trapezoidal
-      ⭕️ Double Exponential
+      ✅ Double Exponential
       ✅ Monte Carlo
       ✅ Quasi Monte Carlo
       ✅ Adaptive Monte Carlo
       ✅ Adaptive Quasi Monte Carlo
+      ⭕️ MultiPeriodic
       ⭕️ Importance Sampling
       ✅ _User defined strategy_
 
