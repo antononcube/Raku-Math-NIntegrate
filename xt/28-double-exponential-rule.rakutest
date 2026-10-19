@@ -7,14 +7,17 @@ use Math::NIntegrate::Rule::DoubleExponential;
 # 1
 subtest {
         # Range
-        my ($a, $b) = 2, 7;
+        #my ($a, $b) = 2, 7;
+        my ($a, $b) = 0, 1;
 
         # Integrand
-        sub f($x) { $x ** 2 }
-        my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Rat);
+        #sub f($x) { $x ** 2 }
+        sub f($x) { 1 / $x.sqrt }
+        my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Num);
 
         # Exact
-        my $exact = 335/3;
+        #my $exact = 335/3;
+        my $exact = 2;
 
         # Integration rule
         my $rule = Math::NIntegrate::Rule::DoubleExponential.new;
@@ -39,6 +42,6 @@ subtest {
 
         is-approx $res, $exact, 'expected integral result';
 
-}, 'Easy integral';
+}, 'Easy and singular integral';
 
 done-testing;
