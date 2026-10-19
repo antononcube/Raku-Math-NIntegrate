@@ -4,19 +4,18 @@ use Math::NIntegrate;
 
 # 1
 subtest {
-        isa-ok
-                nintegrate({ $^x }, <x -1 5>,
-                        method => 'DoubleExponential'),
-                Numeric:D,
-                'x over [-1, 5] gives a numeric result';
+        is-approx
+                nintegrate({ $^x ** 5 }, <x -1 5>, method => 'DoubleExponential'),
+                2604,
+                'x over [-1, 5] gives a expected result';
 
         # Rule spec is ignored
-        isa-ok
-                nintegrate({ 1 / $^x }, <x 0 1>,
-                        method => ('DoubleExponential', method => 'MonteCarloRule', min-recursion => 0),
+        is-approx
+                nintegrate({ 1 / $^x.sqrt }, <x 0 1>,
+                        method => ('DoubleExponential', method => 'MonteCarloRule', max-recursion => 2),
                         precision-goal => 6),
-                Numeric:D,
-                '1/sqrt(x) over [0, 1] gives a numeric result';
+                2,
+                '1/sqrt(x) over [0, 1] gives expected result';
 
 }, 'DoubleExponential 1D integrals';
 
