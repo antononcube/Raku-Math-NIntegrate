@@ -8,18 +8,25 @@ use Math::NIntegrate::Rule::General;
 class Math::NIntegrate::Rule::DoubleExponential
         is Math::NIntegrate::Rule::General {
 
-    # Should the class have a step attribute?
-    # Or "just" a step argument for method integrate?
-    # What is a good default value of the integration step? (E.g. 1.)
-    # The "mini strategy" method integrate-full should take working precision
-    # or tolerance as an argument, in order to figure out when to stop accumulating the terms sum.
+    has @!hyper-plane;
 
-    sub fixed-point($region, $start, $h, $increment) {
+    method !eval-integrand($region, Numeric:D $h, Numeric:D $point) {
+        return do if @!hyper-plane.elems + 1 == self.dimension {
+            $region.eval-integrand(@!hyper-plane.clone.push($point))
+        } else {
+            @!hyper-plane .= push($point);
+            my $res = self!de-rule-estimate($region, $h / self.dimension, Nil);
+            @!hyper-plane .= head(*-1);
+            $res
+        }
+    }
+
+    method !fixed-point($region, $start, $h, $increment) {
         my $i = $start;
         my $sum = 0;
 
         loop {
-            my $next = $sum + $region.eval-integrand([$i * $h, ]);
+            my $next = $sum + self!eval-integrand($region, $h, $i * $h);
             $i += $increment;
             last if $next == $sum;
             $sum = $next;
@@ -28,14 +35,14 @@ class Math::NIntegrate::Rule::DoubleExponential
         return $sum
     }
 
-    sub de-rule-estimate($region, $h, $oldSum = Nil) {
+    method !de-rule-estimate($region, $h, $oldSum = Nil) {
         my $step = $oldSum === Nil ?? 1 !! 2;
 
-        my $s1 = fixed-point($region, 1, $h, $step);
-        my $s2 = fixed-point($region, -1, $h, -$step);
+        my $s1 = self!fixed-point($region, 1, $h, $step);
+        my $s2 = self!fixed-point($region, -1, $h, -$step);
 
         return $oldSum === Nil
-                ?? $h * ($s1 + $region.eval-integrand([0,]) + $s2)
+                ?? $h * ($s1 + self!eval-integrand($region, $h, 0) + $s2)
                 !! $h * ($s1 + $s2) + $oldSum / 2
     }
 
@@ -46,11 +53,11 @@ class Math::NIntegrate::Rule::DoubleExponential
         $h = $region.reuse-values<h> // 1;
         $k = $region.reuse-values<k> // 0;
 
-        my $previous = de-rule-estimate($region, $h, Nil);
+        my $previous = self!de-rule-estimate($region, $h, Nil);
         my $new = $previous;
 
         $h /= 2;
-        $new = de-rule-estimate($region, $h, $previous);
+        $new = self!de-rule-estimate($region, $h, $previous);
         $k++;
 
         $region.reuse-values = %(:$sum, :$h, :$k);
@@ -62,6 +69,9 @@ class Math::NIntegrate::Rule::DoubleExponential
         return self
     }
 
+    # The "mini strategy" method integrate-full should take working precision
+    # or tolerance as an argument, in order to figure out when to stop accumulating the terms sum.
+
     #| Full, on the spot integration. (I.e. a "mini" strategy.)
     method integrate-full($region, Numeric:D $step = 1, Numeric:D :$tolerance = 10e-10, UInt:D :$max-recursion = 7) {
 
@@ -71,13 +81,13 @@ class Math::NIntegrate::Rule::DoubleExponential
         # where phi is one of the transformations in ::VariableTransform::DoubleExponential
 
         my $h = 1;
-        my $previous = de-rule-estimate($region, $h, Nil);
+        my $previous = self!de-rule-estimate($region, $h, Nil);
         my $temp = $previous;
         my $k = 0;
 
         loop {
             $h /= 2;
-            $temp = de-rule-estimate($region, $h, $previous);
+            $temp = self!de-rule-estimate($region, $h, $previous);
             $k++;
 
             last if $k >= $max-recursion;
@@ -85,6 +95,9 @@ class Math::NIntegrate::Rule::DoubleExponential
 
             $previous = $temp;
         }
+
+        note "The DoubleExponential rule method integrate-full failed to converge to prescribed accuracy after $max-recursion recursive steps."
+        if $k >= $max-recursion;
 
         $temp
     }
