@@ -13,7 +13,7 @@ mindmap
       **nD**
         ✅ Cartesian rule
         ✅ MultiDimensional rule
-        ⭕️ DoubleExponential rule
+        ✅ DoubleExponential rule
         ✅ Monte Carlo rule
         ✅ Quasi Monte Carlo rule
         ✅ _User defined rule_
