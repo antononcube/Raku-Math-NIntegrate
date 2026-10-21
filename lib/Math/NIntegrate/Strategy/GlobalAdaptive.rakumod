@@ -157,7 +157,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
         # Warning the max recursion was reached
         if $done-max-recursion {
-            note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$topRegion.numerical-function.last-argument-values}."
+            note self.max-recursion-reached($topRegion.numerical-function.last-argument-values, self.max-recursion)
         }
 
         if $done-max-points {

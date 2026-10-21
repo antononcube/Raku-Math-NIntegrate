@@ -163,7 +163,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
             # Warning the max recursion was reached
             if $region.levels.max ≥ self.max-recursion {
-                note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$region.numerical-function.last-argument-values}."
+                note self.max-recursion-reached($region.numerical-function.last-argument-values, self.max-recursion)
                 if $!msgMaxRecursionCounter < 3;
 
                 # Max recursion message counter

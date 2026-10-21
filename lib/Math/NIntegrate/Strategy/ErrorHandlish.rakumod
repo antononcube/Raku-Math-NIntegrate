@@ -12,9 +12,13 @@ role Math::NIntegrate::Strategy::ErrorHandlish {
     has $.msgSuppress = 'Suppressing further messages of this type.';
 
     method max-iterative-refinements-reached(@min, @max, $max-recursion) {
-        my @range-info = |(@min>>.Numeric Z @max>>.Numeric).map({ "[{$_.head},{$_.tail}]" });
+        my @range-info = |(@min>>.Numeric Z @max>>.Numeric).map({ "[{$_.head}, {$_.tail}]" });
         "Failed to converge to prescribed accuracy after {$max-recursion} " ~
-                "recursive refinement{ $max-recursion == 1 ?? '' !! 's'}  " ~
-                "in the region {@range-info.join('x')}."
+                "recursive refinement{ $max-recursion == 1 ?? '' !! 's'} " ~
+                "in the region {@range-info.join(' x ')}."
+    }
+
+    method max-recursion-reached(@args, $max-recursion) {
+        "Failed to converge to prescribed accuracy after $max-recursion recursive bisections in near {@args.raku}."
     }
 }
