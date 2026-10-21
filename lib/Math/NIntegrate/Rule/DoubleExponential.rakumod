@@ -96,7 +96,7 @@ class Math::NIntegrate::Rule::DoubleExponential
             $previous = $temp;
         }
 
-        note "The DoubleExponential rule method integrate-full failed to converge to prescribed accuracy after $max-recursion recursive steps."
+        note "The DoubleExponential rule method integrate-full failed to converge to prescribed accuracy after $max-recursion interated refinements."
         if $k >= $max-recursion;
 
         $temp
