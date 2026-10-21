@@ -41,9 +41,9 @@
 - [C] Any precision
   - Not possible
 - [ ] Large precision with "extra-precision" spec
-*** TODO DoubleExponential rule [50%] [1/2]
+*** DONE DoubleExponential rule [100%] [2/2]
 - [X] Integration 1D
-- [ ] Integration nD
+- [X] Integration nD
 *** TODO Gauss-Kronrod rule [40%] [2/5]
 - [X] Hard coded (low precision)
 - [X] Abscissas & weights
@@ -118,7 +118,7 @@
   - The current implementation seems under-performing
 *** TODO Double Exponential
 - Requires DoubleExponentialRule to be implemented.
-- [ ] Constant ranges
+- [X] Constant ranges
 - [ ] Functional ranges
 *** DONE Reverse (class)
 - [X] Constant ranges
@@ -164,10 +164,10 @@
   - DoubleExponential
   - Trapezoidal
 *** TODO Trapezoidal
-*** TODO Double Exponential [%] [/]
-- [ ] 1D integration
+*** DONE Double Exponential [%100] [2/2]
+- [X] 1D integration
   - Because the 1D DoubleExponentialRule is/was implemented first
-- [ ] nD integration
+- [X] nD integration
   - Some sort of dynamic Cartesian rule
 *** DONE Monte Carlo [100%] [5/5]
 - [X] Creation from Builder
