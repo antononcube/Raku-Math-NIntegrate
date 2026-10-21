@@ -25,6 +25,7 @@ subtest {
         # Region
         my $region = Math::NIntegrate::Region.new(min => [$a,], max => [$b, ], dimension => 1, :$numerical-function, :$rule);
 
+        # Create and attach Double Exponential (DE) variable transformer
         my %args =
                 region => $region,
                 min-original-bounds => $region.min.head,
@@ -38,10 +39,60 @@ subtest {
 
         $region.variable-transformer = $vtDE;
 
-        my $res = $rule.integrate-full($region, tolerance => 10e-12, :10max-recursion);
+        # Integrate with DE rule's built-in mini strategy
+        my $res = $rule.integrate-full($region, tolerance => 10e-11, :10max-recursion);
 
+        # Check
         is-approx $res, $exact, 'expected integral result';
 
 }, 'Easy and singular integral';
+
+
+# 2
+subtest {
+        # Range
+        my @min = 2, 0;
+        my @max = 7, 4;
+
+        # Integrand
+        #sub f($x, $y) { $x + $y }
+        sub f($x, $y) { $x.sqrt * $y.sqrt }
+        my $numerical-function = Math::NIntegrate::NumericalFunction.new(&f, working-precision => Num);
+
+        # Exact
+        #my $exact = 130;
+        my $exact = (32 * (-2 * sqrt(2) + 7 * sqrt(7))) / 9;
+
+        # Integration rule
+        my $rule = Math::NIntegrate::Rule::DoubleExponential.new(:2dimension);
+
+        # Region
+        my $region = Math::NIntegrate::Region.new(:@min, :@max, :2dimension, :$numerical-function, :$rule);
+
+        my @min-original-bounds = |@min;
+        my @max-original-bounds = |@max;
+
+        # Create and attach Double Exponential (DE) variable transformer
+        my %args =
+                region => $region,
+                working-precision => Num
+                ;
+
+        my $vtDE = Math::NIntegrate::VariableTransformer::DoubleExponential.new(
+                :@min-original-bounds,
+                :@max-original-bounds,
+                min-transform-bounds => -Inf xx 2,
+                max-transform-bounds => Inf xx 2,
+                |%args);
+
+        $region.variable-transformer = $vtDE;
+
+        # Integrate with DE rule's built-in mini strategy
+        my $res = $rule.integrate-full($region, tolerance => 10e-7, :5max-recursion);
+
+        # Check
+        is-approx $res, $exact, 'expected integral result';
+
+}, 'Easy 2D integral';
 
 done-testing;
