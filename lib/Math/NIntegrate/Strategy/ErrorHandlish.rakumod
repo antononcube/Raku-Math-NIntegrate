@@ -9,5 +9,12 @@ role Math::NIntegrate::Strategy::ErrorHandlish {
     has $.msgProbSplit = 'Problems integrating the split regions.';
     has $.msgProbIMT = 'Problems integrating the region after IMT application.';
     has $.msgProbRegion = 'Problems integrating the region at level';
-    has $.msgSuppress = 'Suppressing further messages of this type.'
+    has $.msgSuppress = 'Suppressing further messages of this type.';
+
+    method max-iterative-refinements-reached(@min, @max, $max-recursion) {
+        my @range-info = |(@min>>.Numeric Z @max>>.Numeric).map({ "[{$_.head},{$_.tail}]" });
+        "Failed to converge to prescribed accuracy after {$max-recursion} " ~
+                "recursive refinement{ $max-recursion == 1 ?? '' !! 's'}  " ~
+                "in the region {@range-info.join('x')}."
+    }
 }
