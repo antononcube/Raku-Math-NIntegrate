@@ -1,0 +1,25 @@
+use Test;
+
+use Math::NIntegrate;
+
+
+#`[
+#my &f = { 70 / (10 ** 4 * ( $^x - 1/32 ) ** 2 + 1 / 16) };
+my &f = { 1 / $^x.sqrt };
+
+my %res =
+        nintegrate(&f, <x 0 1>,
+                method => ('global-adaptive',
+                           method => ('gauss-kronrod-rule', :10points),
+                           singularity-handler => 'double-exponential', singularity-depth => 4),
+                precision-goal => 8):pairs;
+
+say %res;
+]
+
+my %res = nintegrate({ $^x.sqrt * $^y.sqrt }, <x 0 0.321e3>, <y 0 1.3232>, method => 'double-exponential', :1max-recursion):pairs;
+#my %res = nintegrate({ $^x.sqrt * $^y.sqrt }, <x 0 1>, <y 0 1>, method => 'global-adaptive', :1max-recursion):pairs;
+
+say %res;
+
+done-testing;

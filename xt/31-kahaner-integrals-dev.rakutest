@@ -1,0 +1,49 @@
+use v6.d;
+use Test;
+
+use Math::NIntegrate;
+
+my $abs-tol = 5 * 1e-6,
+my $rel-tol = 1e-5;
+my $method = ('global-adaptive', method => 'gauss-kronrod-rule');
+#my $method = 'GaussKronrodRule';
+
+# 1
+subtest {
+
+    is
+            (nintegrate({ log($^x) }, <x 1e-10 1>) - (-1)).abs ≤ 1e-7,
+            True,
+            'for log(x) over <x 1e-10 1>';
+
+    is
+            (nintegrate({ log($^x) }, <x 0 1>, method => 'GaussKronrodRule') - (-1)).abs ≤ 1e-5,
+            True,
+            'for log(x) over <x 0 1>, GaussKronrodRule';
+
+    is
+            (nintegrate({ log(1-$^x) }, <x 0 1>, method => 'GaussKronrodRule') - (-1)).abs ≤ 1e-5,
+            True,
+            'for log(1-x) over <x 0 1>, GaussKronrodRule';
+
+}, 'nintegrate({log($^x)}, <x 0 1>)';
+
+subtest {
+
+    ok nintegrate({cos(cos($^x) + 3 * sin($^x) + 2 * cos(2 * $^x) + 3 * cos(3 * $^x) + 3 * sin(2 * $^x))}, ['x', 0, π], :$method);
+
+    dies-ok {nintegrate({cos(cos($^x) + 3 * sin($^x) + 2 * cos(2 * $^x) + 3 * cos(3 * $^x) + 3 * sin(2 * $^x))}, <x 0 π>, :$method)};
+
+}, '<x 0 π> range';
+
+
+subtest {
+
+    is-approx
+            nintegrate({sech(10 * ($^x - 0.2)) ** 2 + sech(100 * ($^x - 0.4)) ** 4 + sech(1000 * ($^x - 0.6)) ** 6}, <x 0 1>, :$method),
+            0.2097360688356755,
+            'nintegrate({sech(10 * ($^x - 0.2)) ** 2 + sech(100 * ($^x - 0.4)) ** 4 + sech(1000 * ($^x - 0.6)) ** 6}, <x 0 1>)';
+
+}, 'Numeric underflow produces too many messages';
+
+done-testing;
