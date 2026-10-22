@@ -117,9 +117,4 @@ class Math::NIntegrate::Rule::DoubleExponential
 
         $temp
     }
-
-    method integrate-dim1($region, Numeric:D $step = 1) {!!!}
-
-    # Essentially, dynamic Cartesian rule application
-    method integrate-dimN($region, Numeric:D $step = 1) {!!!}
 }
