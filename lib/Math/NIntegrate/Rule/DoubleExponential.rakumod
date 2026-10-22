@@ -9,12 +9,14 @@ class Math::NIntegrate::Rule::DoubleExponential
         is Math::NIntegrate::Rule::General {
 
     has @!hyper-plane;
-    has $.evaluations-count = 0;
 
     method !eval-integrand($region, Numeric:D $h, Numeric:D $point) {
         return do if @!hyper-plane.elems + 1 == self.dimension {
-            $!evaluations-count++;
-            $region.eval-integrand(@!hyper-plane.clone.push($point))
+            my @point = @!hyper-plane.clone.push($point);
+            my $value = $region.eval-integrand(@point);
+            self.last-abscissas.push(@point);
+            self.last-values.push($value);
+            $value
         } else {
             @!hyper-plane .= push($point);
             my $res = self!de-rule-estimate($region, $h / self.dimension, Nil);
@@ -67,7 +69,8 @@ class Math::NIntegrate::Rule::DoubleExponential
         $h = $region.reuse-values<h> // 1;
         $k = $region.reuse-values<k> // 0;
 
-        $!evaluations-count = 0;
+        self.last-abscissas = [];
+        self.last-values = [];
 
         my $previous = self!de-rule-estimate($region, $h, Nil);
         my $new = $previous;
