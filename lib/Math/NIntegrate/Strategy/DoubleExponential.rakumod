@@ -98,7 +98,7 @@ class Math::NIntegrate::Strategy::DoubleExponential
             $heap.insert($topRegion);
 
             # Needs to be properly implemented
-            $number-of-points = $topRegion.reuse-values<number-of-points> // 0;
+            $number-of-points = $topRegion.rule.last-values.elems;
 
             # Integration monitor
             with &integration-monitor {
