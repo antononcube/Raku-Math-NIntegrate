@@ -9,9 +9,11 @@ class Math::NIntegrate::Rule::DoubleExponential
         is Math::NIntegrate::Rule::General {
 
     has @!hyper-plane;
+    has $.evaluations-count = 0;
 
     method !eval-integrand($region, Numeric:D $h, Numeric:D $point) {
         return do if @!hyper-plane.elems + 1 == self.dimension {
+            $!evaluations-count++;
             $region.eval-integrand(@!hyper-plane.clone.push($point))
         } else {
             @!hyper-plane .= push($point);
@@ -28,6 +30,18 @@ class Math::NIntegrate::Rule::DoubleExponential
         loop {
             my $next = $sum + self!eval-integrand($region, $h, $i * $h);
             $i += $increment;
+
+            # This checks might relax the stopping criteria:
+            #   is-zero($point) || is-zero(1 - $point)
+            # where $point is transformed by ::VariableTransformer::DoubleExponential from (-Inf, Inf) to (0, 1).
+            # Speed-wise -- for 1D -- there might be not much time saving since there is another variable transformation.
+            # After some experiments it did not perform that well, e.g., 1/sqrt(x) over [0, 1] takes 3 times more evaluations.
+            # This checks might have a positive effect if higher precision calculations are implemented.
+            #my $point = $i * $h;
+            #my $axis = @!hyper-plane.elems;
+            #$point = $region.variable-transformer.transforms[$axis]($point, 0, 1)<point>;
+            #last if $next == $sum || is-zero($point) || is-zero(1 - $point);
+
             last if $next == $sum;
             $sum = $next;
         }
@@ -53,6 +67,8 @@ class Math::NIntegrate::Rule::DoubleExponential
         $h = $region.reuse-values<h> // 1;
         $k = $region.reuse-values<k> // 0;
 
+        $!evaluations-count = 0;
+
         my $previous = self!de-rule-estimate($region, $h, Nil);
         my $new = $previous;
 
@@ -64,7 +80,7 @@ class Math::NIntegrate::Rule::DoubleExponential
 
         self.integral = $new;
         self.error = ($new - $previous).abs;
-        self.largest-error-axis = 0;
+        self.largest-error-axis = 0; # does not play a role of DoubleExponentialRule
 
         return self
     }
