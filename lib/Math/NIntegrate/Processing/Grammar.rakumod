@@ -85,7 +85,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     }
 
     rule strategy-symbol-known {
-        | <global-adaptive> | <local-adaptive> | <double-exponential>
+        | <global-adaptive> | <local-adaptive> | <double-exponential> | <trapezoidal>
         | <monte-carlo> | <adaptive-monte-carlo> | <quasi-monte-carlo>
         | <adaptive-quasi-monte-carlo>
     }
@@ -265,6 +265,7 @@ grammar Math::NIntegrate::Processing::Grammar {
     token local-adaptive { LocalAdaptive | local <[_\-]> adaptive }
     token monte-carlo { MonteCarlo | monte <[_\-]> carlo }
     token quasi-monte-carlo { QuasiMonteCarlo | quasi <[_\-]> monte <[_\-]> carlo }
+    token trapezoidal { Trapezoidal | trapezoidal }
 
     # Integration preprocessor names
     token even-odd-subdivision { EvenOddSubdivision | even <[_\-]> odd <[_\-]> subdivision }

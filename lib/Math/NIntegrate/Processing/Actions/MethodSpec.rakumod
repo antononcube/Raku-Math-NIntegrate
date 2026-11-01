@@ -20,7 +20,8 @@ class Math::NIntegrate::Processing::Actions::MethodSpec {
         my $compact = $name.trim.subst(/<[-_\s]>/, '', :g).subst(/ ^ <["'«»]> | <["'«»]> $/, :g).lc;
 
         my %names =
-                globaladaptive => 'GlobalAdaptive', localadaptive => 'LocalAdaptive', doubleexponential => 'DoubleExponential',
+                globaladaptive => 'GlobalAdaptive', localadaptive => 'LocalAdaptive',
+                doubleexponential => 'DoubleExponential', trapezoidal => 'Trapezoidal',
                 montecarlo => 'MonteCarlo', adaptivemontecarlo => 'AdaptiveMonteCarlo', quasimontecarlo => 'QuasiMonteCarlo',
                 adaptivequasimontecarlo => 'AdaptiveQuasiMonteCarlo',
                 symbolicpiecewisesubdivision => 'SymbolicPiecewiseSubdivision', evenoddsubdivision => 'EvenOddSubdivision',
