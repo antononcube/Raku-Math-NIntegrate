@@ -121,7 +121,7 @@ class Math::NIntegrate::Strategy::DoubleExponential
         }
 
         if $done-max-points {
-            note "Failed to converge to prescribed accuracy after {self.max-points} integrand evaluations."
+            note self.max-points-reached(self.max-points)
         }
 
         # Put the regions in the heap in the object regions holder

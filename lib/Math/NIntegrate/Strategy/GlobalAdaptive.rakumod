@@ -29,9 +29,6 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
 
         # First integration step
         try self.regions>>.apply-rule;
-        # For now the error is printed out.
-        # Something more graceful has to be done later.
-        #return %no-result if $!;
         if $! { note "{self.msgProbOrig}\n{$!}"; return self.no-result }
 
         my $error = self.regions.map(*.error).sum;
@@ -109,7 +106,7 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
                 $newRegion.add-variable-transformer('reverse', :$axis, :$working-precision)
                 if $newRegion.range-end-cases[$axis] eq RE_RIGHT;
 
-                # Not that during the region splitting the new region can marked as a "middle" region
+                # Note that during the region splitting the new region can marked as a "middle" region
                 # with the enum value RE_NONE and that prevents IMT not be applied to it.
 
                 # Integrate
@@ -160,8 +157,9 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
             note self.max-recursion-reached($topRegion.numerical-function.last-argument-values, self.max-recursion)
         }
 
+        # Warning the max points was reached
         if $done-max-points {
-            note "Failed to converge to prescribed accuracy after {self.max-points} integrand evaluations."
+            note self.max-points-reached(self.max-points)
         }
 
         # Put the regions in the heap in the object regions holder

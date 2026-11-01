@@ -146,11 +146,11 @@ class Math::NIntegrate::Strategy::AdaptiveMonteCarlo
 
         # Warning the max recursion was reached
         if $done-max-recursion {
-            note "Failed to converge to prescribed accuracy after {self.max-recursion} recursive bisections in near {$topRegion.numerical-function.last-argument-values}."
+            note self.max-recursion-reached($topRegion.numerical-function.last-argument-values, self.max-recursion)
         }
 
         if $done-max-points {
-            note "Failed to converge to prescribed accuracy after {self.max-points} integrand evaluations."
+            note self.max-points-reached(self.max-points)
         }
 
         # Put the regions in the heap in the object regions holder

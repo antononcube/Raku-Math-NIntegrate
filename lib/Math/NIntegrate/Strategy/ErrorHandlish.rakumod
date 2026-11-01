@@ -21,4 +21,8 @@ role Math::NIntegrate::Strategy::ErrorHandlish {
     method max-recursion-reached(@args, $max-recursion) {
         "Failed to converge to prescribed accuracy after $max-recursion recursive bisections in near {@args.raku}."
     }
+
+    method max-points-reached($max-points) {
+        "Failed to converge to prescribed accuracy after $max-points integrand evaluations."
+    }
 }

@@ -152,7 +152,7 @@ class Math::NIntegrate::Strategy::LocalAdaptive
 
             # Warning max-points was reached.
             if self.max-points ~~ Numeric:D && $!numberOfPoints > self.max-points {
-                note "Failed to converge to prescribed accuracy after {self.max-points} integrand evaluations."
+                note self.max-points-reached(self.max-points)
                 if $!msgMaxPointsCounter < 3;
 
 		        # Counter for suppressing this message
