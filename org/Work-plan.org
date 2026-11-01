@@ -130,7 +130,7 @@
   - It is tested when multi-dimensional integrals with functional ranges.
     - Without singularity handling (like, IMT).
 ** TODO Integration Strategies [30%] [3/10]
-*** TODO Global Adaptive [66%] [4/6]
+*** TODO Global Adaptive [83%] [5/6]
 - [X] Initial regions by min-recursion
   - With Leftist Heap
 - [X] Main integration loop
@@ -138,32 +138,39 @@
 - [-] Singularity handling
   - [X] IMT
   - [ ] DoubleExponential
-- [ ] Convergence monitoring
+- [X] Convergence monitoring
 - [X] Max points stopping criteria
 - [X] Integration monitor
-*** TODO Local Adaptive [40%] [4/10]
+*** TODO Local Adaptive [60%] [6/10]
 - [X] Initial regions by min-recursion
 - [X] Main integration recursive process
 - [X] Partitioning option treatment
 - [ ] InitialEstimateRelaxation option treatment
+- [ ] Relaxation of the integral estimate stopping criteria
 - [ ] Reuse of integrand values
-  - Works well for 1D integrals using closed rules with small number nodes.
+  - Works well for 1D integrals using closed rules with small number of nodes.
   - Hence it is of low(er) priority
 - [-] Singularity handling
   - [X] IMT
   - [ ] DoubleExponential
-- [ ] Convergence monitoring
-- [ ] Max points stopping criteria?
-- [ ] Relaxation of the integral estimate stopping criteria
+- [X] Convergence monitoring
+- [X] Max points stopping criteria
 - [X] Integration monitor
 *** MAYBE Saturating
-- This can be a common strategy, but I am not sure that is good idea.
+- This can be a common strategy, but I am not sure that is a good idea.
 - The underlying algorithm is simple, and it is more important to see
   the particular different elements for:
   - MonteCarlo and QuasiMonteCarlo
   - DoubleExponential
   - Trapezoidal
-*** TODO Trapezoidal
+*** TODO Trapezoidal [%0] [0/2]
+- Trapezoidal strategy becomes DoubleExponential for infinite and semi-infinite integrals.
+- [ ] 1D integration
+  - This can be a "simple" delegation to DoubleExponential using:
+   - TrapezoidalRule instead of DoubleExponentialRule
+   - The standard Composite (with Affine) transform
+- [ ] nD integration
+  - This Cartesian product of Trapezoidal rules is used.
 *** DONE Double Exponential [%100] [2/2]
 - [X] 1D integration
   - Because the 1D DoubleExponentialRule is/was implemented first
