@@ -17,6 +17,7 @@ use Math::NIntegrate::Strategy::GlobalAdaptive;
 use Math::NIntegrate::Strategy::LocalAdaptive;
 use Math::NIntegrate::Strategy::MonteCarlo;
 use Math::NIntegrate::Strategy::QuasiMonteCarlo;
+use Math::NIntegrate::Strategy::Trapezoidal;
 use Math::NIntegrate::Strategy::UnitCubeRescaling;
 
 # Rules
@@ -446,6 +447,17 @@ class Math::NIntegrate::Builder {
                         );
             }
 
+            when $_<name> eq 'Trapezoidal' {
+                # Trapezoidal must have a TrapezoidalRule as rule.
+                # See the verification check and assigment before calling method make-rule in method make-integrator.
+
+                Math::NIntegrate::Strategy::Trapezoidal.new(
+                        :$min-recursion,
+                        :$max-recursion,
+                        :$max-points,
+                        );
+            }
+
             # There should be more elegant check here
             when ::($_<name>.subst(/ <["']> /):g) !~~ Failure && ::($_<name>.subst(/ <["']> /):g) ~~ Math::NIntegrate::Strategy {
                 # This does not handle additional options
@@ -533,6 +545,17 @@ class Math::NIntegrate::Builder {
         if $method<method><name>.contains('QuasiMonteCarlo') && $rule-spec ~~ Map:D {
             if $rule-spec<name> eq 'MonteCarloRule' {
                 $rule-spec<point-generator> = $rule-spec<point-generator> // 'hammersley'
+            }
+        }
+
+        # Trapezoidal strategy delegation and rule
+        if $method<method><name> eq 'Trapezoidal' {
+            if %bounds<min>>>.abs.any ~~ Inf || %bounds<max>>>.abs.any ~~ Inf {
+                # For infinite or semi-infinite ranges Trapezoidal becomes DoubleExponential
+                $method<method><name> = 'DoubleExponential'
+            } else {
+                # Trapezoidal strategy must have TrapezoidalRule as a rule
+                $rule-spec = %(name => 'TrapezoidalRule', type => 'rule')
             }
         }
 
