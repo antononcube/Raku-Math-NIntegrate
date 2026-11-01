@@ -104,6 +104,8 @@ class Math::NIntegrate::Strategy::LocalAdaptive
             :&integration-monitor = WhateverCode,
             -->Map:D) {
 
+        return {:0integral, :0error, :1region-count} if self.has-reached-max-recursion;
+
         # It might happen that the numbers at the given precision are exhausted.
         # Hence, check the middle points.
         # (Obviously, can happen for Num, but not for Rat and FatRat.)
@@ -204,9 +206,9 @@ class Math::NIntegrate::Strategy::LocalAdaptive
             my %result = integral => 0, error => 0, region-count => 0;
 
             # Using a for loop in order to facilitate early bailout
-            for @regions -> $region {
+            for @regions -> $r {
                 my %recRes = self.recursive-step(
-                        :$region,
+                        region => $r,
                         :$reference-estimate,
                         :$relative-tolerance,
                         :$absolute-tolerance,

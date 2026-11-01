@@ -117,7 +117,9 @@ class Math::NIntegrate::Strategy::GlobalAdaptive
                 if $! { note "{self.msgProbSplit}\n{$!}"; return self.no-result }
 
                 # Convergence monitoring
-                # TBD ...
+                if self.slow-convergence-msg-count == 0 && $topRegion.levels[$axis] > self.slow-convergence-detection-split-count {
+                    note self.slow-convergence-detected
+                }
 
                 # Estimate sums
                 $error += $topRegion.error + $newRegion.error;
