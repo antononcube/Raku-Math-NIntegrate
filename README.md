@@ -201,10 +201,13 @@ nintegrate( -> $x, $y { $x + $y² }, <x 0 2>, <y 0 12>);
 # 1176.0000000000007
 ```
 
-Adaptive Monte-Carlo integration (not implemented yet):
+Adaptive Monte-Carlo integration:
 
-```raku, eval=FALSE
-nintegrate( -> $x, $y, $z { $x + $y² + 1/$z⁻¹ }, x => (0, 2), y => (0, 12), z => (1, 4), method => 'adaptive-monte-carlo' );
+```raku
+nintegrate( -> $x, $y, $z { $x + $y² + 1/$z⁻¹ }, <x 0 2>, <y 0 12>, <z 1 4>, method => 'adaptive-monte-carlo' );
+```
+```
+# 3669.992871340724
 ```
 
 Integration with functional boundaries 
@@ -214,6 +217,7 @@ Integration with functional boundaries
 nintegrate( -> *@_ { 1 }, ['x', 0, 1], ['y', 0, {$^x.sqrt}], method => 'clenshaw-curtis-rule'):pairs
 ```
 ```
+#ERROR: Numerical integration converging too slowly; suspect one of the following: singularity, value of the integration is 0, or highly oscillatory integrand.
 # {error => 6.46800288251937e-07, integral => 0.6666666120967495, region-count => 9}
 ```
 

@@ -189,10 +189,10 @@ Compute a two-dimensional integral:
 nintegrate( -> $x, $y { $x + $y² }, <x 0 2>, <y 0 12>);
 ```
 
-Adaptive Monte-Carlo integration (not implemented yet):
+Adaptive Monte-Carlo integration:
 
-```raku, eval=FALSE
-nintegrate( -> $x, $y, $z { $x + $y² + 1/$z⁻¹ }, x => (0, 2), y => (0, 12), z => (1, 4), method => 'adaptive-monte-carlo' );
+```raku
+nintegrate( -> $x, $y, $z { $x + $y² + 1/$z⁻¹ }, <x 0 2>, <y 0 12>, <z 1 4>, method => 'adaptive-monte-carlo' );
 ```
 
 Integration with functional boundaries 
